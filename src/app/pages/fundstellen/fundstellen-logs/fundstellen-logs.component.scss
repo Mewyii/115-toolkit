@@ -1,0 +1,23 @@
+.control-bar {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+    gap: 16px;
+}
+
+.results-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 48px;
+    gap: 16px;
+    flex-direction: column;
+}
+
+.info-container {
+    display: flex;
+    gap: 16px;
+}
+
+.name {
+    flex: 1 1;
+}

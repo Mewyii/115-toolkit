@@ -1,0 +1,50 @@
+.search-container {
+    margin-top: 64px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.results-container {
+    margin-top: 64px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 16px;
+}
+
+mat-form-field {
+    width: 400px;
+}
+
+.search-part {
+    width: 500px;
+}
+
+.suggestions {
+    margin-bottom: 32px;
+}
+
+mat-panel-title {
+    flex: 1 1;
+}
+
+mat-panel-description {
+    flex-grow: initial;
+}
+
+mat-accordion, mat-expansion-panel {
+    width: 900px;
+}
+
+.tab-content {
+    padding: 16px;
+    height: 250px;
+}
+
+::ng-deep.mat-tab-label {
+    padding: 0 12px !important;
+    min-width: auto !important;
+    font-size: small;
+}

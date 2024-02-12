@@ -1,0 +1,37 @@
+.search-container {
+    margin-top: 64px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 16px;
+}
+
+mat-form-field {
+    width: 400px;
+}
+
+.results-container {
+    margin-top: 64px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 16px;
+}
+
+table .mat-row {
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+table .mat-row:hover {
+    background-color: #e4d4fc;
+}
+
+.mat-column-name {
+    width: 300px;
+  }
+
+  .mat-column-number {
+    width: 150px;
+  }
+  

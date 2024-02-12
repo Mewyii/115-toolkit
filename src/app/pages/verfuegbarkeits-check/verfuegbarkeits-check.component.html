@@ -1,0 +1,61 @@
+<div class="control-bar">
+  <button mat-raised-button color="primary" (click)="xlsFileIPicker.click()">
+    <span>Stammdatenbericht Öffnen</span>
+  </button>
+  <input
+    #xlsFileIPicker
+    [hidden]="true"
+    [type]="'file'"
+    [accept]="'.xlsx'"
+    (change)="onStammdatenExcelFileSelected($event)"
+  />
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSaveDataToExcelFileClicked()"
+  >
+    <span>Verfügbarkeitscheck-Daten Exportieren</span>
+  </button>
+</div>
+<div class="results-container">
+  <b style="text-align: center">Gleiche Namen in unterschiedlichen Kreisen</b>
+  <div class="type-results-container">
+    <table style="width: 900px">
+      <tr>
+        <th>Name</th>
+        <th>Kreis</th>
+        <th>Bundesland</th>
+      </tr>
+      <ng-container *ngFor="let item of cityDuplicates">
+        <tr>
+          <td>{{ item.Kurzname }}</td>
+          <td>{{ item.Kreiszugehoerigkeit }}</td>
+          <td>{{ item.Bundesland }}</td>
+        </tr>
+      </ng-container>
+    </table>
+  </div>
+</div>
+
+<div class="results-container">
+  <b style="text-align: center">Gleiche Namen in gleichen Kreisen</b>
+
+  <div class="type-results-container">
+    <table style="width: 900px">
+      <tr>
+        <th>Bundesland</th>
+        <th>Kreis</th>
+        <th>Name</th>
+        <th>Regionalschlüssel</th>
+      </tr>
+      <ng-container *ngFor="let item of kreisDuplicates">
+        <tr>
+          <td>{{ item.Bundesland }}</td>
+          <td>{{ item.Kreiszugehoerigkeit }}</td>
+          <td>{{ item.Kurzname }}</td>
+          <td>{{ item.Regionalschluessel }}</td>
+        </tr>
+      </ng-container>
+    </table>
+  </div>
+</div>

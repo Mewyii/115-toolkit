@@ -1,0 +1,36 @@
+<div class="control-bar">
+  <button mat-raised-button color="primary" (click)="logFileIPicker.click()">
+    <span>Log Öffnen</span>
+  </button>
+  <input
+    #logFileIPicker
+    [hidden]="true"
+    [type]="'file'"
+    [accept]="'.txt'"
+    (change)="onFundstellenLogFileSelected($event)"
+  />
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSaveDataToExcelFileClicked()"
+  >
+    <span>Infos Exportieren</span>
+  </button>
+</div>
+<div class="results-container">
+  <b style="text-align: center">Betroffene Teilnehmer</b>
+  <ng-container *ngFor="let info of logUrlsWithTeilnehmerInfos">
+    <div class="info-container">
+      <div class="name">{{ info.teilnehmername }}</div>
+      <div>{{ info.fundstellenUrl }}</div>
+    </div>
+  </ng-container>
+</div>
+<div class="results-container">
+  <b style="text-align: center">Nicht Zuordbar</b>
+  <ng-container *ngFor="let url of logUrlsWithoutTeilnehmerInfos">
+    <div class="info-container">
+      <div>{{ url }}</div>
+    </div>
+  </ng-container>
+</div>

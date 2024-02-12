@@ -1,0 +1,49 @@
+<div class="control-bar">
+  <button mat-raised-button color="primary" (click)="xlsFileIPicker.click()">
+    <span>Auswertung Öffnen</span>
+  </button>
+  <input
+    #xlsFileIPicker
+    [hidden]="true"
+    [type]="'file'"
+    [accept]="'.xlsx'"
+    (change)="onFundstellenExcelFileSelected($event)"
+  />
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSaveDataToExcelFileClicked()"
+  >
+    <span>Infos Exportieren</span>
+  </button>
+</div>
+<div class="results-container">
+  <b style="text-align: center">Fundstellen-Arten</b>
+  <div class="type-results-container">
+    <div *ngFor="let item of fundstellenService.typeInfos | keyvalue">
+      {{ item.key }}: {{ item.value }}
+    </div>
+  </div>
+  <b style="text-align: center">Angegebene Ansprechpartner (Rollen)</b>
+  <div class="ansprechpartner-container">
+    <div *ngFor="let item of fundstellenService.ansprechpartner | keyvalue">
+      {{ item.key }}: {{ item.value }}
+    </div>
+  </div>
+  <b style="text-align: center"
+    >Angegebene Ansprechpartner (Summe pro Teilnehmer)</b
+  >
+  <div class="ansprechpartner-container">
+    <div
+      *ngFor="let item of fundstellenService.ansprechpartnerCount | keyvalue"
+    >
+      {{ item.key }}x: {{ item.value }}
+    </div>
+  </div>
+  <div class="url-results-container">
+    <b>Meistverwendete Kern-URLs</b>
+    <div *ngFor="let item of fundstellenService.urlInfos">
+      {{ item.url }}: {{ item.count }}
+    </div>
+  </div>
+</div>

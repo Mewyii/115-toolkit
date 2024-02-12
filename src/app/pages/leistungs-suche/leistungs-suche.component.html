@@ -1,0 +1,172 @@
+<div class="search-container">
+  <div class="search-part">
+    <mat-form-field>
+      <input
+        type="text"
+        placeholder="Stadt eingeben..."
+        aria-label="Number"
+        matInput
+        [value]="cityInput"
+        (input)="onCityInputChange($event)"
+        (keydown.enter)="onOptionSelected()"
+        [matAutocomplete]="cityAutoComplete"
+      />
+      <mat-autocomplete
+        #cityAutoComplete="matAutocomplete"
+        (optionSelected)="onOptionSelected()"
+      >
+        <mat-option *ngFor="let option of filteredCityOptions" [value]="option">
+          {{ option }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+    <button mat-icon-button color="primary" [disabled]="!cityFound">
+      <mat-icon *ngIf="cityFound">check</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      color="primary"
+      [disabled]="!cityFound"
+      [matTooltip]="
+        cityFound
+          ? 'Weiterleitungsnummer: 0800 1234 512 &#13; Öffnungszeiten: 8:00 - 18 Uhr'
+          : ''
+      "
+      matTooltipClass="custom-tooltip"
+    >
+      <mat-icon>info</mat-icon>
+    </button>
+  </div>
+
+  <div class="search-part suggestions">
+    <span>Letzte Städte</span
+    ><button mat-button (click)="setCity('Frankfurt am Main')">
+      <span>Frankfurt am Main</span>
+    </button>
+    <button mat-button (click)="setCity('Offenbach')">
+      <span>Offenbach</span>
+    </button>
+  </div>
+  <div class="search-part">
+    <mat-form-field>
+      <input
+        type="text"
+        placeholder="Suchbegriff eingeben..."
+        aria-label="Number"
+        matInput
+        [value]="searchInput"
+        (input)="onSearchInputChange($event)"
+        (keydown.enter)="onInputSend()"
+        [matAutocomplete]="searchAutoComplete"
+      />
+      <mat-autocomplete
+        #searchAutoComplete="matAutocomplete"
+        (optionSelected)="onInputSend()"
+      >
+        <mat-option
+          *ngFor="let option of filteredSearchOptions"
+          [value]="option"
+        >
+          {{ option }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+    <button mat-icon-button color="primary">
+      <mat-icon>search</mat-icon>
+    </button>
+  </div>
+</div>
+<br />
+<br />
+<div class="results-container" *ngIf="cityFound && searchSent">
+  <h2>Ergebnisse</h2>
+  <ng-container *ngFor="let result of searchResults">
+    <mat-expansion-panel hideToggle>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <div class="title" [innerHTML]="result.name"></div>
+        </mat-panel-title>
+        <mat-panel-description>
+          {{ result.date }}
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <div class="result-content">
+        <div [style]="'margin-top: 16px; margin-bottom: 32px'">
+          Sobald Sie 16 Jahre alt sind, müssen Sie ein gültiges Ausweisdokument
+          besitzen, mit dem Ihre Identität festgestellt werden kann. In der
+          Regel ist das ein Personalausweis oder ein Reisepass.
+        </div>
+        <mat-tab-group>
+          <mat-tab label="Beschreibung">
+            <div class="tab-content">
+              Für jeden Deutschen besteht eine Ausweispflicht ab dem vollendeten
+              16. Lebensjahr, sofern er im Inland gemeldet ist.
+            </div>
+          </mat-tab>
+          <mat-tab label="Onlinedienst">
+            <div class="tab-content">
+              <a
+                href="https://onlineantrag.ekom21.de/olav/olav.htm;jsessionid=550856424452C0A8EEAD6080FFB22119?_flowId=kinderausweis-flow&_flowExecutionKey=e1s1"
+                >Reisedokumente für Kinder</a
+              >
+            </div>
+          </mat-tab>
+          <mat-tab label="Kosten">
+            <div class="tab-content">
+              22,80€ für Antragsteller unter 24 Jahre; 37,00€ für Antragsteller
+              in allen anderen Fällen. 13,00€ Aufschlag für Antragstellung
+              außerhalb der Dienstzeit oder bei einer nicht zuständigen Behörde.
+            </div>
+          </mat-tab>
+          <mat-tab label="Voraussetzungen">
+            <div class="tab-content">
+              Deutsche(r) im Sinne des Art. 116 Abs. 1 Grundgesetz (GG)
+            </div>
+          </mat-tab>
+          <mat-tab label="Erforderliche Unterlagen">
+            <div class="tab-content">
+              <ul>
+                <li>
+                  der jetzige Personalausweis oder gültige (Kinder-)Reisepass
+                  oder Geburtsurkunde
+                </li>
+                <li>
+                  bei Kindern unter 16 Jahren die Einverständnis(-erklärung) der
+                  Erziehungsberechtigten
+                </li>
+                <li>
+                  bei nur einem Erziehungsberechtigten zusätzlich der
+                  Sorgerechtsnachweis
+                </li>
+                <li>
+                  ein biometrietaugliches Passfoto (nach der Fotomustertafel)
+                </li>
+              </ul>
+            </div>
+          </mat-tab>
+          <mat-tab label="Rechtsgrundlage(n)">
+            <div class="tab-content">
+              § 9 Personalausweisgesetz (PAuswG): Keine weiteren Hinweise
+              vorhanden § 1 Personalausweisgebührenverordnung (PAuswGebV): Keine
+              weiteren Hinweise vorhanden
+            </div>
+          </mat-tab>
+          <mat-tab label="Zuständige Stelle(n)">
+            <div class="tab-content">
+              <h3><b>Stelle 1</b></h3>
+              <span>Postanschrift <br />Marktplatz 8 <br />35305 Grünberg</span>
+              <br />
+              <br />
+              <h3><b>Stelle 2</b></h3>
+              <span>Postanschrift <br />Marktplatz 8 <br />35305 Grünberg</span>
+              <br />
+              <br />
+              <h3><b>Stelle 3</b></h3>
+              <span>Postanschrift <br />Marktplatz 8 <br />35305 Grünberg</span>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+    </mat-expansion-panel>
+  </ng-container>
+</div>

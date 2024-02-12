@@ -1,0 +1,32 @@
+.title {
+    flex: 1 1;
+    display: flex;
+    align-items: end;
+    gap: 16px;
+}
+
+.logo {
+    width: 64px;
+}
+
+.logo-text {
+    // color: #b70000;
+    margin-right: 256px;
+}
+
+mat-toolbar {
+    height: 80px;
+    align-items: end;
+    padding-bottom: 16px;
+}
+
+a {
+    text-decoration: none;
+    color: #673ab7;
+    transition: 0.3s;
+    font-size: smaller;
+}
+
+a:hover {
+    color: #af80ff;
+}
