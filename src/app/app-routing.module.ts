@@ -8,12 +8,19 @@ import { VerfuegbarkeitsCheckComponent } from './pages/verfuegbarkeits-check/ver
 
 const routes: Routes = [
   {
+    path: '',
+    redirectTo: 'leistungs-suche',
+    pathMatch: 'full',
+  },
+  {
     path: 'leistungs-suche',
     component: LeistungsSucheComponent,
+    pathMatch: 'full',
   },
   {
     path: 'fundstellen',
     component: FundstellenComponent,
+    pathMatch: 'full',
   },
   {
     path: 'administration',
@@ -28,6 +35,7 @@ const routes: Routes = [
   {
     path: 'administration/teilnehmer/:id',
     component: TeilnehmerComponent,
+    pathMatch: 'full',
   },
 ];
 
