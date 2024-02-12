@@ -23,7 +23,6 @@ import { TeilnehmerComponent } from './pages/teilnehmer/teilnehmer.component';
 import { FundstellenLogsComponent } from './pages/fundstellen/fundstellen-logs/fundstellen-logs.component';
 import { FundstellenComponent } from './pages/fundstellen/fundstellen.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { VerteilerComponent } from './pages/verteiler/verteiler.component';
 import { VerfuegbarkeitsCheckComponent } from './pages/verfuegbarkeits-check/verfuegbarkeits-check.component';
 
 @NgModule({
@@ -36,7 +35,6 @@ import { VerfuegbarkeitsCheckComponent } from './pages/verfuegbarkeits-check/ver
     TeilnehmerComponent,
     FundstellenLogsComponent,
     FundstellenComponent,
-    VerteilerComponent,
     VerfuegbarkeitsCheckComponent,
   ],
   imports: [
