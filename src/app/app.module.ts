@@ -24,6 +24,7 @@ import { FundstellenLogsComponent } from './pages/fundstellen/fundstellen-logs/f
 import { FundstellenComponent } from './pages/fundstellen/fundstellen.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { VerfuegbarkeitsCheckComponent } from './pages/verfuegbarkeits-check/verfuegbarkeits-check.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -52,6 +53,7 @@ import { VerfuegbarkeitsCheckComponent } from './pages/verfuegbarkeits-check/ver
     MatExpansionModule,
     MatTabsModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

@@ -10,15 +10,23 @@ export interface VerfuegbarkeitsInfos {
   Regionalschluessel: string;
 }
 
+export interface VerfuegbarkeitsInfosEnhanced extends VerfuegbarkeitsInfos {
+  Name: string;
+  IsDuplicate?: boolean;
+  IsRenamed?: boolean;
+}
+
 @Component({
   selector: 'app-verfuegbarkeits-check',
   templateUrl: './verfuegbarkeits-check.component.html',
   styleUrls: ['./verfuegbarkeits-check.component.scss'],
 })
 export class VerfuegbarkeitsCheckComponent implements OnInit {
-  public verfuegbarkeitsInfos: VerfuegbarkeitsInfos[] = [];
-  public cityDuplicates: VerfuegbarkeitsInfos[] = [];
-  public kreisDuplicates: VerfuegbarkeitsInfos[] = [];
+  public verfuegbarkeitsInfosInitial: VerfuegbarkeitsInfosEnhanced[] = [];
+  public verfuegbarkeitsInfos: VerfuegbarkeitsInfosEnhanced[] = [];
+  public duplicates: VerfuegbarkeitsInfosEnhanced[] = [];
+
+  public verfugbarkeitsInfosAreLoading = false;
 
   private sheetMapping: SheetDataMapping<VerfuegbarkeitsInfos>[] = [
     {
@@ -39,6 +47,8 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
   ngOnInit(): void {}
 
   async onStammdatenExcelFileSelected(event: Event) {
+    this.verfugbarkeitsInfosAreLoading = true;
+
     const input = event.target as HTMLInputElement;
 
     if (!input.files?.length) {
@@ -51,74 +61,63 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
 
     const getId = (item: VerfuegbarkeitsInfos) => item.Kurzname + item.Regionalschluessel;
 
-    const verfuegbarkeitsInfos = (await this.xlsService.convertWorkbookDataToCustomData(workbookData, this.sheetMapping, getId))
+    this.verfuegbarkeitsInfosInitial = (await this.xlsService.convertWorkbookDataToCustomData(workbookData, this.sheetMapping, getId))
+      .sort((a, b) => (a.Bundesland ?? '').localeCompare(b.Bundesland ?? ''))
       .sort((a, b) => a.Kurzname.localeCompare(b.Kurzname))
-      .sort((a, b) => (a.Bundesland ?? '').localeCompare(b.Bundesland ?? ''));
+      .map((x) => ({ ...x, Kurzname: x.Kurzname, Name: x.Kurzname.indexOf(',') > -1 ? x.Kurzname.split(',')[0] : x.Kurzname }));
 
-    const kommunaleVerfuegbarkeitsInfos = verfuegbarkeitsInfos.filter((x) => x.Teilnehmernummer && (x.Teilnehmernummer.startsWith('K') || x.Teilnehmernummer.startsWith('S')));
+    const kommunaleVerfuegbarkeitsInfos = this.verfuegbarkeitsInfosInitial.filter(
+      (x) => x.Teilnehmernummer && (x.Teilnehmernummer.startsWith('K') || x.Teilnehmernummer.startsWith('S'))
+    );
 
-    const kommunaleVerfuegbarkeitsInfosWithoutDuplicates = this.renameDuplicates(kommunaleVerfuegbarkeitsInfos, getId);
+    const kommunaleVerfuegbarkeitsInfosRenamed = this.renameDuplicatesIfPossible(kommunaleVerfuegbarkeitsInfos, getId);
 
-    this.verfuegbarkeitsInfos = this.adjustStatusOfBayernAndBrandenburg(kommunaleVerfuegbarkeitsInfosWithoutDuplicates);
+    this.duplicates = kommunaleVerfuegbarkeitsInfosRenamed.filter((x) => x.IsDuplicate === true);
+
+    const kommunaleVerfuegbarkeitsInfosFiltered = this.filterRemainingDuplicates(kommunaleVerfuegbarkeitsInfosRenamed);
+
+    this.verfuegbarkeitsInfos = this.adjustStatusOfBayernAndBrandenburg(kommunaleVerfuegbarkeitsInfosFiltered);
+
+    this.verfugbarkeitsInfosAreLoading = false;
   }
 
   onSaveDataToExcelFileClicked() {
-    this.xlsService.exportFile('Daten Verfügbarkeitscheck.xlsx', this.converterService.convertDataArraysToWorkbookData(this.verfuegbarkeitsInfos));
+    const verfuegbarkeitsInfosWithoutHelperProps = this.verfuegbarkeitsInfos.map((obj) => {
+      const { IsDuplicate, IsRenamed, Kurzname, ...rest } = obj;
+      return rest;
+    });
+
+    this.xlsService.exportFile('Daten Verfügbarkeitscheck.xlsx', this.converterService.convertDataArraysToWorkbookData(verfuegbarkeitsInfosWithoutHelperProps));
   }
 
-  private renameDuplicates(verfuegbarkeitsInfos: VerfuegbarkeitsInfos[], getId: (object: VerfuegbarkeitsInfos) => string) {
-    console.log('Entries before filtering: ' + verfuegbarkeitsInfos.length);
+  private renameDuplicatesIfPossible(verfuegbarkeitsInfos: VerfuegbarkeitsInfosEnhanced[], getId: (object: VerfuegbarkeitsInfosEnhanced) => string) {
+    const hasDuplicatedNameInDifferentKreis = (item1: VerfuegbarkeitsInfosEnhanced, item2: VerfuegbarkeitsInfosEnhanced) =>
+      item1.Name === item2.Name && item1.Kreiszugehoerigkeit !== item2.Kreiszugehoerigkeit && item1.Regionalschluessel.length === item2.Regionalschluessel.length;
+    const hasDuplicatedNameInSameKreis = (item1: VerfuegbarkeitsInfosEnhanced, item2: VerfuegbarkeitsInfosEnhanced) =>
+      item1.Name === item2.Name && item1.Kreiszugehoerigkeit === item2.Kreiszugehoerigkeit && item1.Regionalschluessel.length !== item2.Regionalschluessel.length;
 
-    const citiesHavingDuplicatedNames = verfuegbarkeitsInfos.filter((obj, index, array) =>
-      array.some(
-        (item) => item.Kurzname === obj.Kurzname && item.Kreiszugehoerigkeit !== obj.Kreiszugehoerigkeit && item.Regionalschluessel.length === obj.Regionalschluessel.length
-      )
-    );
-
-    const kreisAndCityHavingDuplicatedNames = verfuegbarkeitsInfos.filter((obj, index, array) =>
-      array.some(
-        (item) => item.Kurzname === obj.Kurzname && item.Kreiszugehoerigkeit === obj.Kreiszugehoerigkeit && item.Regionalschluessel.length !== obj.Regionalschluessel.length
-      )
-    );
-
-    const kommunaleVerfuegbarkeitsInfosWithoutDuplicates = verfuegbarkeitsInfos.filter(
-      (x) => !citiesHavingDuplicatedNames.some((y) => getId(x) === getId(y)) && !kreisAndCityHavingDuplicatedNames.some((y) => getId(x) === getId(y))
-    );
-
-    console.log('Entries after filtering: ' + kommunaleVerfuegbarkeitsInfosWithoutDuplicates.length);
-
-    const citiesWithNewNames = citiesHavingDuplicatedNames.map((x) => ({ ...x, Kurzname: x.Kurzname + ' (' + x.Kreiszugehoerigkeit + ')' }));
-
-    const cityOrKreisWithNewNames = kreisAndCityHavingDuplicatedNames
-      .filter((x) => !citiesHavingDuplicatedNames.some((y) => getId(x) === getId(y)))
-      .map((x) => {
-        if (x.Kurzname === x.Kreiszugehoerigkeit && x.Regionalschluessel.length === 12) {
-          return x;
+    return verfuegbarkeitsInfos.map((x) => {
+      const duplicates = verfuegbarkeitsInfos.filter((y) => hasDuplicatedNameInDifferentKreis(x, y) || hasDuplicatedNameInSameKreis(x, y));
+      if (duplicates.length > 0) {
+        if (duplicates.some((y) => hasDuplicatedNameInDifferentKreis(x, y))) {
+          return { ...x, Name: x.Name + ' (' + x.Kreiszugehoerigkeit + ')', IsDuplicate: true, IsRenamed: true };
+        } else if (duplicates.some((y) => hasDuplicatedNameInSameKreis(x, y))) {
+          if (x.Regionalschluessel.length === 9 && x.Regionalschluessel[5] === '5') {
+            return { ...x, Name: x.Name + ' (Gemeindeverband)', IsDuplicate: true, IsRenamed: true };
+          } else if (x.Regionalschluessel.length === 5) {
+            return { ...x, Name: x.Name + ' (Kreis)', IsDuplicate: true, IsRenamed: true };
+          }
         }
-        if (x.Regionalschluessel.length === 9 && x.Regionalschluessel[5] === '5') {
-          return { ...x, Kurzname: x.Kurzname + ' (Gemeindeverband)' };
-        } else if (x.Regionalschluessel.length === 5) {
-          return { ...x, Kurzname: x.Kurzname + ' (Kreis)' };
-        }
-        return x;
-      });
-
-    this.cityDuplicates = citiesWithNewNames.sort((a, b) => a.Kurzname.localeCompare(b.Kurzname));
-
-    this.kreisDuplicates = this.removeDuplicatedKreisfreieStaedte(cityOrKreisWithNewNames);
-
-    kommunaleVerfuegbarkeitsInfosWithoutDuplicates.push(...citiesWithNewNames, ...this.kreisDuplicates);
-
-    console.log('Entries after renaming: ' + kommunaleVerfuegbarkeitsInfosWithoutDuplicates.length);
-
-    return kommunaleVerfuegbarkeitsInfosWithoutDuplicates;
+        return { ...x, IsDuplicate: true };
+      } else return x;
+    });
   }
 
-  private removeDuplicatedKreisfreieStaedte(verfuegbarkeitsInfos: VerfuegbarkeitsInfos[]) {
-    return verfuegbarkeitsInfos.filter((x) => x.Regionalschluessel[5] !== '0');
+  private filterRemainingDuplicates(verfuegbarkeitsInfos: VerfuegbarkeitsInfosEnhanced[]) {
+    return verfuegbarkeitsInfos.filter((x) => !x.IsDuplicate || x.IsRenamed || !(x.Regionalschluessel.length === 9 && x.Regionalschluessel[5] === '0'));
   }
 
-  private adjustStatusOfBayernAndBrandenburg(verfuegbarkeitsInfos: VerfuegbarkeitsInfos[]) {
+  private adjustStatusOfBayernAndBrandenburg(verfuegbarkeitsInfos: VerfuegbarkeitsInfosEnhanced[]) {
     return verfuegbarkeitsInfos.map((x) => {
       if ((x.Bundesland === 'Bayern' || x.Bundesland === 'Brandenburg') && x.Status === 'Basisabdeckung') {
         return { ...x, Status: 'Kein 115-Teilnehmer' };
