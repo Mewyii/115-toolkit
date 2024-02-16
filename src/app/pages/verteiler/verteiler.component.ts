@@ -60,6 +60,8 @@ export class VerteilerComponent implements OnInit {
 
   public vertretungsList = '';
 
+  public mailListDisabled = false;
+
   private sheetMapping: SheetDataMapping<KontaktInfo>[] = [
     {
       name: 'Gremien',
@@ -120,6 +122,14 @@ export class VerteilerComponent implements OnInit {
     });
   }
 
+  onSendMailClicked() {
+    const subject = '';
+
+    const mailtoLink =
+      `mailto:${this.mailList}?subject=${encodeURIComponent(subject)}` + (this.vertretungInCC && this.vertretungsList.length > 0 ? '&cc=' + this.vertretungsList : '');
+    window.location.href = mailtoLink;
+  }
+
   public filterGremienKontaktInfos() {
     this.currentGremienKontaktInfos = this.gremienKontaktInfos.filter((obj: any) => this.currentGremienFilters.some((option) => obj[option]));
 
@@ -132,5 +142,7 @@ export class VerteilerComponent implements OnInit {
       .filter((x) => x['Vertretung / Orga PF (CC)'])
       .map((x) => x['Vertretung / Orga PF (CC)'])
       .join(';');
+
+    this.mailListDisabled = this.mailList.length > 2000;
   }
 }

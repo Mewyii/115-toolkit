@@ -14,20 +14,21 @@
     color="primary"
     (click)="onCopyToClipboardClicked()"
   >
-    <span>Mail-Liste kopieren</span>
+    <span>Mail-Adressen kopieren</span>
   </button>
-  <a
-    [href]="
-      'mailto:bms100002@service.hamburg.de' +
-      mailList +
-      (vertretungInCC && vertretungsList.length > 0
-        ? '?cc=' + vertretungsList
-        : '')
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSendMailClicked()"
+    [disabled]="mailListDisabled"
+    [matTooltip]="
+      mailListDisabled
+        ? 'Mailprogramme blockieren leider zu lange Empfängerlisten. Bitte Liste manuell kopieren.'
+        : ''
     "
-    ><button mat-raised-button color="primary">
-      <span>Mail senden</span>
-    </button></a
   >
+    <span>Mail senden</span>
+  </button>
 </div>
 
 <mat-tab-group>
