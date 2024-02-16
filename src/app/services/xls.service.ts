@@ -79,4 +79,22 @@ export class XLSService {
 
     return convertedData;
   }
+
+  exportAsCSV(name: string, data: any[], separator?: string) {
+    const replacer = (key: any, value: any) => (value === null ? '' : value);
+    const header = Object.keys(data[0]);
+    let csv = data.map((row) => header.map((fieldName) => JSON.stringify(row[fieldName], replacer)).join(separator ?? ';'));
+    csv.unshift(header.join(separator ?? ';'));
+    let csvArray = csv.join('\r\n');
+
+    const a = document.createElement('a');
+    const blob = new Blob([csvArray], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+
+    a.href = url;
+    a.download = name + '.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  }
 }

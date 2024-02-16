@@ -36,6 +36,7 @@
             <th>Kreis</th>
             <th>Bundesland</th>
             <th>Regionalschlüssel</th>
+            <th>Status</th>
           </tr>
           <ng-container *ngFor="let item of verfuegbarkeitsInfosInitial">
             <tr>
@@ -43,6 +44,7 @@
               <td>{{ item.Kreiszugehoerigkeit }}</td>
               <td>{{ item.Bundesland }}</td>
               <td>{{ item.Regionalschluessel }}</td>
+              <td>{{ item.Status }}</td>
             </tr>
           </ng-container>
         </table>
@@ -59,6 +61,7 @@
             <th>Kreis</th>
             <th>Bundesland</th>
             <th>Regionalschlüssel</th>
+            <th>Status</th>
           </tr>
           <ng-container *ngFor="let item of verfuegbarkeitsInfos">
             <tr>
@@ -67,6 +70,7 @@
               <td>{{ item.Kreiszugehoerigkeit }}</td>
               <td>{{ item.Bundesland }}</td>
               <td>{{ item.Regionalschluessel }}</td>
+              <td>{{ item.Status }}</td>
             </tr>
           </ng-container>
         </table>
@@ -83,6 +87,7 @@
             <th>Kreis</th>
             <th>Bundesland</th>
             <th>Regionalschlüssel</th>
+            <th>Status</th>
           </tr>
           <ng-container *ngFor="let item of duplicates">
             <tr>
@@ -91,6 +96,7 @@
               <td>{{ item.Kreiszugehoerigkeit }}</td>
               <td>{{ item.Bundesland }}</td>
               <td>{{ item.Regionalschluessel }}</td>
+              <td>{{ item.Status }}</td>
             </tr>
           </ng-container>
         </table>

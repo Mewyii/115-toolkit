@@ -32,12 +32,12 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
     {
       name: 'Stammdatenbericht v3.0 (BIRT 4.',
       mappingFunction: (entry) => ({
-        Teilnehmernummer: entry.Teilnehmernummer,
         Kurzname: entry.Kurzname,
-        Bundesland: entry.Bundesland,
         Kreiszugehoerigkeit: entry.Kreiszugehörigkeit,
+        Bundesland: entry.Bundesland,
         Status: entry.Status,
         Regionalschluessel: entry.Regionalschlüssel,
+        Teilnehmernummer: entry.Teilnehmernummer,
       }),
     },
   ];
@@ -64,7 +64,7 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
     this.verfuegbarkeitsInfosInitial = (await this.xlsService.convertWorkbookDataToCustomData(workbookData, this.sheetMapping, getId))
       .sort((a, b) => (a.Bundesland ?? '').localeCompare(b.Bundesland ?? ''))
       .sort((a, b) => a.Kurzname.localeCompare(b.Kurzname))
-      .map((x) => ({ ...x, Kurzname: x.Kurzname, Name: x.Kurzname.indexOf(',') > -1 ? x.Kurzname.split(',')[0] : x.Kurzname }));
+      .map((item) => ({ Name: item.Kurzname.indexOf(',') > -1 ? item.Kurzname.split(',')[0] : item.Kurzname, ...item }));
 
     const kommunaleVerfuegbarkeitsInfos = this.verfuegbarkeitsInfosInitial.filter(
       (x) => x.Teilnehmernummer && (x.Teilnehmernummer.startsWith('K') || x.Teilnehmernummer.startsWith('S'))
@@ -87,7 +87,7 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
       return rest;
     });
 
-    this.xlsService.exportFile('Daten Verfügbarkeitscheck.xlsx', this.converterService.convertDataArraysToWorkbookData(verfuegbarkeitsInfosWithoutHelperProps));
+    this.xlsService.exportAsCSV('Daten Verfügbarkeitscheck', verfuegbarkeitsInfosWithoutHelperProps);
   }
 
   private renameDuplicatesIfPossible(verfuegbarkeitsInfos: VerfuegbarkeitsInfosEnhanced[], getId: (object: VerfuegbarkeitsInfosEnhanced) => string) {
@@ -103,7 +103,7 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
           return { ...x, Name: x.Name + ' (' + x.Kreiszugehoerigkeit + ')', IsDuplicate: true, IsRenamed: true };
         } else if (duplicates.some((y) => hasDuplicatedNameInSameKreis(x, y))) {
           if (x.Regionalschluessel.length === 9 && x.Regionalschluessel[5] === '5') {
-            return { ...x, Name: x.Name + ' (Gemeindeverband)', IsDuplicate: true, IsRenamed: true };
+            return { ...x, Name: x.Name + ' (Verwaltungsgemeinschaft)', IsDuplicate: true, IsRenamed: true };
           } else if (x.Regionalschluessel.length === 5) {
             return { ...x, Name: x.Name + ' (Kreis)', IsDuplicate: true, IsRenamed: true };
           }
