@@ -26,7 +26,7 @@ export class XLSService {
       workbook.Sheets[sheet.name] = worksheet;
     }
 
-    XLSX.writeFile(workbook, name);
+    XLSX.writeFile(workbook, name + '.xlsx');
   }
 
   async readFile(file: File) {

@@ -1,0 +1,75 @@
+<div class="control-bar">
+  <button mat-raised-button color="primary" (click)="xlsFileIPicker.click()">
+    <span class="text-with-loading-indicator">Verteiler Öffnen </span>
+  </button>
+  <input
+    #xlsFileIPicker
+    [hidden]="true"
+    [type]="'file'"
+    [accept]="'.xlsx'"
+    (change)="onStammdatenExcelFileSelected($event)"
+  />
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onCopyToClipboardClicked()"
+  >
+    <span>Mail-Liste kopieren</span>
+  </button>
+  <a
+    [href]="
+      'mailto:bms100002@service.hamburg.de' +
+      mailList +
+      (vertretungInCC && vertretungsList.length > 0
+        ? '?cc=' + vertretungsList
+        : '')
+    "
+    ><button mat-raised-button color="primary">
+      <span>Mail senden</span>
+    </button></a
+  >
+</div>
+
+<mat-tab-group>
+  <mat-tab label="Gremien">
+    <div class="tab-content">
+      <div class="filter-bar">
+        <mat-form-field>
+          <mat-label>Gremien</mat-label>
+          <mat-select
+            [(ngModel)]="currentGremienFilters"
+            multiple
+            (selectionChange)="filterGremienKontaktInfos()"
+          >
+            <mat-option *ngFor="let filter of gremienFilters" [value]="filter">
+              {{ filter }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-checkbox [(ngModel)]="vertretungInCC"
+          >Vertretungen in CC</mat-checkbox
+        >
+      </div>
+
+      <div class="type-results-container">
+        <table style="width: 900px">
+          <tr>
+            <th>Teilnehmer</th>
+            <th>Email</th>
+            <th>Name</th>
+            <th>Vertretung</th>
+          </tr>
+          <ng-container *ngFor="let item of currentGremienKontaktInfos">
+            <tr>
+              <td>{{ item.Teilnehmer }}</td>
+              <td>{{ item.EMail }}</td>
+              <td>{{ item.Vorname + " " + item.Nachname }}</td>
+              <td>{{ item["Vertretung / Orga PF (CC)"] }}</td>
+            </tr>
+          </ng-container>
+        </table>
+      </div>
+    </div>
+  </mat-tab>
+</mat-tab-group>

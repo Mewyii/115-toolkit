@@ -5,6 +5,7 @@ import { AdministrationComponent } from './pages/administration/administration.c
 import { TeilnehmerComponent } from './pages/teilnehmer/teilnehmer.component';
 import { FundstellenComponent } from './pages/fundstellen/fundstellen.component';
 import { VerfuegbarkeitsCheckComponent } from './pages/verfuegbarkeits-check/verfuegbarkeits-check.component';
+import { VerteilerComponent } from './pages/verteiler/verteiler.component';
 
 const routes: Routes = [
   {
@@ -26,6 +27,10 @@ const routes: Routes = [
     path: 'administration',
     component: AdministrationComponent,
     pathMatch: 'full',
+  },
+  {
+    path: 'verteiler',
+    component: VerteilerComponent,
   },
   {
     path: 'verfuegbarkeits-check',

@@ -28,6 +28,6 @@ export class FundstellenAuswertungComponent implements OnInit {
   }
 
   onSaveDataToExcelFileClicked() {
-    this.xlsService.exportFile('Fundstellen_Aufbereitet.xlsx', this.converterService.convertDataArraysToWorkbookData(this.fundstellenService.fundstellenInfos));
+    this.xlsService.exportFile('Fundstellen_Aufbereitet', this.converterService.convertDataArraysToWorkbookData(this.fundstellenService.fundstellenInfos));
   }
 }

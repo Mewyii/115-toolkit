@@ -25,6 +25,11 @@ import { FundstellenComponent } from './pages/fundstellen/fundstellen.component'
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { VerfuegbarkeitsCheckComponent } from './pages/verfuegbarkeits-check/verfuegbarkeits-check.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { VerteilerComponent } from './pages/verteiler/verteiler.component';
+import { MatSelectModule } from '@angular/material/select';
+import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -37,6 +42,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     FundstellenLogsComponent,
     FundstellenComponent,
     VerfuegbarkeitsCheckComponent,
+    VerteilerComponent,
   ],
   imports: [
     BrowserModule,
@@ -54,6 +60,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatTabsModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    MatSelectModule,
+    FormsModule,
+    MatCheckboxModule,
+    MatSnackBarModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

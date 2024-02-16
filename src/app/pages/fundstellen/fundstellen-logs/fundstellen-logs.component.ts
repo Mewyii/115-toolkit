@@ -72,6 +72,6 @@ export class FundstellenLogsComponent implements OnInit {
   }
 
   onSaveDataToExcelFileClicked() {
-    this.xlsService.exportFile('Fundstellen_Log_Ansprechpartner.xlsx', { sheetData: [{ name: 'Fundstellen-Fehler', data: this.logUrlsWithTeilnehmerInfos }] });
+    this.xlsService.exportFile('Fundstellen_Log_Ansprechpartner', { sheetData: [{ name: 'Fundstellen-Fehler', data: this.logUrlsWithTeilnehmerInfos }] });
   }
 }
