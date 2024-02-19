@@ -123,10 +123,7 @@ export class VerteilerComponent implements OnInit {
   }
 
   onSendMailClicked() {
-    const subject = '';
-
-    const mailtoLink =
-      `mailto:${this.mailList}?subject=${encodeURIComponent(subject)}` + (this.vertretungInCC && this.vertretungsList.length > 0 ? '&cc=' + this.vertretungsList : '');
+    const mailtoLink = `mailto:${this.mailList}` + (this.vertretungInCC && this.vertretungsList.length > 0 ? '?cc=' + this.vertretungsList : '');
     window.location.href = mailtoLink;
   }
 
