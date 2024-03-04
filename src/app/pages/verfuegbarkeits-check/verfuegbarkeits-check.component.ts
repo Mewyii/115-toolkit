@@ -103,6 +103,9 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
           return { ...x, Name: x.Name + ' (' + x.Kreiszugehoerigkeit + ')', IsDuplicate: true, IsRenamed: true };
         } else if (duplicates.some((y) => hasDuplicatedNameInSameKreis(x, y))) {
           if (x.Regionalschluessel.length === 9 && x.Regionalschluessel[5] === '5') {
+            if (x.Regionalschluessel.startsWith('01')) {
+              return { ...x, Name: x.Name + ' (Amt)', IsDuplicate: true, IsRenamed: true };
+            }
             return { ...x, Name: x.Name + ' (Verwaltungsgemeinschaft)', IsDuplicate: true, IsRenamed: true };
           } else if (x.Regionalschluessel.length === 5) {
             return { ...x, Name: x.Name + ' (Kreis)', IsDuplicate: true, IsRenamed: true };
