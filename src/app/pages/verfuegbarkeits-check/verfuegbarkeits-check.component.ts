@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
+import { BehaviorSubject, debounceTime } from 'rxjs';
 import { ConverterService, SheetDataMapping, VerteilerService, XLSService } from 'src/app/services';
 
+export type TeilnehmerStatus = 'Kein 115-Teilnehmer' | 'Basisabdeckung' | '115-Teilnehmer';
 export interface VerfuegbarkeitsInfos {
   Teilnehmernummer?: string;
   Kurzname: string;
   Bundesland?: string;
   Kreiszugehoerigkeit?: string;
-  Status?: string;
+  Status?: TeilnehmerStatus;
   Regionalschluessel: string;
 }
 
@@ -28,6 +30,11 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
 
   public verfugbarkeitsInfosAreLoading = false;
 
+  public searchInput = 'Franken';
+
+  public shownVerfuegbarkeitsInfos: VerfuegbarkeitsInfosEnhanced[] = [];
+  public shownDuplicates: VerfuegbarkeitsInfosEnhanced[] = [];
+
   private sheetMapping: SheetDataMapping<VerfuegbarkeitsInfos>[] = [
     {
       name: 'Stammdatenbericht v3.0 (BIRT 4.',
@@ -42,9 +49,16 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
     },
   ];
 
-  constructor(public xlsService: XLSService, public converterService: ConverterService, public verteilerService: VerteilerService) {}
+  private inputChangeSubject = new BehaviorSubject<string>('');
+  public inputChange$ = this.inputChangeSubject.asObservable();
 
-  ngOnInit(): void {}
+  constructor(public xlsService: XLSService, public converterService: ConverterService) {}
+
+  ngOnInit(): void {
+    this.inputChange$.pipe(debounceTime(750)).subscribe((x) => {
+      this.filterShownInfos(x);
+    });
+  }
 
   async onStammdatenExcelFileSelected(event: Event) {
     this.verfugbarkeitsInfosAreLoading = true;
@@ -64,7 +78,7 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
     this.verfuegbarkeitsInfosInitial = (await this.xlsService.convertWorkbookDataToCustomData(workbookData, this.sheetMapping, getId))
       .sort((a, b) => (a.Bundesland ?? '').localeCompare(b.Bundesland ?? ''))
       .sort((a, b) => a.Kurzname.localeCompare(b.Kurzname))
-      .map((item) => ({ Name: item.Kurzname.indexOf(',') > -1 ? item.Kurzname.split(',')[0] : item.Kurzname, ...item }));
+      .map((item) => ({ ...item, Name: this.extractNameOnly(item) }));
 
     const kommunaleVerfuegbarkeitsInfos = this.verfuegbarkeitsInfosInitial.filter(
       (x) => x.Teilnehmernummer && (x.Teilnehmernummer.startsWith('K') || x.Teilnehmernummer.startsWith('S'))
@@ -76,9 +90,24 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
 
     const kommunaleVerfuegbarkeitsInfosFiltered = this.filterRemainingDuplicates(kommunaleVerfuegbarkeitsInfosRenamed);
 
-    this.verfuegbarkeitsInfos = this.adjustStatusOfBayernAndBrandenburg(kommunaleVerfuegbarkeitsInfosFiltered);
+    const kommunaleVerfuegbarkeitsInfosAnnotated = this.annotateInfosWithRegionalAttributes(kommunaleVerfuegbarkeitsInfosFiltered);
+
+    this.verfuegbarkeitsInfos = this.adjustStatusOfBayernAndBrandenburgAndHannover(kommunaleVerfuegbarkeitsInfosAnnotated);
 
     this.verfugbarkeitsInfosAreLoading = false;
+
+    this.inputChangeSubject.next(this.searchInput);
+  }
+
+  private extractNameOnly(item: VerfuegbarkeitsInfos): string {
+    let name = item.Kurzname;
+    if (item.Kurzname.indexOf(',') > -1) {
+      name = item.Kurzname.split(',')[0].trim();
+    }
+    if (item.Kurzname.indexOf('(') > -1) {
+      name = item.Kurzname.split('(')[0].trim();
+    }
+    return name;
   }
 
   onSaveDataToExcelFileClicked() {
@@ -88,6 +117,18 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
     });
 
     this.xlsService.exportAsCSV('Daten Verfügbarkeitscheck', verfuegbarkeitsInfosWithoutHelperProps);
+  }
+
+  onSearchInputChange(inputEvent: any) {
+    const input = inputEvent.target.value as string;
+
+    this.inputChangeSubject.next(input);
+  }
+
+  private filterShownInfos(input: string) {
+    const lowerCaseInput = input.toLocaleLowerCase();
+    this.shownVerfuegbarkeitsInfos = this.verfuegbarkeitsInfos.filter((x) => x.Name.toLocaleLowerCase().includes(lowerCaseInput));
+    this.shownDuplicates = this.duplicates.filter((x) => x.Name.toLocaleLowerCase().includes(lowerCaseInput));
   }
 
   private renameDuplicatesIfPossible(verfuegbarkeitsInfos: VerfuegbarkeitsInfosEnhanced[], getId: (object: VerfuegbarkeitsInfosEnhanced) => string) {
@@ -120,10 +161,29 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
     return verfuegbarkeitsInfos.filter((x) => !x.IsDuplicate || x.IsRenamed || !(x.Regionalschluessel.length === 9 && x.Regionalschluessel[5] === '0'));
   }
 
-  private adjustStatusOfBayernAndBrandenburg(verfuegbarkeitsInfos: VerfuegbarkeitsInfosEnhanced[]) {
+  private annotateInfosWithRegionalAttributes(verfuegbarkeitsInfos: VerfuegbarkeitsInfosEnhanced[]) {
+    return verfuegbarkeitsInfos.map((x) => {
+      if (!x.IsDuplicate) {
+        if (x.Regionalschluessel.length === 5) {
+          return { ...x, Name: x.Name + ' (Kreis)' };
+        }
+        if (x.Regionalschluessel.length === 9 && x.Regionalschluessel[5] === '5') {
+          if (x.Regionalschluessel.startsWith('01')) {
+            return { ...x, Name: x.Name + ' (Amt)' };
+          }
+          return { ...x, Name: x.Name + ' (Verwaltungsgemeinschaft)' };
+        }
+      }
+      return x;
+    });
+  }
+
+  private adjustStatusOfBayernAndBrandenburgAndHannover(verfuegbarkeitsInfos: VerfuegbarkeitsInfosEnhanced[]): VerfuegbarkeitsInfosEnhanced[] {
     return verfuegbarkeitsInfos.map((x) => {
       if ((x.Bundesland === 'Bayern' || x.Bundesland === 'Brandenburg') && x.Status === 'Basisabdeckung') {
         return { ...x, Status: 'Kein 115-Teilnehmer' };
+      } else if (x.Teilnehmernummer === 'K102825') {
+        return { ...x, Status: 'Basisabdeckung' };
       } else {
         return x;
       }

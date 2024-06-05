@@ -26,31 +26,18 @@
   </button>
 </div>
 
+<div class="control-bar">
+  <mat-form-field>
+    <input
+      type="text"
+      placeholder="Stadt eingeben..."
+      matInput
+      [value]="searchInput"
+      (input)="onSearchInputChange($event)"
+    />
+  </mat-form-field>
+</div>
 <mat-tab-group>
-  <mat-tab label="Eingangsdaten">
-    <div class="tab-content">
-      <div class="type-results-container">
-        <table style="width: 900px">
-          <tr>
-            <th>Name</th>
-            <th>Kreis</th>
-            <th>Bundesland</th>
-            <th>Regionalschlüssel</th>
-            <th>Status</th>
-          </tr>
-          <ng-container *ngFor="let item of verfuegbarkeitsInfosInitial">
-            <tr>
-              <td>{{ item.Kurzname }}</td>
-              <td>{{ item.Kreiszugehoerigkeit }}</td>
-              <td>{{ item.Bundesland }}</td>
-              <td>{{ item.Regionalschluessel }}</td>
-              <td>{{ item.Status }}</td>
-            </tr>
-          </ng-container>
-        </table>
-      </div>
-    </div>
-  </mat-tab>
   <mat-tab label="Aufbereitete Daten">
     <div class="tab-content">
       <div class="type-results-container">
@@ -63,7 +50,7 @@
             <th>Regionalschlüssel</th>
             <th>Status</th>
           </tr>
-          <ng-container *ngFor="let item of verfuegbarkeitsInfos">
+          <ng-container *ngFor="let item of shownVerfuegbarkeitsInfos">
             <tr>
               <td>{{ item.Kurzname }}</td>
               <td>{{ item.Name }}</td>
@@ -89,7 +76,7 @@
             <th>Regionalschlüssel</th>
             <th>Status</th>
           </tr>
-          <ng-container *ngFor="let item of duplicates">
+          <ng-container *ngFor="let item of shownDuplicates">
             <tr>
               <td>{{ item.Kurzname }}</td>
               <td>{{ item.Name }}</td>
