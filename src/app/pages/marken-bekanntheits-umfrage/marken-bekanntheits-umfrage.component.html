@@ -1,0 +1,112 @@
+<div class="control-bar">
+  <button mat-raised-button color="primary" (click)="xlsFileIPicker.click()">
+    <span class="text-with-loading-indicator"
+      >Stammdatenbericht Öffnen
+      <mat-progress-spinner
+        *ngIf="verfugbarkeitsInfosAreLoading"
+        diameter="20"
+        mode="indeterminate"
+        color="accent"
+      ></mat-progress-spinner>
+    </span>
+  </button>
+  <input
+    #xlsFileIPicker
+    [hidden]="true"
+    [type]="'file'"
+    [accept]="'.xlsx'"
+    (change)="onStammdatenExcelFileSelected($event)"
+  />
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSaveDataToExcelFileClicked()"
+  >
+    <span>Aufbereitete Daten Exportieren</span>
+  </button>
+</div>
+
+<mat-tab-group>
+  <mat-tab label="Eingangsdaten">
+    <div class="tab-content">
+      <div class="type-results-container">
+        <table style="width: 900px">
+          <tr>
+            <th>Name</th>
+            <th>Kreis</th>
+            <th>Bundesland</th>
+            <th>Regionalschlüssel</th>
+            <th>Gemeindeschlüssel</th>
+            <th>Status</th>
+          </tr>
+          <ng-container *ngFor="let item of markenbekanntheitsInfosInitial">
+            <tr>
+              <td>{{ item.Kurzname }}</td>
+              <td>{{ item.Kreiszugehoerigkeit }}</td>
+              <td>{{ item.Bundesland }}</td>
+              <td>{{ item.Regionalschluessel }}</td>
+              <td>{{ item.Gemeindeschluessel }}</td>
+              <td>{{ item.Status }}</td>
+            </tr>
+          </ng-container>
+        </table>
+      </div>
+    </div>
+  </mat-tab>
+  <mat-tab label="Aufbereitete Daten">
+    <div class="tab-content">
+      <div class="type-results-container">
+        <table style="width: 900px">
+          <tr>
+            <th>Name</th>
+            <th>Name (Neu)</th>
+            <th>Kreis</th>
+            <th>Bundesland</th>
+            <th>Regionalschlüssel</th>
+            <th>Gemeindeschlüssel</th>
+            <th>Status</th>
+          </tr>
+          <ng-container *ngFor="let item of markenbekanntheitsInfos">
+            <tr>
+              <td>{{ item.Kurzname }}</td>
+              <td>{{ item.Name }}</td>
+              <td>{{ item.Kreiszugehoerigkeit }}</td>
+              <td>{{ item.Bundesland }}</td>
+              <td>{{ item.Regionalschluessel }}</td>
+              <td>{{ item.Gemeindeschluessel }}</td>
+              <td>{{ item.Status }}</td>
+            </tr>
+          </ng-container>
+        </table>
+      </div>
+    </div>
+  </mat-tab>
+  <mat-tab label="Duplikate ">
+    <div class="tab-content">
+      <div class="type-results-container">
+        <table style="width: 900px">
+          <tr>
+            <th>Name</th>
+            <th>Name (Neu)</th>
+            <th>Kreis</th>
+            <th>Bundesland</th>
+            <th>Regionalschlüssel</th>
+            <th>Gemeindeschlüssel</th>
+            <th>Status</th>
+          </tr>
+          <ng-container *ngFor="let item of duplicates">
+            <tr>
+              <td>{{ item.Kurzname }}</td>
+              <td>{{ item.Name }}</td>
+              <td>{{ item.Kreiszugehoerigkeit }}</td>
+              <td>{{ item.Bundesland }}</td>
+              <td>{{ item.Regionalschluessel }}</td>
+              <td>{{ item.Gemeindeschluessel }}</td>
+              <td>{{ item.Status }}</td>
+            </tr>
+          </ng-container>
+        </table>
+      </div>
+    </div>
+  </mat-tab>
+</mat-tab-group>

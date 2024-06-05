@@ -30,6 +30,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { FundstellenDownloadComponent } from './pages/fundstellen/fundstellen-download/fundstellen-download.component';
+import { MarkenBekanntheitsUmfrageComponent } from './pages/marken-bekanntheits-umfrage/marken-bekanntheits-umfrage.component';
 
 @NgModule({
   declarations: [
@@ -43,6 +45,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     FundstellenComponent,
     VerfuegbarkeitsCheckComponent,
     VerteilerComponent,
+    FundstellenDownloadComponent,
+    MarkenBekanntheitsUmfrageComponent,
   ],
   imports: [
     BrowserModule,
