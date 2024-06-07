@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -32,6 +32,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { FundstellenDownloadComponent } from './pages/fundstellen/fundstellen-download/fundstellen-download.component';
 import { MarkenBekanntheitsUmfrageComponent } from './pages/marken-bekanntheits-umfrage/marken-bekanntheits-umfrage.component';
+import { ChatbotComponent } from './pages/chatbot/chatbot.component';
+import { registerLocaleData } from '@angular/common';
+import localeDe from '@angular/common/locales/de';
+
+registerLocaleData(localeDe);
 
 @NgModule({
   declarations: [
@@ -47,6 +52,7 @@ import { MarkenBekanntheitsUmfrageComponent } from './pages/marken-bekanntheits-
     VerteilerComponent,
     FundstellenDownloadComponent,
     MarkenBekanntheitsUmfrageComponent,
+    ChatbotComponent,
   ],
   imports: [
     BrowserModule,
@@ -69,7 +75,7 @@ import { MarkenBekanntheitsUmfrageComponent } from './pages/marken-bekanntheits-
     MatCheckboxModule,
     MatSnackBarModule,
   ],
-  providers: [],
+  providers: [[{ provide: LOCALE_ID, useValue: 'de' }]],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

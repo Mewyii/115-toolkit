@@ -7,6 +7,7 @@ import { FundstellenComponent } from './pages/fundstellen/fundstellen.component'
 import { VerfuegbarkeitsCheckComponent } from './pages/verfuegbarkeits-check/verfuegbarkeits-check.component';
 import { VerteilerComponent } from './pages/verteiler/verteiler.component';
 import { MarkenBekanntheitsUmfrageComponent } from './pages/marken-bekanntheits-umfrage/marken-bekanntheits-umfrage.component';
+import { ChatbotComponent } from './pages/chatbot/chatbot.component';
 
 const routes: Routes = [
   {
@@ -41,6 +42,11 @@ const routes: Routes = [
   {
     path: 'marken-bekanntheits-umfrage',
     component: MarkenBekanntheitsUmfrageComponent,
+    pathMatch: 'full',
+  },
+  {
+    path: 'chatbot',
+    component: ChatbotComponent,
     pathMatch: 'full',
   },
   {
