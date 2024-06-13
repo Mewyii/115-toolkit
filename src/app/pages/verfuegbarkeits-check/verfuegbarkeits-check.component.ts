@@ -97,6 +97,7 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
     this.verfugbarkeitsInfosAreLoading = false;
 
     this.inputChangeSubject.next(this.searchInput);
+    input.value = '';
   }
 
   private extractNameOnly(item: VerfuegbarkeitsInfos): string {

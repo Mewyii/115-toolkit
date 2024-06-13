@@ -30,11 +30,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { FundstellenDownloadComponent } from './pages/fundstellen/fundstellen-download/fundstellen-download.component';
 import { MarkenBekanntheitsUmfrageComponent } from './pages/marken-bekanntheits-umfrage/marken-bekanntheits-umfrage.component';
 import { ChatbotComponent } from './pages/chatbot/chatbot.component';
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
+import { MatNativeDateModule } from '@angular/material/core';
 
 registerLocaleData(localeDe);
 
@@ -74,8 +76,10 @@ registerLocaleData(localeDe);
     FormsModule,
     MatCheckboxModule,
     MatSnackBarModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
   ],
-  providers: [[{ provide: LOCALE_ID, useValue: 'de' }]],
+  providers: [MatDatepickerModule, [{ provide: LOCALE_ID, useValue: 'de' }]],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

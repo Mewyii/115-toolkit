@@ -85,6 +85,7 @@ export class MarkenBekanntheitsUmfrageComponent implements OnInit {
     this.markenbekanntheitsInfos = this.adjustStatusOfBayernAndBrandenburgAndHannover(kommunaleVerfuegbarkeitsInfosFiltered);
 
     this.verfugbarkeitsInfosAreLoading = false;
+    input.value = '';
   }
 
   onSaveDataToExcelFileClicked() {

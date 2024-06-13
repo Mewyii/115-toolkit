@@ -44,7 +44,7 @@ export class XLSService {
   async convertWorkbookDataToCustomData<T extends object>(
     workbookData: WorkbookData,
     sheetMappings: SheetDataMapping<T>[],
-    getId: (object: T) => string,
+    getId?: (object: T) => string,
     sortFunction?: (a: T, b: T) => number
   ) {
     const convertedData: T[] = [];
@@ -59,16 +59,19 @@ export class XLSService {
       for (const [key, entry] of excelData.entries()) {
         const convertedSheetData = sheetMapping.mappingFunction(entry);
 
-        const index = convertedData.findIndex((x) => getId(x) === getId(convertedSheetData));
+        if (getId) {
+          const index = convertedData.findIndex((x) => getId(x) === getId(convertedSheetData));
 
-        if (index > -1) {
-          convertedData[index] = { ...convertedSheetData, ...convertedData[index] };
+          if (index > -1) {
+            convertedData[index] = { ...convertedSheetData, ...convertedData[index] };
+          } else {
+            convertedData.push(convertedSheetData);
+          }
+          if (!getId(convertedSheetData)) {
+            console.log('Missing ID:' + key);
+          }
         } else {
           convertedData.push(convertedSheetData);
-        }
-
-        if (!getId(convertedSheetData)) {
-          console.log('Missing ID:' + key);
         }
       }
     }

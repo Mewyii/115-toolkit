@@ -112,6 +112,7 @@ export class VerteilerComponent implements OnInit {
 
     this.gremienKontaktInfos = await this.xlsService.convertWorkbookDataToCustomData(workbookData, this.sheetMapping, getId);
     this.filterGremienKontaktInfos();
+    input.value = '';
   }
 
   onCopyToClipboardClicked() {

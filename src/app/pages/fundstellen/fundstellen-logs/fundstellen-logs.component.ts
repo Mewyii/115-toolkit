@@ -69,6 +69,7 @@ export class FundstellenLogsComponent implements OnInit {
     }
     this.logUrlsWithTeilnehmerInfos = logUrlsWithTeilnehmerInfos;
     this.logUrlsWithoutTeilnehmerInfos = logUrlsWithoutTeilnehmerInfos.sort((a, b) => (a > b ? -1 : 1));
+    input.value = '';
   }
 
   onSaveDataToExcelFileClicked() {

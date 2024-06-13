@@ -25,6 +25,7 @@ export class FundstellenAuswertungComponent implements OnInit {
     this.fundstellenService.setFundstellenInfos(fundstellenInfos);
 
     console.log(this.fundstellenService.fundstellenInfos);
+    input.value = '';
   }
 
   onSaveDataToExcelFileClicked() {

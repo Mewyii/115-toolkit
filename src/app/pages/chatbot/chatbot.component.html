@@ -20,6 +20,10 @@
 </div>
 
 <div class="control-bar">
+  <div>
+    Session-Zeitraum: {{ earliestDate | date : "mediumDate" }} -
+    {{ latestDate | date : "mediumDate" }}
+  </div>
   <div>Gesamtanzahl Sessions: {{ chatbotSessions.length }}</div>
   <div>
     Sessions mit Nutzereingaben: {{ chatbotSessions.length - emptySessions }}
@@ -27,47 +31,104 @@
   <div>Anzahl positives Nutzerfeedback: {{ positiveUserFeedbackCount }}</div>
   <div>Anzahl negatives Nutzerfeedback: {{ negativeUserFeedbackCount }}</div>
 </div>
+<div class="control-bar">
+  <mat-checkbox [(ngModel)]="showFullBotAnswers"
+    >Vollständige Bot-Antworten Anzeigen</mat-checkbox
+  >
+  <mat-form-field>
+    <input
+      matInput
+      [matDatepickerFilter]="datePickerFilter"
+      [matDatepicker]="picker3"
+      [value]="dateFilter"
+      (dateChange)="onDateFilterChanged($event)"
+    />
+    <mat-hint>Filtern nach Datum</mat-hint>
+    <mat-datepicker-toggle
+      matIconSuffix
+      [for]="picker3"
+    ></mat-datepicker-toggle>
+    <mat-datepicker #picker3></mat-datepicker>
+  </mat-form-field>
+
+  <div class="pagination">
+    <div>Seite:</div>
+    <button
+      mat-icon-button
+      color="primary"
+      (click)="onShowPreviousPageClicked()"
+      [disabled]="page === 1"
+    >
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    {{ page }} ({{ (page - 1) * pageSize + 1 }} - {{ page * pageSize }} )
+    <button
+      mat-icon-button
+      color="primary"
+      (click)="onShowNextPageClicked()"
+      [disabled]="filteredChatbotSessions.length < page * pageSize"
+    >
+      <mat-icon>arrow_forward</mat-icon>
+    </button>
+  </div>
+</div>
 <mat-tab-group>
   <mat-tab label="Aufbereitete Daten">
     <div class="tab-content">
       <div class="type-results-container">
         <div style="width: 1000px">
-          <ng-container *ngFor="let sessionInfo of chatbotSessions">
-            <ng-container *ngIf="!sessionInfo.isEmptySession">
-              <div class="session">
-                {{ sessionInfo.sessionId }} ({{
-                  sessionInfo.date | date : "mediumDate"
-                }})
+          <ng-container *ngFor="let sessionInfo of shownChatbotSessions">
+            <div class="session">
+              {{ sessionInfo.sessionId }} ({{
+                sessionInfo.date | date : "mediumDate"
+              }})
+            </div>
+            <ng-container *ngFor="let item of sessionInfo.infos">
+              <div class="infos">
+                <div [style.width]="'100px'">
+                  {{ item.date | date : "h:mm:ss" }}
+                </div>
+                <div [style.width]="'600px'">
+                  <mat-icon
+                    [class]="'highlighted'"
+                    *ngIf="item.userInput === 'startSession'"
+                    >face</mat-icon
+                  >
+                  <mat-icon
+                    [class]="'highlighted'"
+                    *ngIf="item.userInput === 'closeChatBot'"
+                    >logout</mat-icon
+                  >
+                  <span
+                    [class]="item.isUserSelectAction ? 'highlighted' : ''"
+                    *ngIf="
+                      item.userInput !== 'startSession' &&
+                      item.userInput !== 'closeChatBot'
+                    "
+                    >{{ item.userInput }}</span
+                  >
+                </div>
               </div>
-              <ng-container *ngFor="let item of sessionInfo.infos">
-                <div class="infos">
-                  <div [style.width]="'100px'">
-                    {{ item.date | date : "h:mm:ss" }}
-                  </div>
-                  <div [style.width]="'600px'">{{ item.userInput }}</div>
+              <div
+                [class]="'bot-answer' + (showFullBotAnswers ? ' full' : '')"
+                *ngIf="item.botAnswer"
+              >
+                <div *ngIf="item.botAnswer.metadata">
+                  {{ item.botAnswer.metadata.mappedUserInput }}
                 </div>
-                <div
-                  class="bot-answer"
-                  *ngIf="item.botAnswer"
-                  [style.maxHeight]="botAnswerMaxHeight + 'rem'"
+                <div [innerHTML]="item.botAnswer.content"></div>
+              </div>
+              <div *ngIf="item.userFeedback">
+                <mat-icon *ngIf="item.userFeedback === 'good'"
+                  >thumb_up</mat-icon
                 >
-                  <div *ngIf="item.botAnswer.metadata">
-                    {{ item.botAnswer.metadata.mappedUserInput }}
-                  </div>
-                  <div [innerHTML]="item.botAnswer.content"></div>
-                </div>
-                <div *ngIf="item.userFeedback">
-                  <mat-icon *ngIf="item.userFeedback === 'good'"
-                    >thumb_up</mat-icon
-                  >
-                  <mat-icon *ngIf="item.userFeedback === 'bad'"
-                    >thumb_down</mat-icon
-                  >
-                </div>
-                <div class="feedback" *ngIf="item.userFeedbackText">
-                  {{ item.userFeedbackText }}
-                </div>
-              </ng-container>
+                <mat-icon *ngIf="item.userFeedback === 'bad'"
+                  >thumb_down</mat-icon
+                >
+              </div>
+              <div class="feedback" *ngIf="item.userFeedbackText">
+                {{ item.userFeedbackText }}
+              </div>
             </ng-container>
           </ng-container>
         </div>
