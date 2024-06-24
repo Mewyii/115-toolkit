@@ -44,8 +44,6 @@ export class ChatbotComponent implements OnInit {
 
   public shownChatbotSessions: ChatbotSessionInfo[] = [];
 
-  public showFullBotAnswers = false;
-
   public emptySessions = 0;
 
   public positiveUserFeedbackCount = 0;
@@ -94,7 +92,7 @@ export class ChatbotComponent implements OnInit {
 
     const file = input.files[0];
 
-    const workbookData = await this.xlsService.readFile(file);
+    const workbookData = await this.xlsService.readFile(file, { firstLinesToSkip: 1 });
 
     const chatbotInfos = await this.xlsService.convertWorkbookDataToCustomData(workbookData, this.sheetMapping);
 
@@ -164,6 +162,7 @@ export class ChatbotComponent implements OnInit {
 
   onShowNextPageClicked() {
     this.showPage(this.page + 1);
+    window.scrollTo({ top: 0 });
   }
 
   onDateFilterChanged(event: any) {

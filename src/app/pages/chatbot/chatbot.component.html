@@ -32,23 +32,20 @@
   <div>Anzahl negatives Nutzerfeedback: {{ negativeUserFeedbackCount }}</div>
 </div>
 <div class="control-bar">
-  <mat-checkbox [(ngModel)]="showFullBotAnswers"
-    >Vollständige Bot-Antworten Anzeigen</mat-checkbox
-  >
-  <mat-form-field>
+  <mat-form-field class="date-picker">
     <input
       matInput
       [matDatepickerFilter]="datePickerFilter"
-      [matDatepicker]="picker3"
+      [matDatepicker]="datePicker"
       [value]="dateFilter"
       (dateChange)="onDateFilterChanged($event)"
     />
     <mat-hint>Filtern nach Datum</mat-hint>
     <mat-datepicker-toggle
       matIconSuffix
-      [for]="picker3"
+      [for]="datePicker"
     ></mat-datepicker-toggle>
-    <mat-datepicker #picker3></mat-datepicker>
+    <mat-datepicker #datePicker></mat-datepicker>
   </mat-form-field>
 
   <div class="pagination">
@@ -96,20 +93,20 @@
                   >
                   <mat-icon
                     [class]="'highlighted'"
-                    *ngIf="item.userInput === 'closeChatBot'"
+                    *ngIf="item.userInput === 'closeChatbot'"
                     >logout</mat-icon
                   >
                   <span
                     [class]="item.isUserSelectAction ? 'highlighted' : ''"
                     *ngIf="
                       item.userInput !== 'startSession' &&
-                      item.userInput !== 'closeChatBot'
+                      item.userInput !== 'closeChatbot'
                     "
                     >{{ item.userInput }}</span
                   >
                 </div>
               </div>
-              <div
+              <!-- <div
                 [class]="'bot-answer' + (showFullBotAnswers ? ' full' : '')"
                 *ngIf="item.botAnswer"
               >
@@ -117,7 +114,27 @@
                   {{ item.botAnswer.metadata.mappedUserInput }}
                 </div>
                 <div [innerHTML]="item.botAnswer.content"></div>
-              </div>
+              </div> -->
+              <ng-container *ngIf="item.botAnswer">
+                <div
+                  *ngIf="!item.botAnswer.metadata.mappedUserInput"
+                  class="bot-answer-container"
+                  [innerHTML]="item.botAnswer.content"
+                ></div>
+                <mat-expansion-panel
+                  *ngIf="item.botAnswer.metadata.mappedUserInput"
+                  class="bot-answer-container"
+                >
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      <div class="bot-answer-title">
+                        {{ item.botAnswer.metadata.mappedUserInput }}
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <div [innerHTML]="item.botAnswer.content"></div>
+                </mat-expansion-panel>
+              </ng-container>
               <div *ngIf="item.userFeedback">
                 <mat-icon *ngIf="item.userFeedback === 'good'"
                   >thumb_up</mat-icon
@@ -132,6 +149,28 @@
             </ng-container>
           </ng-container>
         </div>
+      </div>
+    </div>
+    <div class="control-bar">
+      <div class="pagination">
+        <div>Seite:</div>
+        <button
+          mat-icon-button
+          color="primary"
+          (click)="onShowPreviousPageClicked()"
+          [disabled]="page === 1"
+        >
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        {{ page }} ({{ (page - 1) * pageSize + 1 }} - {{ page * pageSize }} )
+        <button
+          mat-icon-button
+          color="primary"
+          (click)="onShowNextPageClicked()"
+          [disabled]="filteredChatbotSessions.length < page * pageSize"
+        >
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
       </div>
     </div>
   </mat-tab>

@@ -63,17 +63,6 @@ mat-tab-group {
     max-width: 500px;
 }
 
-.bot-answer {
-    text-align: end;
-    color: gray;
-    margin-bottom: 0.25rem;
-    overflow: hidden;
-    max-width: 500px;
-    margin-left: 500px;
-    font-style: italic;
-    max-height: 4rem;
-}
-
 .bot-answer.full {
     max-height: none;
 }
@@ -91,4 +80,27 @@ mat-tab-group {
 
 .highlighted {
     color: #673ab7;
+}
+
+
+::ng-deep.date-picker .mat-form-field-infix {
+    display: contents !important;
+}
+
+.bot-answer-container {
+    box-shadow: none;
+}
+
+.bot-answer-container {
+    text-align: end;
+    color: gray;
+    margin-bottom: 0.25rem;
+    max-width: 600px;
+    margin-left: 400px;
+    font-style: italic;
+}
+
+.bot-answer-title {
+    width: 100%;
+    color: gray;
 }
