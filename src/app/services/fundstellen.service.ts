@@ -1,115 +1,78 @@
 import { Injectable } from '@angular/core';
-import * as XLSX from 'xlsx';
-
-export type AnsprechpartnerRolle = '-' | 'technik' | 'orga' | 'info' | 'pol-leitung' | 'öa' | 'quali';
-
-export interface Ansprechpartner {
-  mail: string;
-  rolle: AnsprechpartnerRolle;
-}
 
 export type FundstellenType = 'XML' | 'MF' | 'XZF' | 'XZFI' | 'FBS';
-export interface FundstellenInfoBase {
-  Teilnehmername: string;
+export type FundstellenStatus = 'aktiv' | 'inaktiv';
+export type TeilnehmerStatus = '115-Teilnehmer' | 'Basisabdeckung' | 'Ungültig';
+
+export interface TeilnehmerWithFundstelle {
   teilnehmernummer: string;
-  orgaid: string;
-  'FS-name': string;
-  typ: FundstellenType;
+  name: string;
+  kurzName: string;
+  land: string;
+  status: FundstellenStatus;
+  fundstelle: FundstellenInfo;
+}
+
+export interface FundstellenInfo {
+  type: FundstellenType;
+  beschreibung: string;
+  status: FundstellenStatus;
   url: string;
 }
 
-export interface FundstellenInfoExcel extends FundstellenInfoBase {
-  'Hauptansprechpartner IT und Technik': string;
-  'Hauptansprechpartner Personal und Organisation': string;
-  Informationsmanager: string;
-  'Politische Leitung': string;
-  'Presse und Öffentlichkeitsarbeit': string;
-  Qualitätsmanager: string;
-}
+export type FundstellenTypeInfos = { [key in FundstellenType]: number };
 
-export interface FundstellenInfo extends FundstellenInfoBase {
-  ansprechpartner: Ansprechpartner[];
-  hauptAnsprechpartnerEmail: string;
-  hauptAnsprechpartnerRolle: AnsprechpartnerRolle;
-}
-
-type TypeInfos = { [key in FundstellenType]: number };
-
-interface UrlInfo {
+export interface FundstellenUrlInfo {
+  type: FundstellenType;
   url: string;
   count: number;
+  teilnehmer: string[];
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class FundstellenService {
-  public fundstellenInfos: FundstellenInfo[] = [];
+  public teilnehmerWithFundstellen: TeilnehmerWithFundstelle[] = [];
 
-  public typeInfos: TypeInfos = {
-    FBS: 0,
-    MF: 0,
-    XML: 0,
-    XZF: 0,
-    XZFI: 0,
-  };
+  public typeInfos: FundstellenTypeInfos = this.getInitialTypeInfos();
 
-  public ansprechpartner: { [key in AnsprechpartnerRolle]: number } = {
-    technik: 0,
-    'pol-leitung': 0,
-    info: 0,
-    orga: 0,
-    quali: 0,
-    öa: 0,
-    '-': 0,
-  };
-
-  public ansprechpartnerCount: { [key: number]: number } = {};
-
-  public urlInfos: UrlInfo[] = [];
+  public urlInfos: FundstellenUrlInfo[] = [];
 
   public logUrls: string[] = [];
   constructor() {}
 
-  setFundstellenInfos(fundstellenInfos: FundstellenInfo[]) {
-    const ansprechpartner = {
-      technik: 0,
-      'pol-leitung': 0,
-      info: 0,
-      orga: 0,
-      quali: 0,
-      öa: 0,
-      '-': 0,
-    };
+  setTeilnehmerWithFundstellen(teilnehmerWithFundstellen: TeilnehmerWithFundstelle[]) {
+    this.typeInfos = this.getInitialTypeInfos();
 
-    const ansprechpartnerCount: { [key: number]: number } = {};
+    for (const teilnehmerWithFundstelle of teilnehmerWithFundstellen) {
+      this.typeInfos[teilnehmerWithFundstelle.fundstelle.type]++;
 
-    for (const fundstellenInfo of fundstellenInfos) {
-      this.typeInfos[fundstellenInfo.typ]++;
-
-      const coreUrl = fundstellenInfo.url.split('/').slice(0, 3).join('/') + '/';
-      const urlInfoIndex = this.urlInfos.findIndex((x) => x.url === coreUrl);
+      const coreUrl = teilnehmerWithFundstelle.fundstelle.url.split('/').slice(0, 3).join('/') + '/';
+      const urlInfoIndex = this.urlInfos.findIndex((x) => x.url === coreUrl && x.type === teilnehmerWithFundstelle.fundstelle.type);
       if (urlInfoIndex > -1) {
         this.urlInfos[urlInfoIndex].count++;
+        this.urlInfos[urlInfoIndex].teilnehmer.push(teilnehmerWithFundstelle.name);
       } else {
-        this.urlInfos.push({ url: coreUrl, count: 1 });
+        this.urlInfos.push({ url: coreUrl, count: 1, type: teilnehmerWithFundstelle.fundstelle.type, teilnehmer: [teilnehmerWithFundstelle.name] });
       }
       this.urlInfos.sort((a, b) => b.count - a.count);
-
-      for (const partner of fundstellenInfo.ansprechpartner) {
-        ansprechpartner[partner.rolle]++;
-      }
-
-      const currentCount = ansprechpartnerCount[fundstellenInfo.ansprechpartner.length];
-      ansprechpartnerCount[fundstellenInfo.ansprechpartner.length] = currentCount ? currentCount + 1 : 1;
     }
 
-    this.ansprechpartner = ansprechpartner;
-    this.ansprechpartnerCount = ansprechpartnerCount;
-    this.fundstellenInfos = fundstellenInfos;
+    this.teilnehmerWithFundstellen = teilnehmerWithFundstellen;
   }
 
   setLogUrls(urls: string[]) {
     this.logUrls = urls;
+  }
+
+  private getInitialTypeInfos() {
+    return {
+      FBS: 0,
+      MF: 0,
+      XML: 0,
+      XZF: 0,
+      XZFI: 0,
+    };
   }
 }

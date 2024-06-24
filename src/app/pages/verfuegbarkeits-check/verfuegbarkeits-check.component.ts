@@ -5,6 +5,7 @@ import { ConverterService, SheetDataMapping, VerteilerService, XLSService } from
 export type TeilnehmerStatus = 'Kein 115-Teilnehmer' | 'Basisabdeckung' | '115-Teilnehmer';
 export interface VerfuegbarkeitsInfos {
   Teilnehmernummer?: string;
+  Name: string;
   Kurzname: string;
   Bundesland?: string;
   Kreiszugehoerigkeit?: string;
@@ -13,7 +14,6 @@ export interface VerfuegbarkeitsInfos {
 }
 
 export interface VerfuegbarkeitsInfosEnhanced extends VerfuegbarkeitsInfos {
-  Name: string;
   IsDuplicate?: boolean;
   IsRenamed?: boolean;
 }
@@ -39,6 +39,7 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
     {
       name: 'Stammdatenbericht v3.0 (BIRT 4.',
       mappingFunction: (entry) => ({
+        Name: '',
         Kurzname: entry.Kurzname,
         Kreiszugehoerigkeit: entry.Kreiszugehörigkeit,
         Bundesland: entry.Bundesland,
@@ -73,9 +74,7 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
 
     const workbookData = await this.xlsService.readFile(file);
 
-    const getId = (item: VerfuegbarkeitsInfos) => item.Kurzname + item.Regionalschluessel;
-
-    this.verfuegbarkeitsInfosInitial = (await this.xlsService.convertWorkbookDataToCustomData(workbookData, this.sheetMapping, getId))
+    this.verfuegbarkeitsInfosInitial = (await this.xlsService.convertWorkbookDataToCustomData(workbookData, this.sheetMapping))
       .sort((a, b) => (a.Bundesland ?? '').localeCompare(b.Bundesland ?? ''))
       .sort((a, b) => a.Kurzname.localeCompare(b.Kurzname))
       .map((item) => ({ ...item, Name: this.extractNameOnly(item) }));
@@ -84,7 +83,7 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
       (x) => x.Teilnehmernummer && (x.Teilnehmernummer.startsWith('K') || x.Teilnehmernummer.startsWith('S'))
     );
 
-    const kommunaleVerfuegbarkeitsInfosRenamed = this.renameDuplicatesIfPossible(kommunaleVerfuegbarkeitsInfos, getId);
+    const kommunaleVerfuegbarkeitsInfosRenamed = this.renameDuplicatesIfPossible(kommunaleVerfuegbarkeitsInfos);
 
     this.duplicates = kommunaleVerfuegbarkeitsInfosRenamed.filter((x) => x.IsDuplicate === true);
 
@@ -132,7 +131,7 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
     this.shownDuplicates = this.duplicates.filter((x) => x.Name.toLocaleLowerCase().includes(lowerCaseInput));
   }
 
-  private renameDuplicatesIfPossible(verfuegbarkeitsInfos: VerfuegbarkeitsInfosEnhanced[], getId: (object: VerfuegbarkeitsInfosEnhanced) => string) {
+  private renameDuplicatesIfPossible(verfuegbarkeitsInfos: VerfuegbarkeitsInfosEnhanced[]) {
     const hasDuplicatedNameInDifferentKreis = (item1: VerfuegbarkeitsInfosEnhanced, item2: VerfuegbarkeitsInfosEnhanced) =>
       item1.Name === item2.Name && item1.Kreiszugehoerigkeit !== item2.Kreiszugehoerigkeit && item1.Regionalschluessel.length === item2.Regionalschluessel.length;
     const hasDuplicatedNameInSameKreis = (item1: VerfuegbarkeitsInfosEnhanced, item2: VerfuegbarkeitsInfosEnhanced) =>

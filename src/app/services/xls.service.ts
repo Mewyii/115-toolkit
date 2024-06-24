@@ -10,6 +10,10 @@ export interface SheetDataMapping<T> {
   mappingFunction: (entry: any) => T;
 }
 
+interface ReadFileOptions {
+  firstLinesToSkip?: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -29,15 +33,27 @@ export class XLSService {
     XLSX.writeFile(workbook, name + '.xlsx');
   }
 
-  async readFile(file: File) {
+  async readFile(file: File, options?: ReadFileOptions) {
     const data = await file.arrayBuffer();
-
-    var workbook = XLSX.read(data);
+    const workbook = XLSX.read(data);
     const workbookData: WorkbookData = { sheetData: [] };
+
     for (const sheetName of workbook.SheetNames) {
-      const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]) as any[];
+      const sheet = workbook.Sheets[sheetName];
+
+      if (options) {
+        if (options.firstLinesToSkip) {
+          const range = XLSX.utils.decode_range(sheet['!ref']!);
+          range.s.r = options.firstLinesToSkip;
+
+          sheet['!ref'] = XLSX.utils.encode_range(range);
+        }
+      }
+
+      const sheetData = XLSX.utils.sheet_to_json(sheet) as any[];
       workbookData.sheetData.push({ name: sheetName, data: sheetData });
     }
+
     return workbookData;
   }
 

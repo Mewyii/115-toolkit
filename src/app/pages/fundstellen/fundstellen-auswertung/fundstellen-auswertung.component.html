@@ -9,41 +9,49 @@
     [accept]="'.xlsx'"
     (change)="onFundstellenExcelFileSelected($event)"
   />
-  <button
-    mat-raised-button
-    color="primary"
-    (click)="onSaveDataToExcelFileClicked()"
-  >
-    <span>Infos Exportieren</span>
-  </button>
 </div>
 <div class="results-container">
-  <b style="text-align: center">Fundstellen-Arten</b>
+  <b style="text-align: center">Status</b>
   <div class="type-results-container">
-    <div *ngFor="let item of fundstellenService.typeInfos | keyvalue">
-      {{ item.key }}: {{ item.value }}
+    <div class="type-container" *ngFor="let item of shownStatus | keyvalue">
+      <mat-checkbox
+        [checked]="item.value"
+        (change)="updateStatusFilter(item.key, $event)"
+        >{{ item.key }}</mat-checkbox
+      >
     </div>
   </div>
-  <b style="text-align: center">Angegebene Ansprechpartner (Rollen)</b>
-  <div class="ansprechpartner-container">
-    <div *ngFor="let item of fundstellenService.ansprechpartner | keyvalue">
-      {{ item.key }}: {{ item.value }}
-    </div>
-  </div>
-  <b style="text-align: center"
-    >Angegebene Ansprechpartner (Summe pro Teilnehmer)</b
-  >
-  <div class="ansprechpartner-container">
-    <div
-      *ngFor="let item of fundstellenService.ansprechpartnerCount | keyvalue"
-    >
-      {{ item.key }}x: {{ item.value }}
+  <b style="text-align: center">Typ</b>
+  <div class="type-results-container">
+    <div class="type-container" *ngFor="let item of typeInfos | keyvalue">
+      <mat-checkbox
+        [checked]="getType(item.key)"
+        (change)="updateTypeFilter(item.key, $event)"
+        >{{ item.key }}</mat-checkbox
+      >
+      {{ item.value }}
     </div>
   </div>
   <div class="url-results-container">
     <b>Meistverwendete Kern-URLs</b>
-    <div *ngFor="let item of fundstellenService.urlInfos">
-      {{ item.url }}: {{ item.count }}
-    </div>
+    <mat-expansion-panel
+      *ngFor="let item of urlInfos"
+      class="url-info-container"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          {{ item.type }} {{ item.url }}: {{ item.count }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <div
+        *ngFor="let teilnehmerName of item.teilnehmer"
+        class="teilnehmer-name"
+      >
+        {{ teilnehmerName }}
+      </div>
+    </mat-expansion-panel>
   </div>
+  <br />
+  <br />
+  <br />
 </div>

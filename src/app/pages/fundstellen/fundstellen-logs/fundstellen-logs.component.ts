@@ -50,23 +50,23 @@ export class FundstellenLogsComponent implements OnInit {
     const logUrlsWithTeilnehmerInfos: LogUrlWithTeilnehmerInfo[] = [];
     const logUrlsWithoutTeilnehmerInfos: string[] = [];
 
-    const fundstellenInfos = this.fundstellenService.fundstellenInfos;
-    for (const url of urls) {
-      const fundstellenInfoIndex = fundstellenInfos.findIndex(
-        (x) => url.includes(x.Teilnehmername.split(',')[0]) || url.includes(x.teilnehmernummer) || url.includes(x.url) || x.url.includes(url)
-      );
-      if (fundstellenInfoIndex > -1) {
-        const info = fundstellenInfos[fundstellenInfoIndex];
-        logUrlsWithTeilnehmerInfos.push({
-          teilnehmername: info.Teilnehmername,
-          fundstellenUrl: url,
-          ansprechpartnerEmail: info.hauptAnsprechpartnerEmail,
-          ansprechpartnerRolle: info.hauptAnsprechpartnerRolle,
-        });
-      } else {
-        logUrlsWithoutTeilnehmerInfos.push(url);
-      }
-    }
+    // const fundstellenInfos = this.fundstellenService.fundstellenInfos;
+    // for (const url of urls) {
+    //   const fundstellenInfoIndex = fundstellenInfos.findIndex(
+    //     (x) => url.includes(x.Teilnehmername.split(',')[0]) || url.includes(x.teilnehmernummer) || url.includes(x.url) || x.url.includes(url)
+    //   );
+    //   if (fundstellenInfoIndex > -1) {
+    //     const info = fundstellenInfos[fundstellenInfoIndex];
+    //     logUrlsWithTeilnehmerInfos.push({
+    //       teilnehmername: info.Teilnehmername,
+    //       fundstellenUrl: url,
+    //       ansprechpartnerEmail: info.hauptAnsprechpartnerEmail,
+    //       ansprechpartnerRolle: info.hauptAnsprechpartnerRolle,
+    //     });
+    //   } else {
+    //     logUrlsWithoutTeilnehmerInfos.push(url);
+    //   }
+    // }
     this.logUrlsWithTeilnehmerInfos = logUrlsWithTeilnehmerInfos;
     this.logUrlsWithoutTeilnehmerInfos = logUrlsWithoutTeilnehmerInfos.sort((a, b) => (a > b ? -1 : 1));
     input.value = '';

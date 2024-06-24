@@ -27,6 +27,7 @@
     flex-direction: column;
     align-items:center;
     gap: 8px;
+    width: 700px;
 }
 
 .ansprechpartner-container {
@@ -35,4 +36,18 @@
     justify-content: center;
     align-items: center;
     gap: 8px;
+}
+
+.type-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.url-info-container {
+    width: 600px;
+}
+
+.teilnehmer-name {
+    max-width: 400px;
 }
