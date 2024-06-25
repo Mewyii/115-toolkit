@@ -37,6 +37,9 @@ import { ChatbotComponent } from './pages/chatbot/chatbot.component';
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import { MatNativeDateModule } from '@angular/material/core';
+import { ZukunftstechnologieBotComponent } from './pages/zukunftstechnologie-bot/zukunftstechnologie-bot.component';
+import { HttpClientModule } from '@angular/common/http';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 registerLocaleData(localeDe);
 
@@ -55,6 +58,7 @@ registerLocaleData(localeDe);
     FundstellenDownloadComponent,
     MarkenBekanntheitsUmfrageComponent,
     ChatbotComponent,
+    ZukunftstechnologieBotComponent,
   ],
   imports: [
     BrowserModule,
@@ -78,6 +82,8 @@ registerLocaleData(localeDe);
     MatSnackBarModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    HttpClientModule,
+    MatButtonToggleModule,
   ],
   providers: [MatDatepickerModule, [{ provide: LOCALE_ID, useValue: 'de' }]],
   bootstrap: [AppComponent],

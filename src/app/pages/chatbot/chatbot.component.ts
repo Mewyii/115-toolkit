@@ -66,7 +66,7 @@ export class ChatbotComponent implements OnInit {
         dialogId: entry['Dialog Session'],
         date: entry.Date ? new Date(entry.Date) : undefined,
         userInput: entry.Question,
-        userFeedback: entry['User Like'] != undefined ? (entry['User Like'] === true ? 'good' : 'bad') : undefined,
+        userFeedback: entry['User Like'] != undefined ? (entry['User Like'] === 'true' ? 'good' : 'bad') : undefined,
         userFeedbackText: entry['User Feedback'],
         botAnswer: entry['Member Answer'] ? JSON.parse(entry['Member Answer'])[0] : undefined,
         isUserSelectAction: !!entry['Mapped Action'],

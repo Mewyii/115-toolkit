@@ -1,0 +1,89 @@
+<div class="control-bar"></div>
+<div class="chatbot-container">
+  <div class="header-container">
+    <div class="header-container-right">
+      <button mat-icon-button (click)="onShowDebugClicked()">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <button mat-icon-button (click)="onPlayTextToSpeechClicked()">
+        <mat-icon *ngIf="playTextToSpeech">volume_up</mat-icon>
+        <mat-icon *ngIf="!playTextToSpeech">volume_off</mat-icon>
+      </button>
+    </div>
+    <div>115-Chatbot Frankfurt</div>
+    <div class="header-container-right">
+      <mat-form-field [style.width]="'50px'" [style.height]="'65px'">
+        <select matNativeControl [(ngModel)]="language">
+          <option value="de">de</option>
+          <option value="en">en</option>
+        </select>
+      </mat-form-field>
+      <button mat-icon-button>
+        <mat-icon>clear</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="message-history" #messageHistory>
+    <ng-container *ngFor="let greeting of userGreetings">
+      <div class="chatbot-response" [innerHTML]="greeting"></div>
+    </ng-container>
+    <ng-container
+      *ngFor="let message of chatbotSession.messages"
+      #messageElements
+    >
+      <div class="user-message-container">
+        <div *ngIf="message.user_message" class="user-message">
+          {{ message.user_message }}
+        </div>
+      </div>
+      <div class="chatbot-response">
+        <span>{{ message.system_response }}</span
+        ><ng-container *ngIf="message.leistung"
+          ><br /><br />Gefundene Quelle:
+          <a [href]="message.leistung.url" [target]="'_blank'">{{
+            message.leistung.titel
+          }}</a></ng-container
+        >
+      </div>
+    </ng-container>
+  </div>
+  <div class="user-input-container">
+    <mat-form-field [style.flex]="'1 1'" [style.height]="'50px'">
+      <input
+        type="text"
+        placeholder="Bitte geben Sie Ihr Anliegen ein..."
+        aria-label="Number"
+        matInput
+        [(ngModel)]="userInput"
+        (keydown.enter)="onMessageSendClicked()"
+        [disabled]="awaitingAPIResponse || isRecordingAudio"
+      />
+    </mat-form-field>
+    <button
+      mat-mini-fab
+      [color]="!isRecordingAudio ? 'primary' : 'accent'"
+      (click)="onRecordAudioClicked()"
+    >
+      <mat-icon>mic</mat-icon>
+    </button>
+    <button
+      mat-raised-button
+      class="send-user-input-button"
+      color="primary"
+      (click)="onMessageSendClicked()"
+      [disabled]="awaitingAPIResponse"
+    >
+      <mat-icon *ngIf="!awaitingAPIResponse">send</mat-icon>
+      <mat-spinner
+        *ngIf="awaitingAPIResponse"
+        [color]="'primary'"
+        [diameter]="24"
+      ></mat-spinner>
+    </button>
+  </div>
+</div>
+<br />
+<div class="debug-container" *ngIf="showDebug">
+  <pre>{{ bestMatches }}</pre>
+</div>

@@ -8,6 +8,7 @@ import { VerfuegbarkeitsCheckComponent } from './pages/verfuegbarkeits-check/ver
 import { VerteilerComponent } from './pages/verteiler/verteiler.component';
 import { MarkenBekanntheitsUmfrageComponent } from './pages/marken-bekanntheits-umfrage/marken-bekanntheits-umfrage.component';
 import { ChatbotComponent } from './pages/chatbot/chatbot.component';
+import { ZukunftstechnologieBotComponent } from './pages/zukunftstechnologie-bot/zukunftstechnologie-bot.component';
 
 const routes: Routes = [
   {
@@ -47,6 +48,11 @@ const routes: Routes = [
   {
     path: 'chatbot',
     component: ChatbotComponent,
+    pathMatch: 'full',
+  },
+  {
+    path: 'zukunftstechnologie-bot',
+    component: ZukunftstechnologieBotComponent,
     pathMatch: 'full',
   },
   {
