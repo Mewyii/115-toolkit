@@ -67,10 +67,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "swp-frontend-2.0:build:production"
+              "buildTarget": "swp-frontend-2.0:build:production"
             },
             "development": {
-              "browserTarget": "swp-frontend-2.0:build:development"
+              "buildTarget": "swp-frontend-2.0:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -78,7 +78,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "swp-frontend-2.0:build"
+            "buildTarget": "swp-frontend-2.0:build"
           }
         },
         "test": {
