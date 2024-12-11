@@ -1,0 +1,65 @@
+<div class="control-bar">
+  <button mat-flat-button color="primary" (click)="xlsFileIPicker.click()">
+    <span class="text-with-loading-indicator"
+      >Datei Öffnen
+      <mat-progress-spinner
+        *ngIf="excelInfosAreLoading"
+        diameter="20"
+        mode="indeterminate"
+        color="accent"
+      ></mat-progress-spinner>
+    </span>
+  </button>
+  <input
+    #xlsFileIPicker
+    [hidden]="true"
+    [type]="'file'"
+    [accept]="'.xlsx'"
+    (change)="onExcelFileSelected($event)"
+  />
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onLoadFragDenStaatInfosClicked()"
+  >
+    <span class="text-with-loading-indicator"
+      >Informationen Laden
+      <mat-progress-spinner
+        *ngIf="fdsInfosAreLoading"
+        diameter="20"
+        mode="indeterminate"
+        color="accent"
+      ></mat-progress-spinner>
+    </span>
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSaveDataToExcelFileClicked()"
+  >
+    <span>Aufbereitete Daten Exportieren</span>
+  </button>
+</div>
+<br /><br />
+<div class="tab-content">
+  <div class="type-results-container">
+    <table style="width: 900px">
+      <tr>
+        <th>Name</th>
+        <th>Bundesland</th>
+        <th>Teilnehmernummer</th>
+        <th>Mail-Adressen</th>
+        <th>Quelle</th>
+      </tr>
+      <ng-container *ngFor="let item of tnkInfos">
+        <tr>
+          <td>{{ item.Name }}</td>
+          <td>{{ item.Bundesland }} ({{ item.BundeslandId }})</td>
+          <td>{{ item["TN-Nummer"] }}</td>
+          <td>{{ item.Mails }}</td>
+          <td>{{ item.site_url }}</td>
+        </tr>
+      </ng-container>
+    </table>
+  </div>
+</div>

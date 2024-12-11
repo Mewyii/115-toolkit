@@ -5,7 +5,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OverviewComponent } from './pages/overview/overview.component';
-import { LeistungsSucheComponent } from './pages/leistungs-suche/leistungs-suche.component';
 
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
@@ -18,7 +17,6 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatLegacyTabsModule as MatTabsModule } from '@angular/material/legacy-tabs';
 import { FundstellenAuswertungComponent } from './pages/fundstellen/fundstellen-auswertung/fundstellen-auswertung.component';
-import { AdministrationComponent } from './pages/administration/administration.component';
 import { TeilnehmerComponent } from './pages/teilnehmer/teilnehmer.component';
 import { FundstellenLogsComponent } from './pages/fundstellen/fundstellen-logs/fundstellen-logs.component';
 import { FundstellenComponent } from './pages/fundstellen/fundstellen.component';
@@ -40,6 +38,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { ZukunftstechnologieBotComponent } from './pages/zukunftstechnologie-bot/zukunftstechnologie-bot.component';
 import { HttpClientModule } from '@angular/common/http';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { TnkComponent } from './pages/tnk/tnk.component';
 
 registerLocaleData(localeDe);
 
@@ -47,9 +46,7 @@ registerLocaleData(localeDe);
   declarations: [
     AppComponent,
     OverviewComponent,
-    LeistungsSucheComponent,
     FundstellenAuswertungComponent,
-    AdministrationComponent,
     TeilnehmerComponent,
     FundstellenLogsComponent,
     FundstellenComponent,
@@ -59,6 +56,7 @@ registerLocaleData(localeDe);
     MarkenBekanntheitsUmfrageComponent,
     ChatbotComponent,
     ZukunftstechnologieBotComponent,
+    TnkComponent,
   ],
   imports: [
     BrowserModule,

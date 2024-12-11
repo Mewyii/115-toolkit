@@ -149,6 +149,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
 
   onRemoveLeistungClicked() {
     this.leistung = undefined;
+    this.chatbotSession.messages.push({ user_message: 'Anliegen zu anderer Leistung', system_response: 'Gern! Bitte geben Sie Ihr neues Anliegen ein!' });
     this.oldSessions.push(cloneDeep(this.chatbotSession));
     this.chatbotSession.messages = [];
   }

@@ -1,7 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LeistungsSucheComponent } from './pages/leistungs-suche/leistungs-suche.component';
-import { AdministrationComponent } from './pages/administration/administration.component';
 import { TeilnehmerComponent } from './pages/teilnehmer/teilnehmer.component';
 import { FundstellenComponent } from './pages/fundstellen/fundstellen.component';
 import { VerfuegbarkeitsCheckComponent } from './pages/verfuegbarkeits-check/verfuegbarkeits-check.component';
@@ -9,6 +7,7 @@ import { VerteilerComponent } from './pages/verteiler/verteiler.component';
 import { MarkenBekanntheitsUmfrageComponent } from './pages/marken-bekanntheits-umfrage/marken-bekanntheits-umfrage.component';
 import { ChatbotComponent } from './pages/chatbot/chatbot.component';
 import { ZukunftstechnologieBotComponent } from './pages/zukunftstechnologie-bot/zukunftstechnologie-bot.component';
+import { TnkComponent } from './pages/tnk/tnk.component';
 
 const routes: Routes = [
   {
@@ -17,18 +16,8 @@ const routes: Routes = [
     pathMatch: 'full',
   },
   {
-    path: 'leistungs-suche',
-    component: LeistungsSucheComponent,
-    pathMatch: 'full',
-  },
-  {
     path: 'fundstellen',
     component: FundstellenComponent,
-    pathMatch: 'full',
-  },
-  {
-    path: 'administration',
-    component: AdministrationComponent,
     pathMatch: 'full',
   },
   {
@@ -58,6 +47,11 @@ const routes: Routes = [
   {
     path: 'administration/teilnehmer/:id',
     component: TeilnehmerComponent,
+    pathMatch: 'full',
+  },
+  {
+    path: 'tnk',
+    component: TnkComponent,
     pathMatch: 'full',
   },
 ];
