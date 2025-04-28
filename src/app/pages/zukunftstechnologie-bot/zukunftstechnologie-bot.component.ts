@@ -1,7 +1,7 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { MediaRecorderService } from 'src/app/services/media-recorder.service';
 import { cloneDeep } from 'lodash';
+import { MediaRecorderService } from 'src/app/services/media-recorder.service';
 
 export type ChatbotDialogType = 'system_greeting' | 'find_leistung' | 'keine_leistung_gefunden' | '"question_answering"';
 
@@ -35,13 +35,27 @@ export interface ChatbotAPIPostParameters {
   skip_cache: boolean;
 }
 
-export interface ChatbotAPIPostResponse {
-  best_matches?: any;
-  leistung?: ChatbotLeistung;
-  messages: ChatbotDialog[];
-  state: string;
-  error?: any;
-}
+type FlowiseAPIResponseType = {
+  text: string;
+  question: string;
+  chatId: string;
+  chatMessageId: string;
+  sessionId: string;
+  memoryType: string;
+  agentReasoning: AgentReasoning[];
+};
+
+type AgentReasoning = {
+  agentName: string;
+  messages: string[];
+  nodeName: string;
+  nodeId: string;
+};
+
+type FlowiseHistory = {
+  role: 'apiMessage' | 'userMessage';
+  content: string;
+};
 
 export interface SpeechToTextAPIPostResponse {
   average_duration: number;
@@ -66,6 +80,12 @@ export interface TextToSpeechData {
   orig_name: string;
 }
 
+interface ChatbotVersion {
+  versionNumber: string;
+  teilnehmer: string;
+  url: string;
+}
+
 @Component({
   selector: 'app-zukunftstechnologie-bot',
   templateUrl: './zukunftstechnologie-bot.component.html',
@@ -75,22 +95,21 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   @ViewChild('messageHistory') private messageHistoryElement!: ElementRef<HTMLElement>;
   @ViewChildren('messageElements') messageElements!: QueryList<any>;
 
-  public userGreetings: string[] = [
-    '<b>Hallo!</b> Ich bin der Chatbot der Behördennummer 115 für die Stadt Frankfurt. Wie kann ich Ihnen helfen?',
-    'Aktuell befinde ich mich in einer Testphase und freue mich, wenn Sie meine Feedbackmöglichkeiten nutzen.',
-    '<b>Bitte nennen Sie mir Ihr Anliegen inkl. des Ortes</b>, z. B. <i>"Ich habe meinen Führerschein verloren in Frankfurt"</i>. Bitte geben Sie keine persönlichen Daten wie z. B. Ihren Namen ein.',
+  public versions: ChatbotVersion[] = [
+    { versionNumber: '0.15', teilnehmer: 'Frankfurt', url: 'https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799' },
+    { versionNumber: '0.15', teilnehmer: 'Aachen', url: 'https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799' },
+    { versionNumber: '0.15', teilnehmer: 'Berlin', url: 'https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799' },
   ];
+  public selectedVersion: ChatbotVersion | undefined = this.versions[0];
 
-  public userGreetingsEn: string[] = [
-    '<b>Hello!</b> I am the chatbot of the hotline 115 for the city of Frankfurt. How can I help you?',
-    'Currently, I am in a testing phase and would appreciate it if you could use my feedback options.',
-    '<b>Please state your concern including the location</b>, e.g. <i>"I have lost my driving license in Frankfurt"</i>. Please do not enter any personal data such as your name.',
-  ];
+  public userGreetings: string[] = getDeUserGreeting(this.selectedVersion?.teilnehmer);
+  public userGreetingsEn: string[] = getEnUserGreeting(this.selectedVersion?.teilnehmer);
+
   public userInput = '';
   public language: 'de' | 'en' = 'de';
   public showDebug = false;
   public playTextToSpeech = false;
-  public bestMatches = '';
+  public agentChain = '';
   public leistung: ChatbotLeistung | undefined;
   public isRecordingAudio = false;
 
@@ -119,9 +138,18 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     );
   }
 
+  onVersionChange(event: Event) {
+    const selectedVersion = this.versions.find((version) => version.teilnehmer === (event.target as HTMLSelectElement).value);
+    if (selectedVersion) {
+      this.selectedVersion = selectedVersion;
+      this.userGreetings = getDeUserGreeting(this.selectedVersion?.teilnehmer);
+      this.userGreetingsEn = getEnUserGreeting(this.selectedVersion?.teilnehmer);
+    }
+  }
+
   onMessageSendClicked() {
     this.awaitingAPIResponse = true;
-    this.fetchChatbotResponse(this.userInput).subscribe((response) => {
+    queryFlowise({ question: this.userInput, history: this.getFlowiseHistory() }).then((response) => {
       this.awaitingAPIResponse = false;
       if (!response.error) {
         this.updateChatbotFromAPIResponse(response);
@@ -154,6 +182,24 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     this.chatbotSession.messages = [];
   }
 
+  onSendFeedbackClicked() {
+    const uuid = crypto.randomUUID();
+    const subject = encodeURIComponent(`115-Chatbot-Feedback ${uuid}`);
+    const body = encodeURIComponent(
+      'Feedback: \n\n\n\n\n\nDebug-Informationen:\nAgentenverlauf: ' +
+        this.agentChain +
+        '\n\nChatverlauf:\n' +
+        JSON.stringify(
+          this.chatbotSession.messages.map((x) => ({ userInput: x.user_message, aiResponse: x.system_response })),
+          null,
+          2
+        )
+    );
+
+    const email = 'sebastian.quendt@fitko.de';
+    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+  }
+
   private async onAudioFileGenerated(blob: Blob) {
     const base64StringFromMp3 = await readBlob(blob);
     if (base64StringFromMp3 && typeof base64StringFromMp3 === 'string') {
@@ -163,7 +209,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
         const text = response.data[0];
         if (text) {
           this.userInput = text;
-          this.fetchChatbotResponse(text).subscribe((response) => {
+          queryFlowise({ question: text, history: this.getFlowiseHistory() }).then((response) => {
             this.awaitingAPIResponse = false;
             if (!response.error) {
               this.updateChatbotFromAPIResponse(response);
@@ -174,21 +220,16 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     }
   }
 
-  private updateChatbotFromAPIResponse(response: ChatbotAPIPostResponse) {
+  private updateChatbotFromAPIResponse(response: FlowiseAPIResponseType) {
     this.userInput = '';
-    this.chatbotSession.messages = response.messages;
-    if (response.leistung) {
-      this.leistung = response.leistung;
+    this.chatbotSession.messages.push({ user_message: response.question, system_response: response.text });
 
-      this.chatbotSession.messages[this.chatbotSession.messages.length - 1].leistung = response.leistung;
-    }
-
-    if (response.best_matches) {
-      this.bestMatches = response.best_matches;
+    if (response?.agentReasoning?.length > 0) {
+      this.agentChain = response.agentReasoning.map((x) => x.agentName).join(' -> ');
     }
 
     if (this.playTextToSpeech) {
-      const chatbotResponseText = response.messages[response.messages.length - 1].system_response;
+      const chatbotResponseText = response.text;
       if (chatbotResponseText) {
         this.fetchTextToSpeechResponse(chatbotResponseText).subscribe((response) => {
           if (!response.error) {
@@ -200,21 +241,6 @@ export class ZukunftstechnologieBotComponent implements OnInit {
         });
       }
     }
-  }
-
-  private fetchChatbotResponse(message: string) {
-    const sessionHistory = [...this.chatbotSession.messages];
-    this.chatbotSession.messages.push({ user_message: message });
-
-    const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
-    const body: ChatbotSessionAPIPost = {
-      leistung_id: this.leistung?.id,
-      messages: sessionHistory,
-      user_message: message,
-      parameters: { ...this.apiParameters, language: this.language },
-    };
-
-    return this.httpClient.post<ChatbotAPIPostResponse>('https://fitbot.dfki.de/api/chat', body, { headers });
   }
 
   private fetchSpeechToTextResponse(base64String: string) {
@@ -235,6 +261,47 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       data: [this.language, text],
     });
   }
+
+  private getFlowiseHistory(): FlowiseHistory[] {
+    return this.chatbotSession.messages.flatMap((message) => {
+      const result: FlowiseHistory[] = [];
+      if (message.user_message) {
+        result.push({ role: 'userMessage', content: message.user_message });
+      }
+      if (message.system_response) {
+        result.push({ role: 'apiMessage', content: message.system_response });
+      }
+      return result;
+    });
+  }
+}
+
+async function queryFlowise(data: { question: string; history: FlowiseHistory[] }) {
+  const response = await fetch('https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  const result = await response.json();
+  return result;
+}
+
+function getDeUserGreeting(teilnehmer?: string) {
+  return [
+    '<b>Hallo!</b> Ich bin der Chatbot der Behördennummer 115 für die Stadt ' + teilnehmer + '. Wie kann ich Ihnen helfen?',
+    'Aktuell befinde ich mich in einer Testphase und freue mich, wenn Sie meine Feedbackmöglichkeiten nutzen.',
+    '<b>Bitte nennen Sie mir Ihr Anliegen</b>, z. B. <i>"Ich habe meinen Führerschein verloren"</i>. Bitte geben Sie keine persönlichen Daten wie z. B. Ihren Namen ein.',
+  ];
+}
+
+function getEnUserGreeting(teilnehmer?: string) {
+  return [
+    '<b>Hello!</b> I am the chatbot of the hotline 115 for the city of ' + teilnehmer + '. How can I help you?',
+    'Currently, I am in a testing phase and would appreciate it if you could use my feedback options.',
+    '<b>Please state your concern including</b>, e.g. <i>"I have lost my driving license"</i>. Please do not enter any personal data such as your name.',
+  ];
 }
 
 function readBlob(blob: Blob) {

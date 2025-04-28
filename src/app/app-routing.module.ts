@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { TeilnehmerComponent } from './pages/teilnehmer/teilnehmer.component';
+import { ChatbotComponent } from './pages/chatbot/chatbot.component';
 import { FundstellenComponent } from './pages/fundstellen/fundstellen.component';
+import { MarkenBekanntheitsUmfrageComponent } from './pages/marken-bekanntheits-umfrage/marken-bekanntheits-umfrage.component';
+import { TeilnehmerComponent } from './pages/teilnehmer/teilnehmer.component';
+import { TnkComponent } from './pages/tnk/tnk.component';
 import { VerfuegbarkeitsCheckComponent } from './pages/verfuegbarkeits-check/verfuegbarkeits-check.component';
 import { VerteilerComponent } from './pages/verteiler/verteiler.component';
-import { MarkenBekanntheitsUmfrageComponent } from './pages/marken-bekanntheits-umfrage/marken-bekanntheits-umfrage.component';
-import { ChatbotComponent } from './pages/chatbot/chatbot.component';
 import { ZukunftstechnologieBotComponent } from './pages/zukunftstechnologie-bot/zukunftstechnologie-bot.component';
-import { TnkComponent } from './pages/tnk/tnk.component';
 
 const routes: Routes = [
   {
@@ -35,12 +35,12 @@ const routes: Routes = [
     pathMatch: 'full',
   },
   {
-    path: 'chatbot',
+    path: 'chatbot-auswertungen',
     component: ChatbotComponent,
     pathMatch: 'full',
   },
   {
-    path: 'zukunftstechnologie-bot',
+    path: 'ki-chatbot',
     component: ZukunftstechnologieBotComponent,
     pathMatch: 'full',
   },

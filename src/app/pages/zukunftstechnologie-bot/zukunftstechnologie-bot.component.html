@@ -1,4 +1,18 @@
-<div class="control-bar"></div>
+<div class="control-bar">
+  <mat-form-field [subscriptSizing]="'dynamic'">
+    <select
+      matNativeControl
+      [value]="selectedVersion?.teilnehmer"
+      (change)="onVersionChange($event)"
+    >
+      @for (version of versions; track $index) {
+      <option [value]="version.teilnehmer">
+        {{ version.teilnehmer }} ({{ version.versionNumber }})
+      </option>
+      }
+    </select>
+  </mat-form-field>
+</div>
 <div class="chatbot-container">
   <div class="header-container">
     <div class="header-container-right">
@@ -16,7 +30,7 @@
     </div>
     <div>115-Chatbot Frankfurt</div>
     <div class="header-container-right">
-      <mat-form-field [style.width]="'50px'" [style.height]="'65px'">
+      <mat-form-field class="language-selector" [subscriptSizing]="'dynamic'">
         <select matNativeControl [(ngModel)]="language">
           <option value="de">de</option>
           <option value="en">en</option>
@@ -66,15 +80,7 @@
           {{ message.user_message }}
         </div>
       </div>
-      <div class="chatbot-response">
-        <span>{{ message.system_response }}</span
-        ><ng-container *ngIf="message.leistung"
-          ><br /><br />Gefundene Quelle:
-          <a [href]="message.leistung.url" [target]="'_blank'">{{
-            message.leistung.titel
-          }}</a></ng-container
-        >
-      </div>
+      <div class="chatbot-response" [innerHTML]="message.system_response"></div>
     </ng-container>
     <ng-container *ngIf="leistung">
       <button
@@ -88,7 +94,7 @@
     </ng-container>
   </div>
   <div class="user-input-container">
-    <mat-form-field [style.flex]="'1 1'" [style.height]="'50px'">
+    <mat-form-field [style.flex]="'1 1'" [subscriptSizing]="'dynamic'">
       <input
         type="text"
         placeholder="Bitte geben Sie Ihr Anliegen ein..."
@@ -127,5 +133,16 @@
 </div>
 <br />
 <div class="debug-container" *ngIf="showDebug">
-  <pre>{{ bestMatches }}</pre>
+  Verwendete Agenten: {{ agentChain }}
+</div>
+<div class="control-bar">
+  <button
+    mat-raised-button
+    color="primary"
+    [matTooltip]="'Feedback geben'"
+    (click)="onSendFeedbackClicked()"
+  >
+    Feedback
+    <mat-icon>mail</mat-icon>
+  </button>
 </div>
