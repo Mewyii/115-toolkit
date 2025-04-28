@@ -30,7 +30,7 @@ jobs:
           username: ${{ secrets.SFTP_USERNAME }}
           password: ${{ secrets.SFTP_PASSWORD }}
           script: |
-            find /kunden/homepages/35/d992320858/115-toolkit/ -type f ! -name '.htaccess' -exec rm -f {} \;
+            find /kunden/homepages/35/d992320858/htdocs/115-toolkit/ -type f ! -name '.htaccess' -exec rm -f {} \;
 
       - name: 📤 Deploy via SFTP
         uses: appleboy/scp-action@master
