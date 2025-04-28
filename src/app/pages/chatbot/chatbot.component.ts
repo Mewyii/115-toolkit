@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DateFilterFn } from '@angular/material/datepicker';
+import { isArray, startsWith } from 'lodash';
 import { BehaviorSubject } from 'rxjs';
 import { ConverterService, SheetDataMapping, XLSService } from 'src/app/services';
 
@@ -7,7 +8,7 @@ export type UserFeedback = 'good' | 'bad';
 
 export interface BotAnswer {
   content: string;
-  metadata: { mappedUserInput?: string };
+  metadata: { mappedUserInput?: string; messageType?: any };
 }
 
 export interface ChatbotInfo {
@@ -68,14 +69,20 @@ export class ChatbotComponent implements OnInit {
         userInput: entry.Question,
         userFeedback: entry['User Like'] != undefined ? (entry['User Like'] === 'true' ? 'good' : 'bad') : undefined,
         userFeedbackText: entry['User Feedback'],
-        botAnswer: entry['Member Answer'] ? JSON.parse(entry['Member Answer'])[0] : undefined,
-        isUserSelectAction: !!entry['Mapped Action'],
+        botAnswer: entry['Member Answer']
+          ? JSON.parse(entry['Member Answer'])[0]
+          : entry['Mapped Action'] && startsWith(entry['Mapped Action'], '[{') && isArray(JSON.parse(entry['Mapped Action']))
+          ? JSON.parse(entry['Mapped Action'])[0]
+          : undefined,
+        isUserSelectAction: !!entry['Mapped Action'] && !startsWith(entry['Mapped Action'], '[{'),
       }),
     },
   ];
 
   private inputChangeSubject = new BehaviorSubject<string>('');
   public inputChange$ = this.inputChangeSubject.asObservable();
+
+  public showOnlySessionsWithFeedback = false;
 
   constructor(public xlsService: XLSService, public converterService: ConverterService) {}
 
@@ -172,13 +179,15 @@ export class ChatbotComponent implements OnInit {
   }
 
   filterSessions() {
+    let sessions = this.nonEmptyChatbotSessions;
     if (this.dateFilter) {
-      this.filteredChatbotSessions = this.nonEmptyChatbotSessions.filter((x) => x.date.getDate() === this.dateFilter!.getDate());
-      this.showPage(1);
-    } else {
-      this.filteredChatbotSessions = this.nonEmptyChatbotSessions;
-      this.showPage(1);
+      sessions = sessions.filter((x) => x.date.getDate() === this.dateFilter!.getDate());
     }
+    if (this.showOnlySessionsWithFeedback) {
+      sessions = sessions.filter((x) => x.infos.some((x) => x.userFeedback));
+    }
+    this.filteredChatbotSessions = sessions;
+    this.showPage(1);
   }
 
   private showPage(page: number) {

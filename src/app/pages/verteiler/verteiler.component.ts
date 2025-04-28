@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConverterService, SheetDataMapping, XLSService } from 'src/app/services';
 
 export interface KontaktInfo {
@@ -12,7 +12,7 @@ export interface KontaktInfo {
   Bundesland?: string;
   Telefon?: string;
   Mobil?: string;
-  EMail: string;
+  Email: string;
   'Vertretung / Orga PF (CC)'?: string;
   ZAG?: boolean;
   'AG Betrieb'?: boolean;
@@ -75,7 +75,7 @@ export class VerteilerComponent implements OnInit {
         Bundesland: entry.Bundesland,
         Telefon: entry.Telefon,
         Mobil: entry.Mobil,
-        EMail: entry.EMail,
+        Email: entry.Email,
         'Vertretung / Orga PF (CC)': entry['Vertretung / Orga PF (CC)'],
         ZAG: entry.ZAG === 'Ja',
         'AG Betrieb': entry['AG Betrieb'] === 'Ja',
@@ -108,7 +108,7 @@ export class VerteilerComponent implements OnInit {
 
     const workbookData = await this.xlsService.readFile(file);
 
-    const getId = (item: KontaktInfo) => item.EMail + item.Nachname;
+    const getId = (item: KontaktInfo) => item.Email + item.Nachname;
 
     this.gremienKontaktInfos = await this.xlsService.convertWorkbookDataToCustomData(workbookData, this.sheetMapping, getId);
     this.filterGremienKontaktInfos();
@@ -132,8 +132,8 @@ export class VerteilerComponent implements OnInit {
     this.currentGremienKontaktInfos = this.gremienKontaktInfos.filter((obj: any) => this.currentGremienFilters.some((option) => obj[option]));
 
     this.mailList = this.currentGremienKontaktInfos
-      .filter((x) => x.EMail)
-      .map((x) => x.EMail)
+      .filter((x) => x.Email)
+      .map((x) => x.Email)
       .join(';');
 
     this.vertretungsList = this.currentGremienKontaktInfos

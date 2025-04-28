@@ -180,7 +180,7 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
 
   private adjustStatusOfBayernAndBrandenburgAndHannover(verfuegbarkeitsInfos: VerfuegbarkeitsInfosEnhanced[]): VerfuegbarkeitsInfosEnhanced[] {
     return verfuegbarkeitsInfos.map((x) => {
-      if ((x.Bundesland === 'Bayern' || x.Bundesland === 'Brandenburg') && x.Status === 'Basisabdeckung') {
+      if (x.Bundesland === 'Bayern' && x.Status === 'Basisabdeckung') {
         return { ...x, Status: 'Kein 115-Teilnehmer' };
       } else if (x.Teilnehmernummer === 'K102825') {
         return { ...x, Status: 'Basisabdeckung' };

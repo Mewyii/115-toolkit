@@ -40,13 +40,19 @@
       [value]="dateFilter"
       (dateChange)="onDateFilterChanged($event)"
     />
-    <mat-hint>Filtern nach Datum</mat-hint>
+    <mat-label>Filtern nach Datum</mat-label>
     <mat-datepicker-toggle
       matIconSuffix
       [for]="datePicker"
     ></mat-datepicker-toggle>
     <mat-datepicker #datePicker></mat-datepicker>
   </mat-form-field>
+
+  <mat-checkbox
+    [(ngModel)]="showOnlySessionsWithFeedback"
+    (change)="filterSessions()"
+    >Nur Sessions mit Feedback</mat-checkbox
+  >
 
   <div class="pagination">
     <div>Seite:</div>
@@ -73,22 +79,25 @@
   <mat-tab label="Aufbereitete Daten">
     <div class="tab-content">
       <div class="type-results-container">
-        <div style="width: 1000px">
+        <div>
           <ng-container *ngFor="let sessionInfo of shownChatbotSessions">
             <div class="session">
-              {{ sessionInfo.sessionId }} ({{
+              Session {{ sessionInfo.sessionId }} ({{
                 sessionInfo.date | date : "mediumDate"
               }})
             </div>
             <ng-container *ngFor="let item of sessionInfo.infos">
               <div class="infos">
-                <div [style.width]="'100px'">
-                  {{ item.date | date : "h:mm:ss" }}
-                </div>
-                <div [style.width]="'600px'">
+                <div class="user-input-container">
+                  <div class="user-input-date">
+                    {{ item.date | date : "h:mm:ss" }}
+                  </div>
                   <mat-icon
                     [class]="'highlighted'"
-                    *ngIf="item.userInput === 'startSession'"
+                    *ngIf="
+                      item.userInput === 'startSession' ||
+                      item.userInput === 'resetSession'
+                    "
                     >face</mat-icon
                   >
                   <mat-icon
@@ -100,6 +109,7 @@
                     [class]="item.isUserSelectAction ? 'highlighted' : ''"
                     *ngIf="
                       item.userInput !== 'startSession' &&
+                      item.userInput !== 'resetSession' &&
                       item.userInput !== 'closeChatbot'
                     "
                     >{{ item.userInput }}</span
@@ -127,24 +137,35 @@
                 >
                   <mat-expansion-panel-header>
                     <mat-panel-title>
-                      <div class="bot-answer-title">
-                        {{ item.botAnswer.metadata.mappedUserInput }}
-                      </div>
+                      <div
+                        class="bot-answer-title"
+                        [innerHTML]="
+                          item.botAnswer.metadata.mappedUserInput ||
+                          item.botAnswer.content.substring(0, 70)
+                        "
+                      ></div>
                     </mat-panel-title>
                   </mat-expansion-panel-header>
                   <div [innerHTML]="item.botAnswer.content"></div>
                 </mat-expansion-panel>
               </ng-container>
-              <div *ngIf="item.userFeedback">
-                <mat-icon *ngIf="item.userFeedback === 'good'"
+              <div class="feedback-container" *ngIf="item.userFeedback">
+                <mat-icon
+                  *ngIf="item.userFeedback === 'good'"
+                  [ngClass]="item.userFeedback"
                   >thumb_up</mat-icon
                 >
-                <mat-icon *ngIf="item.userFeedback === 'bad'"
+                <mat-icon
+                  *ngIf="item.userFeedback === 'bad'"
+                  [ngClass]="item.userFeedback"
                   >thumb_down</mat-icon
                 >
-              </div>
-              <div class="feedback" *ngIf="item.userFeedbackText">
-                {{ item.userFeedbackText }}
+                <div
+                  [class]="'feedback ' + item.userFeedback"
+                  *ngIf="item.userFeedbackText"
+                >
+                  {{ item.userFeedbackText }}
+                </div>
               </div>
             </ng-container>
           </ng-container>
