@@ -149,7 +149,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
 
   onMessageSendClicked() {
     this.awaitingAPIResponse = true;
-    queryFlowise({ question: this.userInput, history: this.getFlowiseHistory() }).then((response) => {
+    this.queryFlowise({ question: this.userInput, history: this.getFlowiseHistory() }).then((response) => {
       this.awaitingAPIResponse = false;
       if (!response.error) {
         this.updateChatbotFromAPIResponse(response);
@@ -209,7 +209,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
         const text = response.data[0];
         if (text) {
           this.userInput = text;
-          queryFlowise({ question: text, history: this.getFlowiseHistory() }).then((response) => {
+          this.queryFlowise({ question: text, history: this.getFlowiseHistory() }).then((response) => {
             this.awaitingAPIResponse = false;
             if (!response.error) {
               this.updateChatbotFromAPIResponse(response);
@@ -274,18 +274,28 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       return result;
     });
   }
+
+  private async queryFlowise(data: { question: string; history: FlowiseHistory[] }) {
+    const response = await fetch('https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ...data, overrideConfig: { vars: { language: getLanguageFromKey(this.language) } } }),
+    });
+    const result = await response.json();
+    return result;
+  }
 }
 
-async function queryFlowise(data: { question: string; history: FlowiseHistory[] }) {
-  const response = await fetch('https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-  const result = await response.json();
-  return result;
+function getLanguageFromKey(langKey: string) {
+  if (langKey === 'en') {
+    return 'english';
+  } else if (langKey === 'de') {
+    return 'deutsch';
+  } else {
+    return 'de';
+  }
 }
 
 function getDeUserGreeting(teilnehmer?: string) {
