@@ -223,6 +223,14 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     }
   }
 
+  onRefreshClicked() {
+    this.chatbotSession = { messages: [] };
+    this.oldSessions = [];
+    this.agentChain = '';
+    this.userInput = '';
+    this.leistung = undefined;
+  }
+
   private updateChatbotFromAPIResponse(response: FlowiseAPIResponseType) {
     this.userInput = '';
     this.chatbotSession.messages.push({ user_message: response.question, system_response: response.text });
