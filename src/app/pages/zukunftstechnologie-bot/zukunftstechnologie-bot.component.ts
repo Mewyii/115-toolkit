@@ -31,7 +31,7 @@ export interface ChatbotSessionAPIPost extends ChatbotSession {
 export interface ChatbotAPIPostParameters {
   llm: string;
   embedding_model: string;
-  language: 'en' | 'de';
+  language: 'en' | 'de' | 'fr';
   skip_cache: boolean;
 }
 
@@ -104,9 +104,10 @@ export class ZukunftstechnologieBotComponent implements OnInit {
 
   public userGreetings: string[] = getDeUserGreeting(this.selectedVersion?.teilnehmer);
   public userGreetingsEn: string[] = getEnUserGreeting(this.selectedVersion?.teilnehmer);
+  public userGreetingsFr: string[] = getFrUserGreeting(this.selectedVersion?.teilnehmer);
 
   public userInput = '';
-  public language: 'de' | 'en' = 'de';
+  public language: 'de' | 'en' | 'fr' = 'de';
   public showDebug = false;
   public playTextToSpeech = false;
   public agentChain = '';
@@ -144,6 +145,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       this.selectedVersion = selectedVersion;
       this.userGreetings = getDeUserGreeting(this.selectedVersion?.teilnehmer);
       this.userGreetingsEn = getEnUserGreeting(this.selectedVersion?.teilnehmer);
+      this.userGreetingsFr = getFrUserGreeting(this.selectedVersion?.teilnehmer);
     }
   }
 
@@ -293,6 +295,8 @@ function getLanguageFromKey(langKey: string) {
     return 'english';
   } else if (langKey === 'de') {
     return 'deutsch';
+  } else if (langKey === 'fr') {
+    return 'französisch';
   } else {
     return 'de';
   }
@@ -300,9 +304,9 @@ function getLanguageFromKey(langKey: string) {
 
 function getDeUserGreeting(teilnehmer?: string) {
   return [
-    '<b>Hallo!</b> Ich bin der Chatbot der Behördennummer 115 für die Stadt ' + teilnehmer + '. Wie kann ich Ihnen helfen?',
-    'Aktuell befinde ich mich in einer Testphase und freue mich, wenn Sie meine Feedbackmöglichkeiten nutzen.',
-    '<b>Bitte nennen Sie mir Ihr Anliegen</b>, z. B. <i>"Ich habe meinen Führerschein verloren"</i>. Bitte geben Sie keine persönlichen Daten wie z. B. Ihren Namen ein.',
+    '<b>Hallo!</b> Ich bin der Chatbot der Behördennummer 115 für die Stadt ' + teilnehmer + '. Wie kann ich dir helfen?',
+    'Aktuell befinde ich mich in einer Testphase und freue mich, wenn du meine Feedbackmöglichkeiten nutzt.',
+    '<b>Bitte nenn mir dein Anliegen</b>, z. B. <i>"Ich habe meinen Führerschein verloren"</i>. Bitte gib keine persönlichen Daten wie z. B. deinen Namen ein.',
   ];
 }
 
@@ -311,6 +315,14 @@ function getEnUserGreeting(teilnehmer?: string) {
     '<b>Hello!</b> I am the chatbot of the hotline 115 for the city of ' + teilnehmer + '. How can I help you?',
     'Currently, I am in a testing phase and would appreciate it if you could use my feedback options.',
     '<b>Please state your concern including</b>, e.g. <i>"I have lost my driving license"</i>. Please do not enter any personal data such as your name.',
+  ];
+}
+
+function getFrUserGreeting(teilnehmer?: string) {
+  return [
+    '<b>Bonjour !</b> Je suis le chatbot du numéro officiel 115 pour la ville de ' + teilnehmer + ". Comment puis-je t'aider ?",
+    "Je suis actuellement en phase de test et je serais ravi si tu utilisais mes options de retour d'expérience.",
+    '<b>Merci de me décrire ton besoin</b>, par exemple : <i>"J\'ai perdu mon permis de conduire"</i>. Merci de ne pas entrer de données personnelles telles que ton nom.',
   ];
 }
 

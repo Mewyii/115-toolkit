@@ -34,6 +34,7 @@
         <select matNativeControl [(ngModel)]="language">
           <option value="de">de</option>
           <option value="en">en</option>
+          <option value="fr">fr</option>
         </select>
       </mat-form-field>
       <button mat-icon-button>
@@ -50,6 +51,11 @@
     </ng-container>
     <ng-container *ngIf="language === 'en'">
       <ng-container *ngFor="let greeting of userGreetingsEn">
+        <div class="chatbot-response" [innerHTML]="greeting"></div>
+      </ng-container>
+    </ng-container>
+    <ng-container *ngIf="language === 'fr'">
+      <ng-container *ngFor="let greeting of userGreetingsFr">
         <div class="chatbot-response" [innerHTML]="greeting"></div>
       </ng-container>
     </ng-container>
