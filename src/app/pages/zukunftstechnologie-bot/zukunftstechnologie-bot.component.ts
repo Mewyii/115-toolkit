@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { cloneDeep } from 'lodash';
 import { MediaRecorderService } from 'src/app/services/media-recorder.service';
 
@@ -125,7 +126,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
 
   public awaitingAPIResponse = false;
 
-  constructor(private httpClient: HttpClient, private mediaRecorderService: MediaRecorderService, private cr: ChangeDetectorRef) {}
+  constructor(private httpClient: HttpClient, private mediaRecorderService: MediaRecorderService, public sanitizer: DomSanitizer) {}
 
   ngOnInit(): void {
     this.mediaRecorderService.audioFile$.subscribe((file) => {

@@ -86,7 +86,11 @@
           {{ message.user_message }}
         </div>
       </div>
-      <div class="chatbot-response" [innerHTML]="message.system_response"></div>
+      <div
+        *ngIf="message.system_response"
+        class="chatbot-response"
+        [innerHTML]="sanitizer.bypassSecurityTrustHtml(message.system_response)"
+      ></div>
     </ng-container>
     <ng-container *ngIf="leistung">
       <button
