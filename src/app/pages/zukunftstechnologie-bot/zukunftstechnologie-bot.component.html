@@ -28,10 +28,14 @@
         <mat-icon *ngIf="!playTextToSpeech">volume_off</mat-icon>
       </button>
     </div>
-    <div>115-Chatbot Frankfurt</div>
+    <div>115-Chatbot {{ selectedVersion?.teilnehmer }}</div>
     <div class="header-container-right">
       <mat-form-field class="language-selector" [subscriptSizing]="'dynamic'">
-        <select matNativeControl [(ngModel)]="language">
+        <select
+          matNativeControl
+          [value]="language"
+          (change)="onLanguageChange($event)"
+        >
           <option value="de">de</option>
           <option value="en">en</option>
           <option value="fr">fr</option>
@@ -47,21 +51,6 @@
   </div>
 
   <div class="message-history" #messageHistory>
-    <ng-container *ngIf="language === 'de'">
-      <ng-container *ngFor="let greeting of userGreetings">
-        <div class="chatbot-response" [innerHTML]="greeting"></div>
-      </ng-container>
-    </ng-container>
-    <ng-container *ngIf="language === 'en'">
-      <ng-container *ngFor="let greeting of userGreetingsEn">
-        <div class="chatbot-response" [innerHTML]="greeting"></div>
-      </ng-container>
-    </ng-container>
-    <ng-container *ngIf="language === 'fr'">
-      <ng-container *ngFor="let greeting of userGreetingsFr">
-        <div class="chatbot-response" [innerHTML]="greeting"></div>
-      </ng-container>
-    </ng-container>
     <ng-container *ngFor="let session of oldSessions">
       <ng-container *ngFor="let message of session.messages">
         <div class="user-message-container">
@@ -69,15 +58,13 @@
             {{ message.user_message }}
           </div>
         </div>
-        <div class="chatbot-response">
-          <span>{{ message.system_response }}</span
-          ><ng-container *ngIf="message.leistung"
-            ><br /><br />Gefundene Quelle:
-            <a [href]="message.leistung.url" [target]="'_blank'">{{
-              message.leistung.titel
-            }}</a></ng-container
-          >
-        </div>
+        <div
+          *ngIf="message.system_response"
+          class="chatbot-response"
+          [innerHTML]="
+            sanitizer.bypassSecurityTrustHtml(message.system_response)
+          "
+        ></div>
       </ng-container>
     </ng-container>
     <ng-container

@@ -97,15 +97,11 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   @ViewChildren('messageElements') messageElements!: QueryList<any>;
 
   public versions: ChatbotVersion[] = [
-    { versionNumber: '0.15', teilnehmer: 'Frankfurt', url: 'https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799' },
-    { versionNumber: '0.15', teilnehmer: 'Aachen', url: 'https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799' },
-    { versionNumber: '0.15', teilnehmer: 'Berlin', url: 'https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799' },
+    { versionNumber: '0.25', teilnehmer: 'Frankfurt', url: 'https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799' },
+    { versionNumber: '0.25', teilnehmer: 'Aachen', url: 'https://flowise.km.usu.com/api/v1/prediction/988cca78-5f4b-4e9a-a1a4-6453a5cde5f0' },
+    { versionNumber: '', teilnehmer: 'Berlin (kommt bald)', url: 'https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799' },
   ];
   public selectedVersion: ChatbotVersion | undefined = this.versions[0];
-
-  public userGreetings: string[] = getDeUserGreeting(this.selectedVersion?.teilnehmer);
-  public userGreetingsEn: string[] = getEnUserGreeting(this.selectedVersion?.teilnehmer);
-  public userGreetingsFr: string[] = getFrUserGreeting(this.selectedVersion?.teilnehmer);
 
   public userInput = '';
   public language: 'de' | 'en' | 'fr' = 'de';
@@ -116,7 +112,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   public isRecordingAudio = false;
 
   public oldSessions: ChatbotSession[] = [];
-  public chatbotSession: ChatbotSession = { messages: [] };
+  public chatbotSession: ChatbotSession = this.getUserGreeting();
   public apiParameters: ChatbotAPIPostParameters = {
     llm: 'gpt-4',
     embedding_model: 'text-embedding-3-large',
@@ -144,15 +140,17 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     const selectedVersion = this.versions.find((version) => version.teilnehmer === (event.target as HTMLSelectElement).value);
     if (selectedVersion) {
       this.selectedVersion = selectedVersion;
-      this.userGreetings = getDeUserGreeting(this.selectedVersion?.teilnehmer);
-      this.userGreetingsEn = getEnUserGreeting(this.selectedVersion?.teilnehmer);
-      this.userGreetingsFr = getFrUserGreeting(this.selectedVersion?.teilnehmer);
+      this.chatbotSession = this.getUserGreeting();
     }
   }
 
   onMessageSendClicked() {
+    if (!this.selectedVersion) {
+      return;
+    }
+
     this.awaitingAPIResponse = true;
-    this.queryFlowise({ question: this.userInput, history: this.getFlowiseHistory() }).then((response) => {
+    this.queryFlowise(this.selectedVersion.url, { question: this.userInput, history: this.getFlowiseHistory() }).then((response) => {
       this.awaitingAPIResponse = false;
       if (!response.error) {
         this.updateChatbotFromAPIResponse(response);
@@ -195,15 +193,19 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   }
 
   private async onAudioFileGenerated(blob: Blob) {
+    if (!this.selectedVersion) {
+      return;
+    }
+
     const base64StringFromMp3 = await readBlob(blob);
     if (base64StringFromMp3 && typeof base64StringFromMp3 === 'string') {
       this.awaitingAPIResponse = true;
 
       this.fetchSpeechToTextResponse(base64StringFromMp3.split(',')[1]).subscribe((response) => {
         const text = response.data[0];
-        if (text) {
+        if (text && this.selectedVersion) {
           this.userInput = text;
-          this.queryFlowise({ question: text, history: this.getFlowiseHistory() }).then((response) => {
+          this.queryFlowise(this.selectedVersion.url, { question: text, history: this.getFlowiseHistory() }).then((response) => {
             this.awaitingAPIResponse = false;
             if (!response.error) {
               this.updateChatbotFromAPIResponse(response);
@@ -215,7 +217,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   }
 
   onRefreshClicked() {
-    this.chatbotSession = { messages: [] };
+    this.chatbotSession = this.getUserGreeting();
     this.oldSessions = [];
     this.agentChain = '';
     this.userInput = '';
@@ -277,8 +279,8 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     });
   }
 
-  private async queryFlowise(data: { question: string; history: FlowiseHistory[] }) {
-    const response = await fetch('https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799', {
+  private async queryFlowise(url: string, data: { question: string; history: FlowiseHistory[] }) {
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -287,6 +289,23 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     });
     const result = await response.json();
     return result;
+  }
+
+  onLanguageChange($event: Event) {
+    this.language = ($event.target as HTMLSelectElement).value as 'de' | 'en' | 'fr';
+    this.chatbotSession = this.getUserGreeting();
+  }
+
+  private getUserGreeting(): ChatbotSession {
+    switch (this.language) {
+      case 'de':
+        return { messages: getDeUserGreeting(this.selectedVersion?.teilnehmer).map((x) => ({ system_response: x })) };
+      case 'fr':
+        return { messages: getFrUserGreeting(this.selectedVersion?.teilnehmer).map((x) => ({ system_response: x })) };
+      case 'en':
+      default:
+        return { messages: getEnUserGreeting(this.selectedVersion?.teilnehmer).map((x) => ({ system_response: x })) };
+    }
   }
 }
 
@@ -306,7 +325,7 @@ function getDeUserGreeting(teilnehmer?: string) {
   return [
     '<b>Hallo!</b> Ich bin der Chatbot der Behördennummer 115 für die Stadt ' + teilnehmer + '. Wie kann ich dir helfen?',
     'Aktuell befinde ich mich in einer Testphase und freue mich, wenn du meine Feedbackmöglichkeiten nutzt.',
-    '<b>Bitte nenn mir dein Anliegen</b>, z. B. <i>"Ich habe meinen Führerschein verloren"</i>. Bitte gib keine persönlichen Daten wie z. B. deinen Namen ein.',
+    '<b>Bitte nenne mir dein Anliegen</b>, z. B. <i>"Ich habe meinen Führerschein verloren"</i>. Bitte gib keine persönlichen Daten wie z. B. deinen Namen ein.',
   ];
 }
 
