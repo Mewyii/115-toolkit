@@ -188,16 +188,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   onSendFeedbackClicked() {
     const uuid = crypto.randomUUID();
     const subject = encodeURIComponent(`115-Chatbot-Feedback ${uuid}`);
-    const body = encodeURIComponent(
-      'Feedback: \n\n\n\n\n\nDebug-Informationen:\nAgentenverlauf: ' +
-        this.agentChain +
-        '\n\nChatverlauf:\n' +
-        JSON.stringify(
-          this.chatbotSession.messages.map((x) => ({ userInput: x.user_message, aiResponse: x.system_response })),
-          null,
-          2
-        )
-    );
+    const body = encodeURIComponent('Feedback: \n\n\n\n\n\nDebug-Informationen:\nAgentenverlauf: ' + this.agentChain + '\n\n');
 
     const email = 'sebastian.quendt@fitko.de';
     window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
