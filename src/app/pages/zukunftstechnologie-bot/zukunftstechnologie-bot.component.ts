@@ -103,6 +103,9 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   ];
   public selectedVersion: ChatbotVersion | undefined = this.versions[0];
 
+  public workingStateElements = ['Bestimme Zuständigkeit...', 'Suche Informationen...', 'Erstelle Antwort...'];
+  public currentWorkingState = '';
+
   public userInput = '';
   public language: 'de' | 'en' | 'fr' = 'de';
   public showDebug = false;
@@ -150,12 +153,25 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     }
 
     this.awaitingAPIResponse = true;
+    this.showWorkingState(0);
     this.queryFlowise(this.selectedVersion.url, { question: this.userInput, history: this.getFlowiseHistory() }).then((response) => {
       this.awaitingAPIResponse = false;
       if (!response.error) {
         this.updateChatbotFromAPIResponse(response);
       }
     });
+  }
+
+  private showWorkingState(index: number) {
+    this.currentWorkingState = this.workingStateElements[index];
+    setTimeout(() => {
+      if (this.awaitingAPIResponse) {
+        this.currentWorkingState = this.workingStateElements[index + 1];
+        if (index < this.workingStateElements.length - 2) {
+          this.showWorkingState(index + 1);
+        }
+      }
+    }, 5000);
   }
 
   onShowDebugClicked() {
