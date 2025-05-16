@@ -218,7 +218,13 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   onSendFeedbackClicked(category: string) {
     const uuid = crypto.randomUUID();
     const subject = encodeURIComponent('115-Chatbot-' + this.selectedVersion?.teilnehmer + ': Feedback ' + category + ' ' + uuid);
-    const body = encodeURIComponent('Feedback: \n\n\n\n\n\nDebug-Informationen:\nAgentenverlauf: ' + this.agentChain + '\n\n');
+    const body = encodeURIComponent(
+      'Feedback: \n\n\n\n\n\nDebug-Informationen:\nZuletzt gesendete Nachricht: ' +
+        this.chatbotSession.messages[this.chatbotSession.messages.length - 1].user_message +
+        '\nAgentenverlauf: ' +
+        this.agentChain +
+        '\n\n'
+    );
 
     const email = this.selectedVersion?.kontakt;
     window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
