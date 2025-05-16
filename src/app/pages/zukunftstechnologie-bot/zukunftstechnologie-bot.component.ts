@@ -84,6 +84,7 @@ export interface TextToSpeechData {
 interface ChatbotVersion {
   versionNumber: string;
   teilnehmer: string;
+  kontakt: string;
   url: string;
 }
 
@@ -97,9 +98,24 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   @ViewChildren('messageElements') messageElements!: QueryList<any>;
 
   public versions: ChatbotVersion[] = [
-    { versionNumber: '0.25', teilnehmer: 'Frankfurt', url: 'https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799' },
-    { versionNumber: '0.25', teilnehmer: 'Aachen', url: 'https://flowise.km.usu.com/api/v1/prediction/988cca78-5f4b-4e9a-a1a4-6453a5cde5f0' },
-    { versionNumber: '', teilnehmer: 'Berlin (kommt bald)', url: 'https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799' },
+    {
+      versionNumber: '0.25',
+      teilnehmer: 'Frankfurt',
+      kontakt: 'sebastian.quendt@fitko.de;anna.ahlbrandt@stadt-frankfurt.de',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799',
+    },
+    {
+      versionNumber: '0.25',
+      teilnehmer: 'Aachen',
+      kontakt: 'sebastian.quendt@fitko.de;stefan.ganser@mail.aachen.de',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/988cca78-5f4b-4e9a-a1a4-6453a5cde5f0',
+    },
+    {
+      versionNumber: '',
+      teilnehmer: 'Berlin (kommt bald)',
+      kontakt: 'sebastian.quendt@fitko.de',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799',
+    },
   ];
   public selectedVersion: ChatbotVersion | undefined = this.versions[0];
 
@@ -199,12 +215,12 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     this.chatbotSession.messages = [];
   }
 
-  onSendFeedbackClicked() {
+  onSendFeedbackClicked(category: string) {
     const uuid = crypto.randomUUID();
-    const subject = encodeURIComponent(`115-Chatbot-Feedback ${uuid}`);
+    const subject = encodeURIComponent('115-Chatbot-' + this.selectedVersion?.teilnehmer + ': Feedback ' + category + ' ' + uuid);
     const body = encodeURIComponent('Feedback: \n\n\n\n\n\nDebug-Informationen:\nAgentenverlauf: ' + this.agentChain + '\n\n');
 
-    const email = 'sebastian.quendt@fitko.de';
+    const email = this.selectedVersion?.kontakt;
     window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
   }
 

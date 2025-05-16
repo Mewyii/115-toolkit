@@ -143,9 +143,18 @@
     mat-raised-button
     color="primary"
     [matTooltip]="'Feedback geben'"
-    (click)="onSendFeedbackClicked()"
+    (click)="onSendFeedbackClicked('Chatbot')"
   >
-    Feedback
+    Feedback (Chatbot)
+    <mat-icon>mail</mat-icon>
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    [matTooltip]="'Feedback geben'"
+    (click)="onSendFeedbackClicked('Leistungsinformationen')"
+  >
+    Feedback (Leistungsinformationen)
     <mat-icon>mail</mat-icon>
   </button>
 </div>
