@@ -101,19 +101,19 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     {
       versionNumber: '0.3',
       teilnehmer: 'Frankfurt',
-      kontakt: 'sebastian.quendt@fitko.de;anna.ahlbrandt@stadt-frankfurt.de',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;anna.ahlbrandt@stadt-frankfurt.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799',
     },
     {
       versionNumber: '0.25',
       teilnehmer: 'Aachen',
-      kontakt: 'sebastian.quendt@fitko.de;stefan.ganser@mail.aachen.de',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;stefan.ganser@mail.aachen.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/988cca78-5f4b-4e9a-a1a4-6453a5cde5f0',
     },
     {
       versionNumber: '0.3',
       teilnehmer: 'Berlin',
-      kontakt: 'sebastian.quendt@fitko.de;mario.anton@senatskanzlei.berlin.de',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;mario.anton@senatskanzlei.berlin.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/64ffacfe-2c01-4829-ab18-c6c133621fe7',
     },
   ];
