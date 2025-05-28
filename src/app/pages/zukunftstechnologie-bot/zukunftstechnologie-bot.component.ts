@@ -43,14 +43,13 @@ type FlowiseAPIResponseType = {
   chatMessageId: string;
   sessionId: string;
   memoryType: string;
-  agentReasoning: AgentReasoning[];
+  agentFlowExecutedData: AgentFlowExecutedData[];
 };
 
-type AgentReasoning = {
-  agentName: string;
-  messages: string[];
-  nodeName: string;
+type AgentFlowExecutedData = {
   nodeId: string;
+  nodeLabel: string;
+  data: any;
 };
 
 type FlowiseHistory = {
@@ -99,10 +98,22 @@ export class ZukunftstechnologieBotComponent implements OnInit {
 
   public versions: ChatbotVersion[] = [
     {
+      versionNumber: '0.4',
+      teilnehmer: 'Frankfurt',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;anna.ahlbrandt@stadt-frankfurt.de',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/60b5662b-c194-487c-b507-99e724483432',
+    },
+    {
       versionNumber: '0.3',
       teilnehmer: 'Frankfurt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;anna.ahlbrandt@stadt-frankfurt.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799',
+    },
+    {
+      versionNumber: '0.4',
+      teilnehmer: 'Aachen',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;stefan.ganser@mail.aachen.de',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/badc6889-52e0-409e-aa63-f4bb74d809b2',
     },
     {
       versionNumber: '0.25',
@@ -111,10 +122,40 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       url: 'https://flowise.km.usu.com/api/v1/prediction/988cca78-5f4b-4e9a-a1a4-6453a5cde5f0',
     },
     {
+      versionNumber: '0.4',
+      teilnehmer: 'Berlin',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;mario.anton@senatskanzlei.berlin.de',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/669ffe8a-e7d7-427e-bba5-382206b38a1b',
+    },
+    {
       versionNumber: '0.3',
       teilnehmer: 'Berlin',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;mario.anton@senatskanzlei.berlin.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/64ffacfe-2c01-4829-ab18-c6c133621fe7',
+    },
+    {
+      versionNumber: '0.4',
+      teilnehmer: 'Bielefeld',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/25de82c1-8cc3-439c-89cd-42a9424eb274',
+    },
+    {
+      versionNumber: '0.4',
+      teilnehmer: 'Essen',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/8d2103bc-98dc-4f6e-87b1-c8d04a6d936e',
+    },
+    {
+      versionNumber: '0.4',
+      teilnehmer: 'Grünheide',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/940a524c-c020-4d4f-9677-e00f4989fc32',
+    },
+    {
+      versionNumber: '0.4',
+      teilnehmer: 'Magdeburg',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/9104b658-d77a-4e91-9f24-db00e412cc43',
     },
   ];
   public selectedVersion: ChatbotVersion | undefined = this.versions[0];
@@ -163,19 +204,18 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     }
   }
 
-  onMessageSendClicked() {
+  async onMessageSendClicked() {
     if (!this.selectedVersion) {
       return;
     }
 
     this.awaitingAPIResponse = true;
     this.showWorkingState(0);
-    this.queryFlowise(this.selectedVersion.url, { question: this.userInput, history: this.getFlowiseHistory() }).then((response) => {
-      this.awaitingAPIResponse = false;
-      if (!response.error) {
-        this.updateChatbotFromAPIResponse(response);
-      }
-    });
+    const response = await this.queryFlowise(this.selectedVersion.url, { question: this.userInput, history: this.getFlowiseHistory() });
+    this.awaitingAPIResponse = false;
+    if (response) {
+      this.updateChatbotFromAPIResponse(response);
+    }
   }
 
   private showWorkingState(index: number) {
@@ -217,7 +257,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
 
   onSendFeedbackClicked(category: string) {
     const uuid = crypto.randomUUID();
-    const subject = encodeURIComponent('115-Chatbot-' + this.selectedVersion?.teilnehmer + ': Feedback ' + category + ' ' + uuid);
+    const subject = encodeURIComponent('115-Chatbot ' + this.selectedVersion?.teilnehmer + ' ' + this.selectedVersion?.versionNumber + ': Feedback ' + category + ' ' + uuid);
     const body = encodeURIComponent(
       'Feedback: \n\n\n\n\n\nDebug-Informationen:\nZuletzt gesendete Nachricht: ' +
         this.chatbotSession.messages[this.chatbotSession.messages.length - 1].user_message +
@@ -245,7 +285,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
           this.userInput = text;
           this.queryFlowise(this.selectedVersion.url, { question: text, history: this.getFlowiseHistory() }).then((response) => {
             this.awaitingAPIResponse = false;
-            if (!response.error) {
+            if (response) {
               this.updateChatbotFromAPIResponse(response);
             }
           });
@@ -266,8 +306,8 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     this.userInput = '';
     this.chatbotSession.messages.push({ user_message: response.question, system_response: response.text });
 
-    if (response?.agentReasoning?.length > 0) {
-      this.agentChain = response.agentReasoning.map((x) => x.agentName).join(' -> ');
+    if (response?.agentFlowExecutedData?.length > 0) {
+      this.agentChain = response.agentFlowExecutedData.map((x) => x.nodeLabel).join(' -> ');
     }
 
     if (this.playTextToSpeech) {
@@ -325,8 +365,13 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       },
       body: JSON.stringify({ ...data, overrideConfig: { vars: { language: getLanguageFromKey(this.language) } } }),
     });
-    const result = await response.json();
-    return result;
+    if (response.ok) {
+      const result = await response.json();
+      return result as FlowiseAPIResponseType;
+    } else {
+      console.error('Flowise API request failed:', response.statusText);
+      return undefined;
+    }
   }
 
   onLanguageChange($event: Event) {
