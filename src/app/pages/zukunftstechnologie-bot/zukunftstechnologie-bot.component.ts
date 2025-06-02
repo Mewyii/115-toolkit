@@ -181,6 +181,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   };
 
   public awaitingAPIResponse = false;
+  public apiError: any = '';
 
   constructor(private httpClient: HttpClient, private mediaRecorderService: MediaRecorderService, public sanitizer: DomSanitizer) {}
 
@@ -263,6 +264,8 @@ export class ZukunftstechnologieBotComponent implements OnInit {
         this.chatbotSession.messages[this.chatbotSession.messages.length - 1].user_message +
         '\nAgentenverlauf: ' +
         this.agentChain +
+        '\nAufgetretene Fehler: ' +
+        this.apiError +
         '\n\n'
     );
 
@@ -358,18 +361,23 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   }
 
   private async queryFlowise(url: string, data: { question: string; history: FlowiseHistory[] }) {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ ...data, overrideConfig: { vars: { language: getLanguageFromKey(this.language) } } }),
-    });
-    if (response.ok) {
+    try {
+      let response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...data, overrideConfig: { vars: { language: getLanguageFromKey(this.language) } } }),
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      this.apiError = '';
+
       const result = await response.json();
       return result as FlowiseAPIResponseType;
-    } else {
-      console.error('Flowise API request failed:', response.statusText);
+    } catch (e) {
+      this.apiError = e;
       return undefined;
     }
   }
