@@ -116,22 +116,10 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       url: 'https://flowise.km.usu.com/api/v1/prediction/badc6889-52e0-409e-aa63-f4bb74d809b2',
     },
     {
-      versionNumber: '0.25',
-      teilnehmer: 'Aachen',
-      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;stefan.ganser@mail.aachen.de',
-      url: 'https://flowise.km.usu.com/api/v1/prediction/988cca78-5f4b-4e9a-a1a4-6453a5cde5f0',
-    },
-    {
       versionNumber: '0.4',
       teilnehmer: 'Berlin',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;mario.anton@senatskanzlei.berlin.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/669ffe8a-e7d7-427e-bba5-382206b38a1b',
-    },
-    {
-      versionNumber: '0.3',
-      teilnehmer: 'Berlin',
-      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;mario.anton@senatskanzlei.berlin.de',
-      url: 'https://flowise.km.usu.com/api/v1/prediction/64ffacfe-2c01-4829-ab18-c6c133621fe7',
     },
     {
       versionNumber: '0.4',
@@ -148,7 +136,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     {
       versionNumber: '0.4',
       teilnehmer: 'Grünheide',
-      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/940a524c-c020-4d4f-9677-e00f4989fc32',
     },
     {
@@ -157,7 +145,20 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
       url: 'https://flowise.km.usu.com/api/v1/prediction/9104b658-d77a-4e91-9f24-db00e412cc43',
     },
-  ];
+    {
+      versionNumber: '0.4',
+      teilnehmer: 'Kassel',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/f19a5435-f30b-44da-99d8-79a7e30c773a',
+    },
+    {
+      versionNumber: '0.4',
+      teilnehmer: 'Königstein',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/9d3db172-5128-4cab-9885-39dbe12f182d',
+    },
+  ].sort((a, b) => a.teilnehmer.localeCompare(b.teilnehmer));
+
   public selectedVersion: ChatbotVersion | undefined = this.versions[0];
 
   public workingStateElements = ['Bestimme Zuständigkeit...', 'Suche Informationen...', 'Erstelle Antwort...'];
