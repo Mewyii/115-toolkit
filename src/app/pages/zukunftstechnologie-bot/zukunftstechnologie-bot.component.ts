@@ -104,12 +104,6 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       url: 'https://flowise.km.usu.com/api/v1/prediction/60b5662b-c194-487c-b507-99e724483432',
     },
     {
-      versionNumber: '0.3',
-      teilnehmer: 'Frankfurt',
-      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;anna.ahlbrandt@stadt-frankfurt.de',
-      url: 'https://flowise.km.usu.com/api/v1/prediction/f969e215-e874-45f2-882f-e0209a787799',
-    },
-    {
       versionNumber: '0.4',
       teilnehmer: 'Aachen',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;stefan.ganser@mail.aachen.de',
@@ -156,6 +150,12 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       teilnehmer: 'Königstein',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
       url: 'https://flowise.km.usu.com/api/v1/prediction/9d3db172-5128-4cab-9885-39dbe12f182d',
+    },
+    {
+      versionNumber: '0.4',
+      teilnehmer: 'Frankfurt Gemini',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;anna.ahlbrandt@stadt-frankfurt.de',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/7eefa209-edd3-4aed-b8d1-20ab89308f0c',
     },
   ].sort((a, b) => a.teilnehmer.localeCompare(b.teilnehmer));
 
