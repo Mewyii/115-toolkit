@@ -157,6 +157,36 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;anna.ahlbrandt@stadt-frankfurt.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/7eefa209-edd3-4aed-b8d1-20ab89308f0c',
     },
+    {
+      versionNumber: '0.4',
+      teilnehmer: 'Potsdam',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/cae8bdf4-0e05-44ab-9ec2-fe802204c4ed',
+    },
+    {
+      versionNumber: '0.4',
+      teilnehmer: 'Bernau',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/890e4618-55cc-4332-9f6d-79af7c3fc43b',
+    },
+    {
+      versionNumber: '0.4',
+      teilnehmer: 'Schönefeld',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/40d65016-a6de-49cf-a6cf-e4cf8d5d7204',
+    },
+    {
+      versionNumber: '0.4',
+      teilnehmer: 'Dahme Spreewald',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/e8a8968d-c576-4c7b-b06e-bf60718229e5',
+    },
+    {
+      versionNumber: 'K 0.1',
+      teilnehmer: 'Harburg',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;h.huch@lkharburg.de',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/20d4ee9d-1617-4847-af3c-a30a738e1b6f',
+    },
   ].sort((a, b) => a.teilnehmer.localeCompare(b.teilnehmer));
 
   public selectedVersion: ChatbotVersion | undefined = this.versions[0];
