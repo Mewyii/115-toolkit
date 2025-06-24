@@ -124,7 +124,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     {
       versionNumber: '0.4',
       teilnehmer: 'Essen',
-      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;33-3-it@einwohneramt.essen.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/8d2103bc-98dc-4f6e-87b1-c8d04a6d936e',
     },
     {
