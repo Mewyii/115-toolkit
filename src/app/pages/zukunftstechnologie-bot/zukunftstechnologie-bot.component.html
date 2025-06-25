@@ -1,3 +1,13 @@
+<div class="control-bar" *ngIf="flowiseDown">
+  <div class="badge">
+    <div class="red-circle"></div>
+    <div>
+      Die API des Chatbots ist aktuell nicht verfügbar. Bitte laden Sie die
+      Seite neu, um es später erneut zu versuchen.
+    </div>
+  </div>
+  <br />
+</div>
 <div class="control-bar">
   <mat-form-field [subscriptSizing]="'dynamic'">
     <select

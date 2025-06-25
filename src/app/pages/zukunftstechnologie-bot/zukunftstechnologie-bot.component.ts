@@ -214,12 +214,16 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   public awaitingAPIResponse = false;
   public apiError: any = '';
 
+  public flowiseDown = false;
+
   constructor(private httpClient: HttpClient, private mediaRecorderService: MediaRecorderService, public sanitizer: DomSanitizer) {}
 
   ngOnInit(): void {
     this.mediaRecorderService.audioFile$.subscribe((file) => {
       this.onAudioFileGenerated(file);
     });
+
+    this.pingFlowiseAPI();
   }
 
   ngAfterViewInit() {
@@ -409,8 +413,19 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       return result as FlowiseAPIResponseType;
     } catch (e) {
       this.apiError = e;
+      this.pingFlowiseAPI();
       return undefined;
     }
+  }
+
+  private pingFlowiseAPI() {
+    this.httpClient.get('https://flowise.km.usu.com/api/v1/ping', { responseType: 'text' }).subscribe((result) => {
+      if (result === 'pong') {
+        this.flowiseDown = false;
+      } else {
+        this.flowiseDown = true;
+      }
+    });
   }
 
   onLanguageChange($event: Event) {

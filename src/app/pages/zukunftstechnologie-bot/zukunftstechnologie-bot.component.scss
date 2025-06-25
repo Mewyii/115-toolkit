@@ -132,3 +132,18 @@ mat-form-field {
   text-align: center;
   filter: drop-shadow(0px 0px 5px gray);
 }
+
+.red-circle {
+  width: 20px;
+  height: 20px;
+  background-color: rgb(199, 34, 34);
+  border-radius: 50%;
+}
+
+.badge {
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+  background-color: #f2d1d1;
+  border-radius: 6px;
+}
