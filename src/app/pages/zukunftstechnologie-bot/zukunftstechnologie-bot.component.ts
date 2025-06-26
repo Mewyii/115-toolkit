@@ -187,6 +187,12 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;h.huch@lkharburg.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/20d4ee9d-1617-4847-af3c-a30a738e1b6f',
     },
+    {
+      versionNumber: '0.1',
+      teilnehmer: 'Memory Test',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/36fb5d9d-4293-4b10-93aa-055ab6063a85',
+    },
   ].sort((a, b) => a.teilnehmer.localeCompare(b.teilnehmer));
 
   public selectedVersion: ChatbotVersion | undefined = this.versions[0];
@@ -419,12 +425,14 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   }
 
   private pingFlowiseAPI() {
-    this.httpClient.get('https://flowise.km.usu.com/api/v1/ping', { responseType: 'text' }).subscribe((result) => {
-      if (result === 'pong') {
-        this.flowiseDown = false;
-      } else {
+    this.httpClient.get('https://flowise.km.usu.com/api/v1/ping', { responseType: 'text' }).subscribe({
+      next: (result) => {
+        this.flowiseDown = result !== 'pong';
+      },
+      error: (err) => {
+        console.error('Fehler beim HTTP-Request:', err);
         this.flowiseDown = true;
-      }
+      },
     });
   }
 
