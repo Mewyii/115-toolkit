@@ -96,7 +96,6 @@ interface ChatbotVersion {
 export class ZukunftstechnologieBotComponent implements OnInit {
   @ViewChild('messageHistory') private messageHistoryElement!: ElementRef<HTMLElement>;
   @ViewChildren('messageElements') messageElements!: QueryList<any>;
-  public test = new Intl.DateTimeFormat('de-DE', { weekday: 'long', year: 'numeric', month: '2-digit', day: 'numeric' }).format(new Date());
 
   public versions: ChatbotVersion[] = [
     {
