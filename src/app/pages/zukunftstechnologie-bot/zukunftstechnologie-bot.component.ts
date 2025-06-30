@@ -83,6 +83,7 @@ export interface TextToSpeechData {
 interface ChatbotVersion {
   versionNumber: string;
   teilnehmer: string;
+  type: 'stadt' | 'kreis';
   kontakt: string;
   url: string;
 }
@@ -95,104 +96,114 @@ interface ChatbotVersion {
 export class ZukunftstechnologieBotComponent implements OnInit {
   @ViewChild('messageHistory') private messageHistoryElement!: ElementRef<HTMLElement>;
   @ViewChildren('messageElements') messageElements!: QueryList<any>;
+  public test = new Intl.DateTimeFormat('de-DE', { weekday: 'long', year: 'numeric', month: '2-digit', day: 'numeric' }).format(new Date());
 
   public versions: ChatbotVersion[] = [
     {
       versionNumber: '0.4',
       teilnehmer: 'Frankfurt',
+      type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;anna.ahlbrandt@stadt-frankfurt.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/60b5662b-c194-487c-b507-99e724483432',
-    },
+    } as ChatbotVersion,
     {
       versionNumber: '0.4',
       teilnehmer: 'Aachen',
+      type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;stefan.ganser@mail.aachen.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/badc6889-52e0-409e-aa63-f4bb74d809b2',
-    },
+    } as ChatbotVersion,
     {
       versionNumber: '0.4',
       teilnehmer: 'Berlin',
+      type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;mario.anton@senatskanzlei.berlin.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/669ffe8a-e7d7-427e-bba5-382206b38a1b',
-    },
+    } as ChatbotVersion,
     {
       versionNumber: '0.4',
       teilnehmer: 'Bielefeld',
+      type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
       url: 'https://flowise.km.usu.com/api/v1/prediction/25de82c1-8cc3-439c-89cd-42a9424eb274',
-    },
+    } as ChatbotVersion,
     {
       versionNumber: '0.4',
       teilnehmer: 'Essen',
+      type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;33-3-it@einwohneramt.essen.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/8d2103bc-98dc-4f6e-87b1-c8d04a6d936e',
-    },
+    } as ChatbotVersion,
     {
       versionNumber: '0.4',
       teilnehmer: 'Grünheide',
+      type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/940a524c-c020-4d4f-9677-e00f4989fc32',
-    },
+    } as ChatbotVersion,
     {
       versionNumber: '0.4',
       teilnehmer: 'Magdeburg',
+      type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
       url: 'https://flowise.km.usu.com/api/v1/prediction/9104b658-d77a-4e91-9f24-db00e412cc43',
-    },
+    } as ChatbotVersion,
     {
       versionNumber: '0.4',
       teilnehmer: 'Kassel',
+      type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
       url: 'https://flowise.km.usu.com/api/v1/prediction/f19a5435-f30b-44da-99d8-79a7e30c773a',
-    },
+    } as ChatbotVersion,
     {
       versionNumber: '0.4',
       teilnehmer: 'Königstein',
+      type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
       url: 'https://flowise.km.usu.com/api/v1/prediction/9d3db172-5128-4cab-9885-39dbe12f182d',
-    },
+    } as ChatbotVersion,
     {
       versionNumber: '0.4',
       teilnehmer: 'Frankfurt Gemini',
+      type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;anna.ahlbrandt@stadt-frankfurt.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/7eefa209-edd3-4aed-b8d1-20ab89308f0c',
-    },
+    } as ChatbotVersion,
     {
       versionNumber: '0.4',
       teilnehmer: 'Potsdam',
+      type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/cae8bdf4-0e05-44ab-9ec2-fe802204c4ed',
-    },
+    } as ChatbotVersion,
     {
       versionNumber: '0.4',
       teilnehmer: 'Bernau',
+      type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/890e4618-55cc-4332-9f6d-79af7c3fc43b',
-    },
+    } as ChatbotVersion,
     {
       versionNumber: '0.4',
       teilnehmer: 'Schönefeld',
+      type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/40d65016-a6de-49cf-a6cf-e4cf8d5d7204',
-    },
+    } as ChatbotVersion,
     {
       versionNumber: '0.4',
       teilnehmer: 'Dahme Spreewald',
+      type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/e8a8968d-c576-4c7b-b06e-bf60718229e5',
-    },
+    } as ChatbotVersion,
     {
       versionNumber: 'K 0.1',
       teilnehmer: 'Harburg',
+      type: 'kreis',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;h.huch@lkharburg.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/20d4ee9d-1617-4847-af3c-a30a738e1b6f',
-    },
-    {
-      versionNumber: '0.1',
-      teilnehmer: 'Memory Test',
-      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
-      url: 'https://flowise.km.usu.com/api/v1/prediction/36fb5d9d-4293-4b10-93aa-055ab6063a85',
-    },
+    } as ChatbotVersion,
   ].sort((a, b) => a.teilnehmer.localeCompare(b.teilnehmer));
 
   public selectedVersion: ChatbotVersion | undefined = this.versions[0];
@@ -444,12 +455,12 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   private getUserGreeting(): ChatbotSession {
     switch (this.language) {
       case 'de':
-        return { messages: getDeUserGreeting(this.selectedVersion?.teilnehmer).map((x) => ({ system_response: x })) };
+        return { messages: getDeUserGreeting(this.selectedVersion?.teilnehmer, this.selectedVersion?.type).map((x) => ({ system_response: x })) };
       case 'fr':
-        return { messages: getFrUserGreeting(this.selectedVersion?.teilnehmer).map((x) => ({ system_response: x })) };
+        return { messages: getFrUserGreeting(this.selectedVersion?.teilnehmer, this.selectedVersion?.type).map((x) => ({ system_response: x })) };
       case 'en':
       default:
-        return { messages: getEnUserGreeting(this.selectedVersion?.teilnehmer).map((x) => ({ system_response: x })) };
+        return { messages: getEnUserGreeting(this.selectedVersion?.teilnehmer, this.selectedVersion?.type).map((x) => ({ system_response: x })) };
     }
   }
 }
@@ -466,28 +477,49 @@ function getLanguageFromKey(langKey: string) {
   }
 }
 
-function getDeUserGreeting(teilnehmer?: string) {
+function getDeUserGreeting(teilnehmer?: string, type?: 'stadt' | 'kreis') {
   return [
-    '<b>Hallo!</b> Ich bin der Chatbot der Behördennummer 115 für die Stadt ' + teilnehmer + '. Wie kann ich dir helfen?',
+    '<b>Hallo!</b> Ich bin der Chatbot der Behördennummer 115 für ' + getTeilnehmerTypeString('de', type) + teilnehmer + '. Wie kann ich dir helfen?',
     'Aktuell befinde ich mich in einer Testphase und freue mich, wenn du meine Feedbackmöglichkeiten nutzt.',
     '<b>Bitte nenne mir dein Anliegen</b>, z. B. <i>"Ich habe meinen Führerschein verloren"</i>. Bitte gib keine persönlichen Daten wie z. B. deinen Namen ein.',
   ];
 }
 
-function getEnUserGreeting(teilnehmer?: string) {
+function getEnUserGreeting(teilnehmer?: string, type?: 'stadt' | 'kreis') {
   return [
-    '<b>Hello!</b> I am the chatbot of the hotline 115 for the city of ' + teilnehmer + '. How can I help you?',
+    '<b>Hello!</b> I am the chatbot of the hotline 115 for ' + getTeilnehmerTypeString('de', type) + teilnehmer + '. How can I help you?',
     'Currently, I am in a testing phase and would appreciate it if you could use my feedback options.',
     '<b>Please state your concern including</b>, e.g. <i>"I have lost my driving license"</i>. Please do not enter any personal data such as your name.',
   ];
 }
 
-function getFrUserGreeting(teilnehmer?: string) {
+function getFrUserGreeting(teilnehmer?: string, type?: 'stadt' | 'kreis') {
   return [
-    '<b>Bonjour !</b> Je suis le chatbot du numéro officiel 115 pour la ville de ' + teilnehmer + ". Comment puis-je t'aider ?",
+    '<b>Bonjour !</b> Je suis le chatbot du numéro officiel 115 pour ' + getTeilnehmerTypeString('de', type) + teilnehmer + ". Comment puis-je t'aider ?",
     "Je suis actuellement en phase de test et je serais ravi si tu utilisais mes options de retour d'expérience.",
     '<b>Merci de me décrire ton besoin</b>, par exemple : <i>"J\'ai perdu mon permis de conduire"</i>. Merci de ne pas entrer de données personnelles telles que ton nom.',
   ];
+}
+
+function getTeilnehmerTypeString(lang: 'de' | 'en' | 'fr', type?: 'stadt' | 'kreis'): string {
+  if (type === 'stadt') {
+    if (lang === 'de') {
+      return 'die Stadt ';
+    } else if (lang === 'en') {
+      return 'the city of ';
+    } else if (lang === 'fr') {
+      return 'la ville ';
+    }
+  } else if (type === 'kreis') {
+    if (lang === 'de') {
+      return 'den Landkreis ';
+    } else if (lang === 'en') {
+      return 'the district of ';
+    } else if (lang === 'fr') {
+      return 'le district de ';
+    }
+  }
+  return '';
 }
 
 function readBlob(blob: Blob) {
