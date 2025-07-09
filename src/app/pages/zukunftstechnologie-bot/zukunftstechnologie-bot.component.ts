@@ -411,6 +411,19 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     });
   }
 
+  private getFlowiseContext() {
+    return this.chatbotSession.messages.flatMap((message) => {
+      const result = [];
+      if (message.user_message) {
+        result.push({ user: message.user_message });
+      }
+      if (message.system_response) {
+        result.push({ ai: message.system_response });
+      }
+      return result;
+    });
+  }
+
   private async queryFlowise(url: string, data: { question: string; history: FlowiseHistory[] }) {
     try {
       let response = await fetch(url, {
@@ -418,7 +431,12 @@ export class ZukunftstechnologieBotComponent implements OnInit {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...data, overrideConfig: { vars: { language: getLanguageFromKey(this.language) } } }),
+        body: JSON.stringify({
+          ...data,
+          overrideConfig: {
+            vars: { language: getLanguageFromKey(this.language), history: JSON.stringify(this.getFlowiseContext()) },
+          },
+        }),
       });
       if (!response.ok) {
         throw new Error(response.statusText);
