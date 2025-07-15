@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { DateFilterFn } from '@angular/material/datepicker';
 import { isArray, startsWith } from 'lodash';
 import { BehaviorSubject } from 'rxjs';
 import { ConverterService, SheetDataMapping, XLSService } from 'src/app/services';
@@ -111,7 +110,12 @@ export class ChatbotComponent implements OnInit {
       const entry = result.find((x) => x.sessionId === chatbotInfo.sessionId);
       if (entry) {
         if (entry.isEmptySession) {
-          if (chatbotInfo.userInput !== 'startSession' && chatbotInfo.userInput !== 'closeChatBot' && chatbotInfo.userInput !== 'closeChatbot') {
+          if (
+            chatbotInfo.userInput !== 'startSession' &&
+            chatbotInfo.userInput !== 'closeChatBot' &&
+            chatbotInfo.userInput !== 'closeChatbot' &&
+            chatbotInfo.userInput !== 'hideWidget'
+          ) {
             entry.isEmptySession = false;
             emptySessionCount--;
           }

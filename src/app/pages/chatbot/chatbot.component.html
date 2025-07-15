@@ -102,6 +102,11 @@
                   >
                   <mat-icon
                     [class]="'highlighted'"
+                    *ngIf="item.userInput === 'hideWidget'"
+                    >clear</mat-icon
+                  >
+                  <mat-icon
+                    [class]="'highlighted'"
                     *ngIf="item.userInput === 'closeChatbot'"
                     >logout</mat-icon
                   >
@@ -110,7 +115,8 @@
                     *ngIf="
                       item.userInput !== 'startSession' &&
                       item.userInput !== 'resetSession' &&
-                      item.userInput !== 'closeChatbot'
+                      item.userInput !== 'closeChatbot' &&
+                      item.userInput !== 'hideWidget'
                     "
                     >{{ item.userInput }}</span
                   >
