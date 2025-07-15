@@ -3,13 +3,13 @@ import { MatTabChangeEvent } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
-  selector: 'app-chatbot',
-  templateUrl: './chatbot.component.html',
-  styleUrl: './chatbot.component.scss',
+  selector: 'app-website',
+  templateUrl: './website.component.html',
+  styleUrl: './website.component.scss',
 })
-export class ChatbotComponent {
+export class WebsiteComponent {
   selectedIndex = 0;
-  tabLabels = ['ki-chatbot', 'auswertungen'];
+  tabLabels = ['verfügbarkeitscheck'];
 
   constructor(private router: Router, private route: ActivatedRoute) {}
 

@@ -3,13 +3,13 @@ import { MatTabChangeEvent } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
-  selector: 'app-chatbot',
-  templateUrl: './chatbot.component.html',
-  styleUrl: './chatbot.component.scss',
+  selector: 'app-other',
+  templateUrl: './other.component.html',
+  styleUrl: './other.component.scss',
 })
-export class ChatbotComponent {
+export class OtherComponent {
   selectedIndex = 0;
-  tabLabels = ['ki-chatbot', 'auswertungen'];
+  tabLabels = ['pm-assistant', 'verteiler', 'markenbekanntheitsumfrage'];
 
   constructor(private router: Router, private route: ActivatedRoute) {}
 
@@ -24,7 +24,7 @@ export class ChatbotComponent {
   onTabChange(event: MatTabChangeEvent): void {
     this.router.navigate([], {
       queryParams: { tab: event.tab.textLabel },
-      queryParamsHandling: 'merge', // wichtig, damit andere Query-Params erhalten bleiben
+      queryParamsHandling: 'merge',
     });
   }
 }

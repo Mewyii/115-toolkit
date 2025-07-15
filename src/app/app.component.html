@@ -3,25 +3,22 @@
     <img class="logo" src="/assets/115_logo_modern.png" />
     <span class="logo-text">115-Toolkit</span>
     <a [routerLink]="['/fundstellen']">
-      <span>Fundstellen</span>
+      <span [class]="url.includes('fundstellen') ? 'active' : ''"
+        >Fundstellen</span
+      >
     </a>
-    <a [routerLink]="['/verteiler']">
-      <span>Verteiler</span>
+    <a [routerLink]="['/website']">
+      <span [class]="url.includes('website') ? 'active' : ''">Website</span>
     </a>
-    <a [routerLink]="['/verfuegbarkeits-check']">
-      <span>Verfügbarkeitscheck</span>
-    </a>
-    <a [routerLink]="['/marken-bekanntheits-umfrage']">
-      <span>Markenbekanntheitsumfrage</span>
-    </a>
-    <a [routerLink]="['/chatbot-auswertungen']">
-      <span>Chatbot-Auswertungen</span>
-    </a>
-    <a [routerLink]="['/ki-chatbot']">
-      <span>KI-Chatbot</span>
+
+    <a [routerLink]="['/chatbot']">
+      <span [class]="url.includes('chatbot') ? 'active' : ''">Chatbot</span>
     </a>
     <a [routerLink]="['/tnk']">
-      <span>TNK</span>
+      <span [class]="url.includes('tnk') ? 'active' : ''">TNK</span>
+    </a>
+    <a [routerLink]="['/other']">
+      <span [class]="url.includes('other') ? 'active' : ''">Zusätzliches</span>
     </a>
   </div>
 </mat-toolbar>

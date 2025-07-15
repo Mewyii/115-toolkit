@@ -1,0 +1,204 @@
+<div class="control-bar">
+  <button mat-raised-button color="primary" (click)="xlsFileIPicker.click()">
+    <span class="text-with-loading-indicator"
+      >Chatbot-Protokoll öffnen
+      <mat-progress-spinner
+        *ngIf="verfugbarkeitsInfosAreLoading"
+        diameter="20"
+        mode="indeterminate"
+        color="accent"
+      ></mat-progress-spinner>
+    </span>
+  </button>
+  <input
+    #xlsFileIPicker
+    [hidden]="true"
+    [type]="'file'"
+    [accept]="'.csv'"
+    (change)="onStammdatenExcelFileSelected($event)"
+  />
+</div>
+
+<div class="control-bar">
+  <div>
+    Session-Zeitraum: {{ earliestDate | date : "mediumDate" }} -
+    {{ latestDate | date : "mediumDate" }}
+  </div>
+  <div>Gesamtanzahl Sessions: {{ chatbotSessions.length }}</div>
+  <div>
+    Sessions mit Nutzereingaben: {{ chatbotSessions.length - emptySessions }}
+  </div>
+  <div>Anzahl positives Nutzerfeedback: {{ positiveUserFeedbackCount }}</div>
+  <div>Anzahl negatives Nutzerfeedback: {{ negativeUserFeedbackCount }}</div>
+</div>
+<div class="control-bar">
+  <mat-form-field class="date-picker">
+    <input
+      matInput
+      [matDatepickerFilter]="datePickerFilter"
+      [matDatepicker]="datePicker"
+      [value]="dateFilter"
+      (dateChange)="onDateFilterChanged($event)"
+    />
+    <mat-label>Filtern nach Datum</mat-label>
+    <mat-datepicker-toggle
+      matIconSuffix
+      [for]="datePicker"
+    ></mat-datepicker-toggle>
+    <mat-datepicker #datePicker></mat-datepicker>
+  </mat-form-field>
+
+  <mat-checkbox
+    [(ngModel)]="showOnlySessionsWithFeedback"
+    (change)="filterSessions()"
+    >Nur Sessions mit Feedback</mat-checkbox
+  >
+
+  <div class="pagination">
+    <div>Seite:</div>
+    <button
+      mat-icon-button
+      color="primary"
+      (click)="onShowPreviousPageClicked()"
+      [disabled]="page === 1"
+    >
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    {{ page }} ({{ (page - 1) * pageSize + 1 }} - {{ page * pageSize }} )
+    <button
+      mat-icon-button
+      color="primary"
+      (click)="onShowNextPageClicked()"
+      [disabled]="filteredChatbotSessions.length < page * pageSize"
+    >
+      <mat-icon>arrow_forward</mat-icon>
+    </button>
+  </div>
+</div>
+<mat-tab-group>
+  <mat-tab label="Aufbereitete Daten">
+    <div class="tab-content">
+      <div class="type-results-container">
+        <div>
+          <ng-container *ngFor="let sessionInfo of shownChatbotSessions">
+            <div class="session">
+              Session {{ sessionInfo.sessionId }} ({{
+                sessionInfo.date | date : "mediumDate"
+              }})
+            </div>
+            <ng-container *ngFor="let item of sessionInfo.infos">
+              <div class="infos">
+                <div class="user-input-container">
+                  <div class="user-input-date">
+                    {{ item.date | date : "h:mm:ss" }}
+                  </div>
+                  <mat-icon
+                    [class]="'highlighted'"
+                    *ngIf="
+                      item.userInput === 'startSession' ||
+                      item.userInput === 'resetSession'
+                    "
+                    >face</mat-icon
+                  >
+                  <mat-icon
+                    [class]="'highlighted'"
+                    *ngIf="item.userInput === 'hideWidget'"
+                    >clear</mat-icon
+                  >
+                  <mat-icon
+                    [class]="'highlighted'"
+                    *ngIf="item.userInput === 'closeChatbot'"
+                    >logout</mat-icon
+                  >
+                  <span
+                    [class]="item.isUserSelectAction ? 'highlighted' : ''"
+                    *ngIf="
+                      item.userInput !== 'startSession' &&
+                      item.userInput !== 'resetSession' &&
+                      item.userInput !== 'closeChatbot' &&
+                      item.userInput !== 'hideWidget'
+                    "
+                    >{{ item.userInput }}</span
+                  >
+                </div>
+              </div>
+              <!-- <div
+                [class]="'bot-answer' + (showFullBotAnswers ? ' full' : '')"
+                *ngIf="item.botAnswer"
+              >
+                <div *ngIf="item.botAnswer.metadata">
+                  {{ item.botAnswer.metadata.mappedUserInput }}
+                </div>
+                <div [innerHTML]="item.botAnswer.content"></div>
+              </div> -->
+              <ng-container *ngIf="item.botAnswer">
+                <div
+                  *ngIf="!item.botAnswer.metadata.mappedUserInput"
+                  class="bot-answer-container"
+                  [innerHTML]="item.botAnswer.content"
+                ></div>
+                <mat-expansion-panel
+                  *ngIf="item.botAnswer.metadata.mappedUserInput"
+                  class="bot-answer-container"
+                >
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      <div
+                        class="bot-answer-title"
+                        [innerHTML]="
+                          item.botAnswer.metadata.mappedUserInput ||
+                          item.botAnswer.content.substring(0, 70)
+                        "
+                      ></div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <div [innerHTML]="item.botAnswer.content"></div>
+                </mat-expansion-panel>
+              </ng-container>
+              <div class="feedback-container" *ngIf="item.userFeedback">
+                <mat-icon
+                  *ngIf="item.userFeedback === 'good'"
+                  [ngClass]="item.userFeedback"
+                  >thumb_up</mat-icon
+                >
+                <mat-icon
+                  *ngIf="item.userFeedback === 'bad'"
+                  [ngClass]="item.userFeedback"
+                  >thumb_down</mat-icon
+                >
+                <div
+                  [class]="'feedback ' + item.userFeedback"
+                  *ngIf="item.userFeedbackText"
+                >
+                  {{ item.userFeedbackText }}
+                </div>
+              </div>
+            </ng-container>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+    <div class="control-bar">
+      <div class="pagination">
+        <div>Seite:</div>
+        <button
+          mat-icon-button
+          color="primary"
+          (click)="onShowPreviousPageClicked()"
+          [disabled]="page === 1"
+        >
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        {{ page }} ({{ (page - 1) * pageSize + 1 }} - {{ page * pageSize }} )
+        <button
+          mat-icon-button
+          color="primary"
+          (click)="onShowNextPageClicked()"
+          [disabled]="filteredChatbotSessions.length < page * pageSize"
+        >
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    </div>
+  </mat-tab>
+</mat-tab-group>

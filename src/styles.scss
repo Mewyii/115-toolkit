@@ -1,24 +1,43 @@
-@use '@angular/material' as mat;
+@use "@angular/material" as mat;
 @include mat.core();
 
-$myapp-theme-primary: mat.m2-define-palette(mat.$m2-deep-purple-palette, A400, A100, A700);
+$myapp-theme-primary: mat.m2-define-palette(
+  mat.$m2-deep-purple-palette,
+  A400,
+  A100,
+  A700
+);
 $myapp-theme-accent: mat.m2-define-palette(mat.$m2-deep-purple-palette);
 $myapp-theme-warn: mat.m2-define-palette(mat.$m2-red-palette);
 
-$myapp-theme: mat.m2-define-light-theme((
-  color: (
-    primary: $myapp-theme-primary,
-    accent: $myapp-theme-accent,
-    warn: $myapp-theme-warn,
+$myapp-theme: mat.m2-define-light-theme(
+  (
+    color: (
+      primary: $myapp-theme-primary,
+      accent: $myapp-theme-accent,
+      warn: $myapp-theme-warn,
+    ),
   )
-));
+);
 
 @include mat.all-component-themes($myapp-theme);
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
 
 .custom-tooltip {
   white-space: break-spaces;
-  background-color: rgba(37, 0, 48, 0.464)
+  background-color: rgba(37, 0, 48, 0.464);
+}
+
+.page-container {
+  max-width: 1200px;
+  margin: auto;
+  margin-top: 32px;
 }

@@ -89,9 +89,9 @@ interface ChatbotVersion {
 }
 
 @Component({
-  selector: 'app-zukunftstechnologie-bot',
-  templateUrl: './zukunftstechnologie-bot.component.html',
-  styleUrls: ['./zukunftstechnologie-bot.component.scss'],
+  selector: 'app-ki-bot',
+  templateUrl: './ki-bot.component.html',
+  styleUrls: ['./ki-bot.component.scss'],
 })
 export class ZukunftstechnologieBotComponent implements OnInit {
   @ViewChild('messageHistory') private messageHistoryElement!: ElementRef<HTMLElement>;

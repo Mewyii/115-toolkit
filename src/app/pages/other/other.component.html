@@ -1,0 +1,16 @@
+<div class="page-container">
+  <mat-tab-group
+    [selectedIndex]="selectedIndex"
+    (selectedTabChange)="onTabChange($event)"
+  >
+    <mat-tab label="PM-Assistent">
+      <app-pm-assistant></app-pm-assistant>
+    </mat-tab>
+    <mat-tab label="Verteiler">
+      <app-verteiler></app-verteiler>
+    </mat-tab>
+    <mat-tab label="Markenbekanntheitsumfrage">
+      <app-marken-bekanntheits-umfrage></app-marken-bekanntheits-umfrage>
+    </mat-tab>
+  </mat-tab-group>
+</div>

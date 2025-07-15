@@ -1,0 +1,95 @@
+<div class="control-bar">
+  <mat-checkbox [checked]="mode === 'chat'" (click)="setMode('chat')"
+    >Chat</mat-checkbox
+  >
+  <mat-checkbox
+    [checked]="mode === 'mailgenerator'"
+    (click)="setMode('mailgenerator')"
+    >Mailgenerator</mat-checkbox
+  >
+</div>
+<div class="control-bar" *ngIf="flowiseDown">
+  <div class="badge">
+    <div class="red-circle"></div>
+    <div>
+      Die API des Chatbots ist aktuell nicht verfügbar. Bitte laden Sie die
+      Seite neu, um es später erneut zu versuchen.
+    </div>
+  </div>
+  <br />
+</div>
+<div class="chatbot-container">
+  <div class="header-container">
+    <div class="header-container-right">
+      <button mat-icon-button (click)="onShowDebugClicked()">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+    </div>
+    <div>115-Assistent</div>
+    <div class="header-container-right">
+      <button mat-icon-button (click)="onRefreshClicked()">
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button mat-icon-button>
+        <mat-icon>clear</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="message-history" #messageHistory>
+    <ng-container
+      *ngFor="let message of chatbotSession.messages"
+      #messageElements
+    >
+      <div class="user-message-container">
+        <div *ngIf="message.user_message" class="user-message">
+          {{ message.user_message }}
+        </div>
+      </div>
+      <div
+        *ngIf="message.system_response"
+        class="chatbot-response"
+        [innerHTML]="sanitizer.bypassSecurityTrustHtml(message.system_response)"
+      ></div>
+    </ng-container>
+  </div>
+  <div *ngIf="awaitingAPIResponse" class="working-state-container">
+    {{ currentWorkingState }}
+  </div>
+  <div class="user-input-container">
+    <mat-form-field [style.flex]="'1 1'" [subscriptSizing]="'dynamic'">
+      <input
+        type="text"
+        placeholder="Bitte geben Sie Ihr Anliegen ein..."
+        aria-label="Number"
+        matInput
+        [(ngModel)]="userInput"
+        (keydown.enter)="onMessageSendClicked()"
+        [disabled]="awaitingAPIResponse"
+      />
+    </mat-form-field>
+    <button
+      mat-raised-button
+      class="send-user-input-button"
+      color="primary"
+      (click)="onMessageSendClicked()"
+      [disabled]="awaitingAPIResponse"
+      [matTooltip]="'Senden'"
+    >
+      <mat-icon *ngIf="!awaitingAPIResponse">send</mat-icon>
+      <mat-spinner
+        *ngIf="awaitingAPIResponse"
+        [color]="'primary'"
+        [diameter]="24"
+      ></mat-spinner>
+    </button>
+  </div>
+</div>
+<br />
+<div class="debug-container" *ngIf="showDebug">
+  Verwendete Agenten: {{ agentChain }}
+</div>
+<br />
+<div class="debug-container" *ngIf="showDebug">
+  Aufgetretene Fehler: {{ apiError }}
+</div>
