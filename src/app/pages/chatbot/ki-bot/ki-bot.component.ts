@@ -203,6 +203,13 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;h.huch@lkharburg.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/20d4ee9d-1617-4847-af3c-a30a738e1b6f',
     } as ChatbotVersion,
+    {
+      versionNumber: '0.4',
+      teilnehmer: 'Karlsruhe',
+      type: 'stadt',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/262a4d6d-dab7-461c-95d5-26d6cf2b07f3',
+    } as ChatbotVersion,
   ].sort((a, b) => a.teilnehmer.localeCompare(b.teilnehmer));
 
   public selectedVersion: ChatbotVersion | undefined = this.versions[0];
