@@ -88,6 +88,11 @@ interface ChatbotVersion {
   url: string;
 }
 
+interface FeedbackDebugInfos {
+  bereinigtesAnliegen: string;
+  anliegenKontext: string;
+  botAntwort: string;
+}
 @Component({
   selector: 'app-ki-bot',
   templateUrl: './ki-bot.component.html',
@@ -221,7 +226,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   public language: 'de' | 'en' | 'fr' = 'de';
   public showDebug = false;
   public playTextToSpeech = false;
-  public agentChain = '';
+  public debugInfos: FeedbackDebugInfos = { anliegenKontext: '', bereinigtesAnliegen: '', botAntwort: '' };
   public leistung: ChatbotLeistung | undefined;
   public isRecordingAudio = false;
 
@@ -320,8 +325,12 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     const body = encodeURIComponent(
       'Feedback: \n\n\n\n\n\nDebug-Informationen:\nZuletzt gesendete Nachricht: ' +
         this.chatbotSession.messages[this.chatbotSession.messages.length - 1].user_message +
-        '\nAgentenverlauf: ' +
-        this.agentChain +
+        '\nBot-Antwort: ' +
+        this.debugInfos.botAntwort +
+        '\nBereinigtes Anliegen: ' +
+        this.debugInfos.bereinigtesAnliegen +
+        '\nKontext: ' +
+        this.debugInfos.anliegenKontext +
         '\nAufgetretene Fehler: ' +
         this.apiError +
         '\n\n'
@@ -358,7 +367,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   onRefreshClicked() {
     this.chatbotSession = this.getUserGreeting();
     this.oldSessions = [];
-    this.agentChain = '';
+    this.debugInfos = { anliegenKontext: '', bereinigtesAnliegen: '', botAntwort: '' };
     this.userInput = '';
     this.leistung = undefined;
   }
@@ -367,8 +376,13 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     this.userInput = '';
     this.chatbotSession.messages.push({ user_message: response.question, system_response: response.text });
 
-    if (response?.agentFlowExecutedData?.length > 0) {
-      this.agentChain = response.agentFlowExecutedData.map((x) => x.nodeLabel).join(' -> ');
+    const agentData = response.agentFlowExecutedData;
+    if (agentData.length > 0) {
+      this.debugInfos.botAntwort = response.text;
+
+      const lastEntry = agentData[agentData.length - 1];
+      this.debugInfos.bereinigtesAnliegen = lastEntry.data.state.anliegen;
+      this.debugInfos.anliegenKontext = lastEntry.data.state.anliegenKontext;
     }
 
     if (this.playTextToSpeech) {
