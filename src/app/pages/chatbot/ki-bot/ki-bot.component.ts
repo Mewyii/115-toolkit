@@ -323,15 +323,18 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     const uuid = crypto.randomUUID();
     const subject = encodeURIComponent('115-Chatbot ' + this.selectedVersion?.teilnehmer + ' ' + this.selectedVersion?.versionNumber + ': Feedback ' + category + ' ' + uuid);
     const body = encodeURIComponent(
-      'Feedback: \n\n\n\n\n\nDebug-Informationen:\nZuletzt gesendete Nachricht: ' +
-        this.chatbotSession.messages[this.chatbotSession.messages.length - 1].user_message +
-        '\nBot-Antwort: ' +
+      'Feedback: \n\n\n\n\n\nDebug-Informationen:\nGesendete Nachrichten: ' +
+        this.chatbotSession.messages
+          .filter((x) => x.user_message)
+          .map((x) => x.user_message)
+          .join('\n____\n') +
+        '\n\nBot-Antwort: ' +
         this.debugInfos.botAntwort +
-        '\nBereinigtes Anliegen: ' +
+        '\n\nBereinigtes Anliegen: ' +
         this.debugInfos.bereinigtesAnliegen +
-        '\nKontext: ' +
+        '\n\nKontext: ' +
         this.debugInfos.anliegenKontext +
-        '\nAufgetretene Fehler: ' +
+        '\n\nAufgetretene Fehler: ' +
         this.apiError +
         '\n\n'
     );
