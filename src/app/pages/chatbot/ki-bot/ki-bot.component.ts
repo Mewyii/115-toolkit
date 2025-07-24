@@ -5,7 +5,7 @@ import { cloneDeep } from 'lodash';
 import { MediaRecorderService } from 'src/app/services/media-recorder.service';
 
 export type ChatbotDialogType = 'system_greeting' | 'find_leistung' | 'keine_leistung_gefunden' | '"question_answering"';
-
+export type CommunalType = 'stadt' | 'kreis' | 'gemeinde';
 export interface ChatbotLeistung {
   id: number;
   titel: string;
@@ -83,7 +83,7 @@ export interface TextToSpeechData {
 interface ChatbotVersion {
   versionNumber: string;
   teilnehmer: string;
-  type: 'stadt' | 'kreis';
+  type: CommunalType;
   kontakt: string;
   url: string;
 }
@@ -197,7 +197,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     {
       versionNumber: '0.4',
       teilnehmer: 'Dahme Spreewald',
-      type: 'stadt',
+      type: 'kreis',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/e8a8968d-c576-4c7b-b06e-bf60718229e5',
     } as ChatbotVersion,
@@ -214,6 +214,20 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
       url: 'https://flowise.km.usu.com/api/v1/prediction/262a4d6d-dab7-461c-95d5-26d6cf2b07f3',
+    } as ChatbotVersion,
+    {
+      versionNumber: '0.4',
+      teilnehmer: 'Burg (Spreewald)',
+      type: 'gemeinde',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/50d66d4e-12f6-4600-a5a3-3bb4a2bd3d92',
+    } as ChatbotVersion,
+    {
+      versionNumber: '0.4',
+      teilnehmer: 'Potsdam-Mittelmark',
+      type: 'kreis',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/05a341f3-6fe5-4116-8356-b06e6f3dc9c6',
     } as ChatbotVersion,
   ].sort((a, b) => a.teilnehmer.localeCompare(b.teilnehmer));
 
@@ -518,7 +532,7 @@ function getLanguageFromKey(langKey: string) {
   }
 }
 
-function getDeUserGreeting(teilnehmer?: string, type?: 'stadt' | 'kreis') {
+function getDeUserGreeting(teilnehmer?: string, type?: CommunalType) {
   return [
     '<b>Hallo!</b> Ich bin der Chatbot der Behördennummer 115 für ' + getTeilnehmerTypeString('de', type) + teilnehmer + '. Wie kann ich dir helfen?',
     'Aktuell befinde ich mich in einer Testphase und freue mich, wenn du meine Feedbackmöglichkeiten nutzt.',
@@ -526,7 +540,7 @@ function getDeUserGreeting(teilnehmer?: string, type?: 'stadt' | 'kreis') {
   ];
 }
 
-function getEnUserGreeting(teilnehmer?: string, type?: 'stadt' | 'kreis') {
+function getEnUserGreeting(teilnehmer?: string, type?: CommunalType) {
   return [
     '<b>Hello!</b> I am the chatbot of the hotline 115 for ' + getTeilnehmerTypeString('de', type) + teilnehmer + '. How can I help you?',
     'Currently, I am in a testing phase and would appreciate it if you could use my feedback options.',
@@ -534,7 +548,7 @@ function getEnUserGreeting(teilnehmer?: string, type?: 'stadt' | 'kreis') {
   ];
 }
 
-function getFrUserGreeting(teilnehmer?: string, type?: 'stadt' | 'kreis') {
+function getFrUserGreeting(teilnehmer?: string, type?: CommunalType) {
   return [
     '<b>Bonjour !</b> Je suis le chatbot du numéro officiel 115 pour ' + getTeilnehmerTypeString('de', type) + teilnehmer + ". Comment puis-je t'aider ?",
     "Je suis actuellement en phase de test et je serais ravi si tu utilisais mes options de retour d'expérience.",
@@ -542,7 +556,7 @@ function getFrUserGreeting(teilnehmer?: string, type?: 'stadt' | 'kreis') {
   ];
 }
 
-function getTeilnehmerTypeString(lang: 'de' | 'en' | 'fr', type?: 'stadt' | 'kreis'): string {
+function getTeilnehmerTypeString(lang: 'de' | 'en' | 'fr', type?: CommunalType): string {
   if (type === 'stadt') {
     if (lang === 'de') {
       return 'die Stadt ';
@@ -558,6 +572,14 @@ function getTeilnehmerTypeString(lang: 'de' | 'en' | 'fr', type?: 'stadt' | 'kre
       return 'the district of ';
     } else if (lang === 'fr') {
       return 'le district de ';
+    }
+  } else if (type === 'gemeinde') {
+    if (lang === 'de') {
+      return 'die Gemeinde ';
+    } else if (lang === 'en') {
+      return 'the municipality of ';
+    } else if (lang === 'fr') {
+      return 'le commune de ';
     }
   }
   return '';
