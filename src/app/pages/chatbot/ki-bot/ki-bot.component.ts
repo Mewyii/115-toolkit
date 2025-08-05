@@ -229,6 +229,13 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
       url: 'https://flowise.km.usu.com/api/v1/prediction/05a341f3-6fe5-4116-8356-b06e6f3dc9c6',
     } as ChatbotVersion,
+    {
+      versionNumber: '0.4',
+      teilnehmer: 'Erfurt',
+      type: 'stadt',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/8d2103bc-98dc-4f6e-87b1-c8d04a6d936e',
+    } as ChatbotVersion,
   ].sort((a, b) => a.teilnehmer.localeCompare(b.teilnehmer));
 
   public selectedVersion: ChatbotVersion | undefined = this.versions[0];
