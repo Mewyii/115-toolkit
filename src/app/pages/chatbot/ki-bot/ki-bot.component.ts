@@ -234,7 +234,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       teilnehmer: 'Erfurt',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
-      url: 'https://flowise.km.usu.com/api/v1/prediction/8d2103bc-98dc-4f6e-87b1-c8d04a6d936e',
+      url: 'https://flowise.km.usu.com/api/v1/prediction/f5b8df88-b4bd-4883-b079-d95322a3b395',
     } as ChatbotVersion,
   ].sort((a, b) => a.teilnehmer.localeCompare(b.teilnehmer));
 
