@@ -265,6 +265,8 @@ export class ZukunftstechnologieBotComponent implements OnInit {
 
   public flowiseDown = false;
 
+  public sessionID: string | undefined = undefined;
+
   constructor(private httpClient: HttpClient, private mediaRecorderService: MediaRecorderService, public sanitizer: DomSanitizer) {}
 
   ngOnInit(): void {
@@ -341,7 +343,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   }
 
   onSendFeedbackClicked(category: string) {
-    const uuid = crypto.randomUUID();
+    const uuid = this.sessionID ?? crypto.randomUUID();
     const subject = encodeURIComponent('115-Chatbot ' + this.selectedVersion?.teilnehmer + ' ' + this.selectedVersion?.versionNumber + ': Feedback ' + category + ' ' + uuid);
     const body = encodeURIComponent(
       'Feedback: \n\n\n\n\n\nDebug-Informationen:\nGesendete Nachrichten: ' +
@@ -399,6 +401,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   private updateChatbotFromAPIResponse(response: FlowiseAPIResponseType) {
     this.userInput = '';
     this.chatbotSession.messages.push({ user_message: response.question, system_response: response.text });
+    this.sessionID = response.sessionId;
 
     const agentData = response.agentFlowExecutedData;
     if (agentData.length > 0) {
