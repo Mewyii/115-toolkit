@@ -139,11 +139,11 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       url: 'https://flowise.km.usu.com/api/v1/prediction/8d2103bc-98dc-4f6e-87b1-c8d04a6d936e',
     } as ChatbotVersion,
     {
-      versionNumber: '0.4',
+      versionNumber: '0.5',
       teilnehmer: 'Grünheide',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
-      url: 'https://flowise.km.usu.com/api/v1/prediction/940a524c-c020-4d4f-9677-e00f4989fc32',
+      url: 'https://flowise.test.115.de/api/v1/prediction/940a524c-c020-4d4f-9677-e00f4989fc32',
     } as ChatbotVersion,
     {
       versionNumber: '0.4',
