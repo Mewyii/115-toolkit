@@ -114,7 +114,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       versionNumber: '0.5',
       teilnehmer: 'Aachen',
       type: 'stadt',
-      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;stefan.ganser@mail.aachen.de',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Thomas.Bruesseler@mail.aachen.de',
       url: 'https://flowise.test.115.de/api/v1/prediction/badc6889-52e0-409e-aa63-f4bb74d809b2',
     } as ChatbotVersion,
     {
