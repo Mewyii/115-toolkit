@@ -236,6 +236,20 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
       url: 'https://flowise.test.115.de/api/v1/prediction/f5b8df88-b4bd-4883-b079-d95322a3b395',
     } as ChatbotVersion,
+    {
+      versionNumber: '0.5',
+      teilnehmer: 'Oebisfelde-Weferlingen',
+      type: 'stadt',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
+      url: 'https://flowise.test.115.de/api/v1/prediction/1b1d2681-2a3c-4d5c-a32b-87bcff40cf46',
+    } as ChatbotVersion,
+    {
+      versionNumber: '0.5',
+      teilnehmer: 'Chemnitz',
+      type: 'stadt',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
+      url: 'https://flowise.test.115.de/api/v1/prediction/48ea2786-4048-4dce-b66e-7243a3f5d112',
+    } as ChatbotVersion,
   ].sort((a, b) => a.teilnehmer.localeCompare(b.teilnehmer));
 
   public selectedVersion: ChatbotVersion | undefined = this.versions[0];
