@@ -168,13 +168,6 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotVersion,
     {
       versionNumber: '0.5',
-      teilnehmer: 'Frankfurt Gemini',
-      type: 'stadt',
-      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;anna.ahlbrandt@stadt-frankfurt.de',
-      url: 'https://flowise.test.115.de/api/v1/prediction/7eefa209-edd3-4aed-b8d1-20ab89308f0c',
-    } as ChatbotVersion,
-    {
-      versionNumber: '0.5',
       teilnehmer: 'Potsdam',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
@@ -366,7 +359,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
           .map((x) => x.user_message)
           .join('\n____\n') +
         '\n\nBot-Antwort: ' +
-        this.debugInfos.botAntwort +
+        (this.debugInfos.botAntwort.length > 1000 ? this.debugInfos.botAntwort.substring(0, 1000) + '...' : this.debugInfos.botAntwort) +
         '\n\nBereinigtes Anliegen: ' +
         this.debugInfos.bereinigtesAnliegen +
         '\n\nKontext: ' +
