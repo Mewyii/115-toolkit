@@ -5,7 +5,7 @@ import { cloneDeep } from 'lodash';
 import { MediaRecorderService } from 'src/app/services/media-recorder.service';
 
 export type ChatbotDialogType = 'system_greeting' | 'find_leistung' | 'keine_leistung_gefunden' | '"question_answering"';
-export type CommunalType = 'stadt' | 'kreis' | 'gemeinde';
+export type CommunalType = 'stadt' | 'kreis' | 'gemeinde' | 'behörde';
 export interface ChatbotLeistung {
   id: number;
   titel: string;
@@ -242,6 +242,13 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
       url: 'https://flowise.test.115.de/api/v1/prediction/48ea2786-4048-4dce-b66e-7243a3f5d112',
+    } as ChatbotVersion,
+    {
+      versionNumber: '0.1',
+      teilnehmer: 'Zoll',
+      type: 'behörde',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
+      url: 'https://flowise.test.115.de/api/v1/prediction/a7e93901-d8cc-42c9-9e99-bfe90d45b483',
     } as ChatbotVersion,
   ].sort((a, b) => a.teilnehmer.localeCompare(b.teilnehmer));
 
@@ -597,6 +604,14 @@ function getTeilnehmerTypeString(lang: 'de' | 'en' | 'fr', type?: CommunalType):
       return 'the municipality of ';
     } else if (lang === 'fr') {
       return 'le commune de ';
+    }
+  } else if (type === 'behörde') {
+    if (lang === 'de') {
+      return 'die Behörde ';
+    } else if (lang === 'en') {
+      return 'the Behörde ';
+    } else if (lang === 'fr') {
+      return 'le Behörde ';
     }
   }
   return '';
