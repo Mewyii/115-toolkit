@@ -4,6 +4,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { cloneDeep } from 'lodash';
 import { MediaRecorderService } from 'src/app/services/media-recorder.service';
 
+export type LanguageType = 'en' | 'de' | 'de(einfach)' | 'fr';
 export type ChatbotDialogType = 'system_greeting' | 'find_leistung' | 'keine_leistung_gefunden' | '"question_answering"';
 export type CommunalType = 'stadt' | 'kreis' | 'gemeinde' | 'behörde';
 export interface ChatbotLeistung {
@@ -32,7 +33,7 @@ export interface ChatbotSessionAPIPost extends ChatbotSession {
 export interface ChatbotAPIPostParameters {
   llm: string;
   embedding_model: string;
-  language: 'en' | 'de' | 'fr';
+  language: LanguageType;
   skip_cache: boolean;
 }
 
@@ -258,7 +259,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   public currentWorkingState = '';
 
   public userInput = '';
-  public language: 'de' | 'en' | 'fr' = 'de';
+  public language: LanguageType = 'de';
   public showDebug = false;
   public playTextToSpeech = false;
   public debugInfos: FeedbackDebugInfos = { anliegenKontext: '', bereinigtesAnliegen: '', botAntwort: '' };
@@ -527,13 +528,14 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   }
 
   onLanguageChange($event: Event) {
-    this.language = ($event.target as HTMLSelectElement).value as 'de' | 'en' | 'fr';
+    this.language = ($event.target as HTMLSelectElement).value as LanguageType;
     this.chatbotSession = this.getUserGreeting();
   }
 
   private getUserGreeting(): ChatbotSession {
     switch (this.language) {
       case 'de':
+      case 'de(einfach)':
         return { messages: getDeUserGreeting(this.selectedVersion?.teilnehmer, this.selectedVersion?.type).map((x) => ({ system_response: x })) };
       case 'fr':
         return { messages: getFrUserGreeting(this.selectedVersion?.teilnehmer, this.selectedVersion?.type).map((x) => ({ system_response: x })) };
@@ -544,11 +546,13 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   }
 }
 
-function getLanguageFromKey(langKey: string) {
+function getLanguageFromKey(langKey: LanguageType) {
   if (langKey === 'en') {
     return 'english';
   } else if (langKey === 'de') {
     return 'deutsch';
+  } else if (langKey === 'de(einfach)') {
+    return 'einfache Sprache';
   } else if (langKey === 'fr') {
     return 'französisch';
   } else {
@@ -580,9 +584,9 @@ function getFrUserGreeting(teilnehmer?: string, type?: CommunalType) {
   ];
 }
 
-function getTeilnehmerTypeString(lang: 'de' | 'en' | 'fr', type?: CommunalType): string {
+function getTeilnehmerTypeString(lang: LanguageType, type?: CommunalType): string {
   if (type === 'stadt') {
-    if (lang === 'de') {
+    if (lang === 'de' || lang === 'de(einfach)') {
       return 'die Stadt ';
     } else if (lang === 'en') {
       return 'the city of ';
@@ -590,7 +594,7 @@ function getTeilnehmerTypeString(lang: 'de' | 'en' | 'fr', type?: CommunalType):
       return 'la ville ';
     }
   } else if (type === 'kreis') {
-    if (lang === 'de') {
+    if (lang === 'de' || lang === 'de(einfach)') {
       return 'den Landkreis ';
     } else if (lang === 'en') {
       return 'the district of ';
@@ -598,7 +602,7 @@ function getTeilnehmerTypeString(lang: 'de' | 'en' | 'fr', type?: CommunalType):
       return 'le district de ';
     }
   } else if (type === 'gemeinde') {
-    if (lang === 'de') {
+    if (lang === 'de' || lang === 'de(einfach)') {
       return 'die Gemeinde ';
     } else if (lang === 'en') {
       return 'the municipality of ';
@@ -606,7 +610,7 @@ function getTeilnehmerTypeString(lang: 'de' | 'en' | 'fr', type?: CommunalType):
       return 'le commune de ';
     }
   } else if (type === 'behörde') {
-    if (lang === 'de') {
+    if (lang === 'de' || lang === 'de(einfach)') {
       return 'die Behörde ';
     } else if (lang === 'en') {
       return 'the Behörde ';
