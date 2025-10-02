@@ -221,7 +221,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       teilnehmer: 'Potsdam-Mittelmark',
       type: 'kreis',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
-      url: 'https://flowise.test.115.de/api/v1/prediction/05a341f3-6fe5-4116-8356-b06e6f3dc9c6',
+      url: 'https://flowise.test.115.de/api/v1/prediction/44aafca1-1f03-4761-97a2-f3296543b51d',
     } as ChatbotVersion,
     {
       versionNumber: '0.5',
@@ -250,6 +250,13 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       type: 'behörde',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
       url: 'https://flowise.test.115.de/api/v1/prediction/a7e93901-d8cc-42c9-9e99-bfe90d45b483',
+    } as ChatbotVersion,
+    {
+      versionNumber: '0.1',
+      teilnehmer: 'Karlsruhe (LK)',
+      type: 'kreis',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
+      url: 'https://flowise.test.115.de/api/v1/prediction/fc17a780-5538-4d49-b7c9-bb89b5617e2e',
     } as ChatbotVersion,
   ].sort((a, b) => a.teilnehmer.localeCompare(b.teilnehmer));
 
