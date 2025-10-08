@@ -12,12 +12,12 @@
   <mat-form-field [subscriptSizing]="'dynamic'">
     <select
       matNativeControl
-      [value]="selectedVersion?.teilnehmer"
-      (change)="onVersionChange($event)"
+      [value]="selectedVersion?.id"
+      (change)="onTeilnehmerChange($event)"
     >
-      @for (version of versions; track $index) {
-      <option [value]="version.teilnehmer">
-        {{ version.teilnehmer }} ({{ version.versionNumber }})
+      @for (version of teilnehmer; track $index) {
+      <option [value]="version.id">
+        {{ version.name }} ({{ version.versionNumber }})
       </option>
       }
     </select>
@@ -38,7 +38,7 @@
         <mat-icon *ngIf="!playTextToSpeech">volume_off</mat-icon>
       </button>
     </div>
-    <div>115-Chatbot {{ selectedVersion?.teilnehmer }}</div>
+    <div>115-Chatbot {{ selectedVersion?.name }}</div>
     <div class="header-container-right">
       <mat-form-field class="language-selector" [subscriptSizing]="'dynamic'">
         <select

@@ -101,7 +101,7 @@ export class PmAssistantComponent implements OnInit {
   async onMessageSendClicked() {
     this.awaitingAPIResponse = true;
     this.showWorkingState(0);
-    const response = await this.queryFlowise('https://flowise.km.usu.com/api/v1/prediction/31629f13-dc8a-4ebf-8afe-ebe66382a466', {
+    const response = await this.queryFlowise('https://flowise.test.115.de/api/v1/prediction/31629f13-dc8a-4ebf-8afe-ebe66382a466', {
       question: this.userInput,
       history: this.getFlowiseHistory(),
     });
@@ -208,7 +208,7 @@ export class PmAssistantComponent implements OnInit {
   }
 
   private pingFlowiseAPI() {
-    this.httpClient.get('https://flowise.km.usu.com/api/v1/ping', { responseType: 'text' }).subscribe({
+    this.httpClient.get('https://flowise.test.115.de/api/v1/ping', { responseType: 'text' }).subscribe({
       next: (result) => {
         this.flowiseDown = result !== 'pong';
       },
