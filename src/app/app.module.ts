@@ -26,6 +26,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { ChatbotAuswertungenComponent } from './pages/chatbot/chatbot-auswertungen/chatbot-auswertungen.component';
 import { ChatbotComponent } from './pages/chatbot/chatbot.component';
 import { ZukunftstechnologieBotComponent } from './pages/chatbot/ki-bot/ki-bot.component';
@@ -83,8 +84,9 @@ registerLocaleData(localeDe);
     MatNativeDateModule,
     HttpClientModule,
     MatButtonToggleModule,
+    BaseChartDirective,
   ],
-  providers: [MatDatepickerModule, [{ provide: LOCALE_ID, useValue: 'de' }]],
+  providers: [MatDatepickerModule, [{ provide: LOCALE_ID, useValue: 'de' }, provideCharts(withDefaultRegisterables())]],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

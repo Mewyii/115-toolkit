@@ -17,21 +17,6 @@
     [accept]="'.csv'"
     (change)="onStammdatenExcelFileSelected($event)"
   />
-</div>
-
-<div class="control-bar">
-  <div>
-    Session-Zeitraum: {{ earliestDate | date : "mediumDate" }} -
-    {{ latestDate | date : "mediumDate" }}
-  </div>
-  <div>Gesamtanzahl Sessions: {{ chatbotSessions.length }}</div>
-  <div>
-    Sessions mit Nutzereingaben: {{ chatbotSessions.length - emptySessions }}
-  </div>
-  <div>Anzahl positives Nutzerfeedback: {{ positiveUserFeedbackCount }}</div>
-  <div>Anzahl negatives Nutzerfeedback: {{ negativeUserFeedbackCount }}</div>
-</div>
-<div class="control-bar">
   <mat-form-field class="date-picker">
     <input
       matInput
@@ -53,30 +38,56 @@
     (change)="filterSessions()"
     >Nur Sessions mit Feedback</mat-checkbox
   >
+</div>
 
-  <div class="pagination">
-    <div>Seite:</div>
-    <button
-      mat-icon-button
-      color="primary"
-      (click)="onShowPreviousPageClicked()"
-      [disabled]="page === 1"
+<div class="control-bar">
+  <div>
+    Zeitraum:
+    <b
+      >{{ earliestDate | date : "mediumDate" }} -
+      {{ latestDate | date : "mediumDate" }}</b
     >
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-    {{ page }} ({{ (page - 1) * pageSize + 1 }} - {{ page * pageSize }} )
-    <button
-      mat-icon-button
-      color="primary"
-      (click)="onShowNextPageClicked()"
-      [disabled]="filteredChatbotSessions.length < page * pageSize"
-    >
-      <mat-icon>arrow_forward</mat-icon>
-    </button>
+  </div>
+  <div>
+    Anzahl Sessions: <b>{{ chatbotSessions.length }}</b>
+  </div>
+  <div>
+    Mit Nutzereingaben:
+    <b>{{ chatbotSessions.length - emptySessions }}</b>
+  </div>
+  <div>
+    Mit positivem Nutzerfeedback:
+    <b style="color: rgb(29, 135, 29)">{{ positiveUserFeedbackCount }}</b>
+  </div>
+  <div>
+    Mit negativem Nutzerfeedback:
+    <b style="color: rgb(195, 56, 56)">{{ negativeUserFeedbackCount }}</b>
   </div>
 </div>
 <mat-tab-group>
-  <mat-tab label="Aufbereitete Daten">
+  <mat-tab label="Sessions">
+    <div class="control-bar">
+      <div class="pagination">
+        <div>Seite:</div>
+        <button
+          mat-icon-button
+          color="primary"
+          (click)="onShowPreviousPageClicked()"
+          [disabled]="page === 1"
+        >
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        {{ page }} ({{ (page - 1) * pageSize + 1 }} - {{ page * pageSize }} )
+        <button
+          mat-icon-button
+          color="primary"
+          (click)="onShowNextPageClicked()"
+          [disabled]="filteredChatbotSessions.length < page * pageSize"
+        >
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    </div>
     <div class="tab-content">
       <div class="type-results-container">
         <div>
@@ -199,6 +210,25 @@
           <mat-icon>arrow_forward</mat-icon>
         </button>
       </div>
+    </div>
+  </mat-tab>
+  <mat-tab label="Analyse">
+    <div style="margin-top: 32px">
+      ️
+      <h3 style="text-align: center">Sprachverteilung</h3>
+      <canvas
+        baseChart
+        [data]="languageChart.data"
+        [options]="languageChart.options"
+        [type]="languageChart.type"
+      >
+      </canvas>
+    </div>
+    <div style="margin-top: 32px; margin-bottom: 128px">
+      ️
+      <h3 style="text-align: center">Inhalte</h3>
+      <canvas baseChart [data]="contentChart.data" [type]="contentChart.type">
+      </canvas>
     </div>
   </mat-tab>
 </mat-tab-group>

@@ -27,6 +27,17 @@ export interface ChatbotSessionInfo {
   date: Date;
   isEmptySession: boolean;
   infos: ChatbotInfo[];
+  hasPositiveFeedback?: boolean;
+  hasNegativeFeedback?: boolean;
+  isGerman?: boolean;
+  isEnglish?: boolean;
+  isFrench?: boolean;
+}
+
+interface Source {
+  id: string;
+  name: string;
+  count: number;
 }
 
 @Component({
@@ -52,6 +63,7 @@ export class ChatbotAuswertungenComponent implements OnInit {
   public germanSessionsCount = 0;
   public englishSessionsCount = 0;
   public frenchSessionsCount = 0;
+  public sources: Source[] = [];
 
   public earliestDate: Date | undefined;
   public latestDate: Date | undefined;
@@ -68,7 +80,7 @@ export class ChatbotAuswertungenComponent implements OnInit {
         sessionId: entry['Protocol Session'],
         questionId: entry['Question Session'],
         dialogId: entry['Dialog Session'],
-        date: entry.Date ? new Date(entry.Date) : undefined,
+        date: entry.Date ? excelDateToJSDate(entry.Date) : undefined,
         userInput: entry.Question,
         userFeedback: entry['User Like'] != undefined ? (entry['User Like'] === 'true' ? 'good' : 'bad') : undefined,
         userFeedbackText: entry['User Feedback'],
@@ -86,6 +98,33 @@ export class ChatbotAuswertungenComponent implements OnInit {
   public inputChange$ = this.inputChangeSubject.asObservable();
 
   public showOnlySessionsWithFeedback = false;
+
+  // Analytics
+  sourceRegexp = /<small>\s*Quelle\(n\):\s*<a[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>\s*<\/small>/is;
+
+  languageChart = {
+    type: 'bar' as any,
+    options: {
+      responsive: true,
+      scales: { x: {}, y: { beginAtZero: true } },
+    },
+    data: {
+      labels: ['Deutsch', 'Englisch', 'Französisch'],
+      datasets: [{ data: [0, 0, 0], label: 'Sessions' }],
+    },
+  };
+
+  contentChart = {
+    type: 'doughnut' as any,
+    options: {
+      responsive: true,
+      scales: { x: {}, y: {} },
+    },
+    data: {
+      labels: ['-'],
+      datasets: [{ data: [0], label: 'Ausgaben' }],
+    },
+  };
 
   constructor(public xlsService: XLSService, public converterService: ConverterService) {}
 
@@ -108,11 +147,7 @@ export class ChatbotAuswertungenComponent implements OnInit {
 
     const result: ChatbotSessionInfo[] = [];
     let emptySessionCount = 0;
-    let positiveUserFeedbackCount = 0;
-    let negativeUserFeedbackCount = 0;
-    let germanSessionsCount = 0;
-    let englishSessionsCount = 0;
-    let frenchSessionsCount = 0;
+    const sources: Source[] = [];
     for (const chatbotInfo of chatbotInfos) {
       const entry = result.find((x) => x.sessionId === chatbotInfo.sessionId);
       const answer = chatbotInfo.botAnswer?.content ?? '';
@@ -128,32 +163,91 @@ export class ChatbotAuswertungenComponent implements OnInit {
             emptySessionCount--;
           }
         }
+        if (chatbotInfo.userFeedback === 'good') {
+          entry.hasPositiveFeedback = true;
+        }
+        if (chatbotInfo.userFeedback === 'bad') {
+          entry.hasNegativeFeedback = true;
+        }
+        if (answer.includes('<b>Hallo!</b> Ich bin der KI-Chatbot der Behördennummer 115')) {
+          entry.isGerman = true;
+        }
+        if (answer.includes('<b>Hello!</b> I am the AI chatbot for the public service number 115')) {
+          entry.isEnglish = true;
+        }
+        if (answer.includes('<b>Bonjour!</b> Je suis')) {
+          entry.isFrench = true;
+        }
+
+        extractSources(answer).map((source) => {
+          const existingSource = sources.find((x) => x.id === source.id);
+          if (existingSource) {
+            existingSource.count++;
+          } else {
+            sources.push({ id: source.id, name: source.name, count: 1 });
+          }
+        });
 
         entry.infos.push(chatbotInfo);
       } else {
-        result.push({ sessionId: chatbotInfo.sessionId ?? 0, date: chatbotInfo.date ?? new Date(), infos: [chatbotInfo], isEmptySession: true });
+        const newEntry: ChatbotSessionInfo = { sessionId: chatbotInfo.sessionId ?? 0, date: chatbotInfo.date ?? new Date(), infos: [chatbotInfo], isEmptySession: true };
+        if (chatbotInfo.userFeedback === 'good') {
+          newEntry.hasPositiveFeedback = true;
+        }
+        if (chatbotInfo.userFeedback === 'bad') {
+          newEntry.hasNegativeFeedback = true;
+        }
+        if (answer.includes('<b>Hallo!</b> Ich bin der KI-Chatbot der Behördennummer 115')) {
+          newEntry.isGerman = true;
+        }
+        if (answer.includes('<b>Hello!</b> I am the AI chatbot for the public service number 115')) {
+          newEntry.isEnglish = true;
+        }
+        if (answer.includes('<b>Bonjour!</b> Je suis')) {
+          newEntry.isFrench = true;
+        }
+
+        extractSources(answer).map((source) => {
+          const existingSource = sources.find((x) => x.id === source.id);
+          if (existingSource) {
+            existingSource.count++;
+          } else {
+            sources.push({ id: source.id, name: source.name, count: 1 });
+          }
+        });
+
+        result.push(newEntry);
         emptySessionCount++;
       }
 
-      if (chatbotInfo.userFeedback === 'good') {
-        positiveUserFeedbackCount++;
-      }
-      if (chatbotInfo.userFeedback === 'bad') {
-        negativeUserFeedbackCount++;
-      }
       if (!this.earliestDate || (chatbotInfo.date && chatbotInfo.date < this.earliestDate)) {
         this.earliestDate = chatbotInfo.date;
       }
       if (!this.latestDate || (chatbotInfo.date && chatbotInfo.date > this.latestDate)) {
         this.latestDate = chatbotInfo.date;
       }
-      if (answer.includes('<b>Hallo!</b> Ich bin der KI-Chatbot der Behördennummer 115')) {
+    }
+
+    let positiveUserFeedbackCount = 0;
+    let negativeUserFeedbackCount = 0;
+    let germanSessionsCount = 0;
+    let englishSessionsCount = 0;
+    let frenchSessionsCount = 0;
+
+    for (const entry of result) {
+      if (entry.hasPositiveFeedback) {
+        positiveUserFeedbackCount++;
+      }
+      if (entry.hasNegativeFeedback) {
+        negativeUserFeedbackCount++;
+      }
+      if (entry.isGerman) {
         germanSessionsCount++;
       }
-      if (answer.includes('<b>Hello!</b> I am the AI chatbot for the public service number 115')) {
+      if (entry.isEnglish) {
         englishSessionsCount++;
       }
-      if (answer.includes('<b>Bonjour!</b> Je suis')) {
+      if (entry.isFrench) {
         frenchSessionsCount++;
       }
     }
@@ -174,6 +268,10 @@ export class ChatbotAuswertungenComponent implements OnInit {
     this.germanSessionsCount = germanSessionsCount;
     this.englishSessionsCount = englishSessionsCount;
     this.frenchSessionsCount = frenchSessionsCount;
+
+    this.sources = sources.sort((a, b) => b.count - a.count);
+
+    this.updateChartData();
 
     this.filterSessions();
     this.showPage(this.page);
@@ -230,4 +328,40 @@ export class ChatbotAuswertungenComponent implements OnInit {
       return true;
     }
   };
+
+  updateChartData() {
+    this.languageChart.data = {
+      labels: ['Deutsch', 'Englisch', 'Französisch'],
+      datasets: [{ data: [this.germanSessionsCount, this.englishSessionsCount, this.frenchSessionsCount], label: 'Sessions' }],
+    };
+
+    const sourceLabels = this.sources.map((x) => x.name);
+    const sourceCounts = this.sources.map((x) => x.count);
+    this.contentChart.data = {
+      labels: sourceLabels,
+      datasets: [{ data: sourceCounts, label: 'Ausgaben' }],
+    };
+  }
+}
+
+function excelDateToJSDate(serial: number): Date {
+  const excelEpoch = new Date(1899, 11, 30); // Excel day 1 = 1900-01-01, also -2 Tage
+  const millisPerDay = 24 * 60 * 60 * 1000;
+  return new Date(excelEpoch.getTime() + serial * millisPerDay);
+}
+
+function extractSources(html: string) {
+  const blockMatch = html.match(/<small[^>]*>\s*Quelle\(n\):(.*?)<\/small>/is);
+  if (!blockMatch) return [];
+
+  const inner = blockMatch[1];
+
+  const linkRegex = /<a[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gi;
+  const sources = [];
+  let m;
+  while ((m = linkRegex.exec(inner)) !== null) {
+    sources.push({ id: m[1], name: m[2].trim() });
+  }
+
+  return sources;
 }
