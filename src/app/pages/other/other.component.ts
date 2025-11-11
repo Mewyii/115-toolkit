@@ -3,9 +3,10 @@ import { MatTabChangeEvent } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
-  selector: 'app-other',
-  templateUrl: './other.component.html',
-  styleUrl: './other.component.scss',
+    selector: 'app-other',
+    templateUrl: './other.component.html',
+    styleUrl: './other.component.scss',
+    standalone: false
 })
 export class OtherComponent {
   selectedIndex = 0;

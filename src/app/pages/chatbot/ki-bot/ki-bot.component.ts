@@ -96,9 +96,10 @@ interface FeedbackDebugInfos {
   botAntwort: string;
 }
 @Component({
-  selector: 'app-ki-bot',
-  templateUrl: './ki-bot.component.html',
-  styleUrls: ['./ki-bot.component.scss'],
+    selector: 'app-ki-bot',
+    templateUrl: './ki-bot.component.html',
+    styleUrls: ['./ki-bot.component.scss'],
+    standalone: false
 })
 export class ZukunftstechnologieBotComponent implements OnInit {
   @ViewChild('messageHistory') private messageHistoryElement!: ElementRef<HTMLElement>;

@@ -20,9 +20,10 @@ export interface MarkenbekanntheitsInfosEnhanced extends MarkenbekanntheitsInfos
 }
 
 @Component({
-  selector: 'app-marken-bekanntheits-umfrage',
-  templateUrl: './marken-bekanntheits-umfrage.component.html',
-  styleUrls: ['./marken-bekanntheits-umfrage.component.scss'],
+    selector: 'app-marken-bekanntheits-umfrage',
+    templateUrl: './marken-bekanntheits-umfrage.component.html',
+    styleUrls: ['./marken-bekanntheits-umfrage.component.scss'],
+    standalone: false
 })
 export class MarkenBekanntheitsUmfrageComponent implements OnInit {
   public markenbekanntheitsInfosInitial: MarkenbekanntheitsInfosEnhanced[] = [];

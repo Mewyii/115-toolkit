@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-fundstellen-download',
-  templateUrl: './fundstellen-download.component.html',
-  styleUrls: ['./fundstellen-download.component.scss'],
+    selector: 'app-fundstellen-download',
+    templateUrl: './fundstellen-download.component.html',
+    styleUrls: ['./fundstellen-download.component.scss'],
+    standalone: false
 })
 export class FundstellenDownloadComponent implements OnInit {
   public fundstellenURL = '';

@@ -29,9 +29,10 @@ export interface KontaktInfo {
 }
 
 @Component({
-  selector: 'app-verteiler',
-  templateUrl: './verteiler.component.html',
-  styleUrls: ['./verteiler.component.scss'],
+    selector: 'app-verteiler',
+    templateUrl: './verteiler.component.html',
+    styleUrls: ['./verteiler.component.scss'],
+    standalone: false
 })
 export class VerteilerComponent implements OnInit {
   public gremienKontaktInfos: KontaktInfo[] = [];

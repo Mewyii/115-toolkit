@@ -13,9 +13,10 @@ import {
 } from 'src/app/services';
 
 @Component({
-  selector: 'app-fundstellen-auswertung',
-  templateUrl: './fundstellen-auswertung.component.html',
-  styleUrls: ['./fundstellen-auswertung.component.scss'],
+    selector: 'app-fundstellen-auswertung',
+    templateUrl: './fundstellen-auswertung.component.html',
+    styleUrls: ['./fundstellen-auswertung.component.scss'],
+    standalone: false
 })
 export class FundstellenAuswertungComponent implements OnInit {
   public urlInfos: FundstellenUrlInfo[] = [];

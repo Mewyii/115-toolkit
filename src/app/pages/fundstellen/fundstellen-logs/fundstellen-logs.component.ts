@@ -9,9 +9,10 @@ interface LogUrlWithTeilnehmerInfo {
 }
 
 @Component({
-  selector: 'app-fundstellen-logs',
-  templateUrl: './fundstellen-logs.component.html',
-  styleUrls: ['./fundstellen-logs.component.scss'],
+    selector: 'app-fundstellen-logs',
+    templateUrl: './fundstellen-logs.component.html',
+    styleUrls: ['./fundstellen-logs.component.scss'],
+    standalone: false
 })
 export class FundstellenLogsComponent implements OnInit {
   public logUrlsWithTeilnehmerInfos: LogUrlWithTeilnehmerInfo[] = [];

@@ -33,6 +33,7 @@ export interface ChatbotSessionInfo {
   selector: 'app-chatbot-auswertungen',
   templateUrl: './chatbot-auswertungen.component.html',
   styleUrls: ['./chatbot-auswertungen.component.scss'],
+  standalone: false,
 })
 export class ChatbotAuswertungenComponent implements OnInit {
   public chatbotSessions: ChatbotSessionInfo[] = [];
@@ -48,6 +49,9 @@ export class ChatbotAuswertungenComponent implements OnInit {
 
   public positiveUserFeedbackCount = 0;
   public negativeUserFeedbackCount = 0;
+  public germanSessionsCount = 0;
+  public englishSessionsCount = 0;
+  public frenchSessionsCount = 0;
 
   public earliestDate: Date | undefined;
   public latestDate: Date | undefined;
@@ -106,8 +110,12 @@ export class ChatbotAuswertungenComponent implements OnInit {
     let emptySessionCount = 0;
     let positiveUserFeedbackCount = 0;
     let negativeUserFeedbackCount = 0;
+    let germanSessionsCount = 0;
+    let englishSessionsCount = 0;
+    let frenchSessionsCount = 0;
     for (const chatbotInfo of chatbotInfos) {
       const entry = result.find((x) => x.sessionId === chatbotInfo.sessionId);
+      const answer = chatbotInfo.botAnswer?.content ?? '';
       if (entry) {
         if (entry.isEmptySession) {
           if (
@@ -139,6 +147,15 @@ export class ChatbotAuswertungenComponent implements OnInit {
       if (!this.latestDate || (chatbotInfo.date && chatbotInfo.date > this.latestDate)) {
         this.latestDate = chatbotInfo.date;
       }
+      if (answer.includes('<b>Hallo!</b> Ich bin der KI-Chatbot der Behördennummer 115')) {
+        germanSessionsCount++;
+      }
+      if (answer.includes('<b>Hello!</b> I am the AI chatbot for the public service number 115')) {
+        englishSessionsCount++;
+      }
+      if (answer.includes('<b>Bonjour!</b> Je suis')) {
+        frenchSessionsCount++;
+      }
     }
 
     if (this.earliestDate) {
@@ -153,6 +170,10 @@ export class ChatbotAuswertungenComponent implements OnInit {
     this.positiveUserFeedbackCount = positiveUserFeedbackCount;
     this.negativeUserFeedbackCount = negativeUserFeedbackCount;
     this.emptySessions = emptySessionCount;
+
+    this.germanSessionsCount = germanSessionsCount;
+    this.englishSessionsCount = englishSessionsCount;
+    this.frenchSessionsCount = frenchSessionsCount;
 
     this.filterSessions();
     this.showPage(this.page);

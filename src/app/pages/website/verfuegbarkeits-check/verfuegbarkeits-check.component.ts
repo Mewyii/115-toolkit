@@ -19,9 +19,10 @@ export interface VerfuegbarkeitsInfosEnhanced extends VerfuegbarkeitsInfos {
 }
 
 @Component({
-  selector: 'app-verfuegbarkeits-check',
-  templateUrl: './verfuegbarkeits-check.component.html',
-  styleUrls: ['./verfuegbarkeits-check.component.scss'],
+    selector: 'app-verfuegbarkeits-check',
+    templateUrl: './verfuegbarkeits-check.component.html',
+    styleUrls: ['./verfuegbarkeits-check.component.scss'],
+    standalone: false
 })
 export class VerfuegbarkeitsCheckComponent implements OnInit {
   public verfuegbarkeitsInfosInitial: VerfuegbarkeitsInfosEnhanced[] = [];

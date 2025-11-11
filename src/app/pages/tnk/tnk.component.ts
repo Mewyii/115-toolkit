@@ -29,9 +29,10 @@ interface FDSApiResponse {
 }
 
 @Component({
-  selector: 'app-tnk',
-  templateUrl: './tnk.component.html',
-  styleUrl: './tnk.component.scss',
+    selector: 'app-tnk',
+    templateUrl: './tnk.component.html',
+    styleUrl: './tnk.component.scss',
+    standalone: false
 })
 export class TnkComponent implements OnInit {
   public tnkInfos: TNKInfos[] = [];

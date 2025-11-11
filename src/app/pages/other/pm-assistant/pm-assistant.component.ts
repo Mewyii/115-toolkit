@@ -59,10 +59,11 @@ type FlowiseHistory = {
 type ModeTypes = 'chat' | 'mailgenerator';
 
 @Component({
-  selector: 'app-pm-assistant',
-  templateUrl: './pm-assistant.component.html',
-  styleUrl: './pm-assistant.component.scss',
-  providers: [{ provide: MAT_CHECKBOX_DEFAULT_OPTIONS, useValue: { clickAction: 'noop' } as MatCheckboxDefaultOptions }],
+    selector: 'app-pm-assistant',
+    templateUrl: './pm-assistant.component.html',
+    styleUrl: './pm-assistant.component.scss',
+    providers: [{ provide: MAT_CHECKBOX_DEFAULT_OPTIONS, useValue: { clickAction: 'noop' } as MatCheckboxDefaultOptions }],
+    standalone: false
 })
 export class PmAssistantComponent implements OnInit {
   @ViewChild('messageHistory') private messageHistoryElement!: ElementRef<HTMLElement>;

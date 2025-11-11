@@ -3,9 +3,10 @@ import { MatTabChangeEvent } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
-  selector: 'app-chatbot',
-  templateUrl: './chatbot.component.html',
-  styleUrl: './chatbot.component.scss',
+    selector: 'app-chatbot',
+    templateUrl: './chatbot.component.html',
+    styleUrl: './chatbot.component.scss',
+    standalone: false
 })
 export class ChatbotComponent {
   selectedIndex = 0;
