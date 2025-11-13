@@ -49,11 +49,11 @@
     >
   </div>
   <div>
-    Anzahl Sessions: <b>{{ chatbotSessions.length }}</b>
+    Anzahl Sessions: <b>{{ sessionCount }}</b>
   </div>
   <div>
     Mit Nutzereingaben:
-    <b>{{ chatbotSessions.length - emptySessions }}</b>
+    <b>{{ filteredChatbotSessions.length }}</b>
   </div>
   <div>
     Mit positivem Nutzerfeedback:
@@ -214,7 +214,6 @@
   </mat-tab>
   <mat-tab label="Analyse">
     <div style="margin-top: 32px">
-      ️
       <h3 style="text-align: center">Sprachverteilung</h3>
       <canvas
         baseChart
@@ -224,8 +223,17 @@
       >
       </canvas>
     </div>
+    <div style="margin-top: 32px">
+      <h3 style="text-align: center">Erzeugte KI-Ausgaben pro Session</h3>
+      <canvas
+        baseChart
+        [data]="lengthChart.data"
+        [options]="lengthChart.options"
+        [type]="lengthChart.type"
+      >
+      </canvas>
+    </div>
     <div style="margin-top: 32px; margin-bottom: 128px">
-      ️
       <h3 style="text-align: center">Inhalte</h3>
       <canvas baseChart [data]="contentChart.data" [type]="contentChart.type">
       </canvas>

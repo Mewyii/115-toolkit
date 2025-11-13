@@ -32,12 +32,14 @@ export interface ChatbotSessionInfo {
   isGerman?: boolean;
   isEnglish?: boolean;
   isFrench?: boolean;
+  sources: Source[];
 }
 
 interface Source {
   id: string;
   name: string;
-  count: number;
+  sessionCount: number;
+  totalCount: number;
 }
 
 @Component({
@@ -56,15 +58,16 @@ export class ChatbotAuswertungenComponent implements OnInit {
 
   public shownChatbotSessions: ChatbotSessionInfo[] = [];
 
-  public emptySessions = 0;
+  public emptySessionCount = 0;
 
+  public sessionCount = 0;
   public positiveUserFeedbackCount = 0;
   public negativeUserFeedbackCount = 0;
   public germanSessionsCount = 0;
   public englishSessionsCount = 0;
   public frenchSessionsCount = 0;
   public sources: Source[] = [];
-
+  public aiResponsesCount: { responses: number; count: number }[] = [];
   public earliestDate: Date | undefined;
   public latestDate: Date | undefined;
 
@@ -110,7 +113,7 @@ export class ChatbotAuswertungenComponent implements OnInit {
     },
     data: {
       labels: ['Deutsch', 'Englisch', 'Französisch'],
-      datasets: [{ data: [0, 0, 0], label: 'Sessions' }],
+      datasets: [{ data: [0, 0, 0], label: 'Anzahl Sessions' }],
     },
   };
 
@@ -122,7 +125,19 @@ export class ChatbotAuswertungenComponent implements OnInit {
     },
     data: {
       labels: ['-'],
-      datasets: [{ data: [0], label: 'Ausgaben' }],
+      datasets: [{ data: [0], label: 'Anzahl Sessions' }],
+    },
+  };
+
+  lengthChart = {
+    type: 'bar' as any,
+    options: {
+      responsive: true,
+      scales: { x: {}, y: { beginAtZero: true } },
+    },
+    data: {
+      labels: ['-'],
+      datasets: [{ data: [0], label: 'Anzahl Sessions' }],
     },
   };
 
@@ -146,8 +161,6 @@ export class ChatbotAuswertungenComponent implements OnInit {
     const chatbotInfos = await this.xlsService.convertWorkbookDataToCustomData(workbookData, this.sheetMapping);
 
     const result: ChatbotSessionInfo[] = [];
-    let emptySessionCount = 0;
-    const sources: Source[] = [];
     for (const chatbotInfo of chatbotInfos) {
       const entry = result.find((x) => x.sessionId === chatbotInfo.sessionId);
       const answer = chatbotInfo.botAnswer?.content ?? '';
@@ -160,7 +173,6 @@ export class ChatbotAuswertungenComponent implements OnInit {
             chatbotInfo.userInput !== 'hideWidget'
           ) {
             entry.isEmptySession = false;
-            emptySessionCount--;
           }
         }
         if (chatbotInfo.userFeedback === 'good') {
@@ -179,18 +191,24 @@ export class ChatbotAuswertungenComponent implements OnInit {
           entry.isFrench = true;
         }
 
-        extractSources(answer).map((source) => {
-          const existingSource = sources.find((x) => x.id === source.id);
+        for (const extractedSource of extractSources(answer)) {
+          const existingSource = entry.sources.find((x) => x.id === extractedSource.id);
           if (existingSource) {
-            existingSource.count++;
+            existingSource.totalCount++;
           } else {
-            sources.push({ id: source.id, name: source.name, count: 1 });
+            entry.sources.push({ id: extractedSource.id, name: extractedSource.name, sessionCount: 1, totalCount: 1 });
           }
-        });
+        }
 
         entry.infos.push(chatbotInfo);
       } else {
-        const newEntry: ChatbotSessionInfo = { sessionId: chatbotInfo.sessionId ?? 0, date: chatbotInfo.date ?? new Date(), infos: [chatbotInfo], isEmptySession: true };
+        const newEntry: ChatbotSessionInfo = {
+          sessionId: chatbotInfo.sessionId ?? 0,
+          date: chatbotInfo.date ?? new Date(),
+          infos: [chatbotInfo],
+          isEmptySession: true,
+          sources: [],
+        };
         if (chatbotInfo.userFeedback === 'good') {
           newEntry.hasPositiveFeedback = true;
         }
@@ -207,17 +225,11 @@ export class ChatbotAuswertungenComponent implements OnInit {
           newEntry.isFrench = true;
         }
 
-        extractSources(answer).map((source) => {
-          const existingSource = sources.find((x) => x.id === source.id);
-          if (existingSource) {
-            existingSource.count++;
-          } else {
-            sources.push({ id: source.id, name: source.name, count: 1 });
-          }
+        newEntry.sources = extractSources(answer).map((source) => {
+          return { id: source.id, name: source.name, sessionCount: 1, totalCount: 1 };
         });
 
         result.push(newEntry);
-        emptySessionCount++;
       }
 
       if (!this.earliestDate || (chatbotInfo.date && chatbotInfo.date < this.earliestDate)) {
@@ -225,30 +237,6 @@ export class ChatbotAuswertungenComponent implements OnInit {
       }
       if (!this.latestDate || (chatbotInfo.date && chatbotInfo.date > this.latestDate)) {
         this.latestDate = chatbotInfo.date;
-      }
-    }
-
-    let positiveUserFeedbackCount = 0;
-    let negativeUserFeedbackCount = 0;
-    let germanSessionsCount = 0;
-    let englishSessionsCount = 0;
-    let frenchSessionsCount = 0;
-
-    for (const entry of result) {
-      if (entry.hasPositiveFeedback) {
-        positiveUserFeedbackCount++;
-      }
-      if (entry.hasNegativeFeedback) {
-        negativeUserFeedbackCount++;
-      }
-      if (entry.isGerman) {
-        germanSessionsCount++;
-      }
-      if (entry.isEnglish) {
-        englishSessionsCount++;
-      }
-      if (entry.isFrench) {
-        frenchSessionsCount++;
       }
     }
 
@@ -260,18 +248,6 @@ export class ChatbotAuswertungenComponent implements OnInit {
     }
     this.chatbotSessions = result;
     this.nonEmptyChatbotSessions = result.filter((x) => !x.isEmptySession);
-
-    this.positiveUserFeedbackCount = positiveUserFeedbackCount;
-    this.negativeUserFeedbackCount = negativeUserFeedbackCount;
-    this.emptySessions = emptySessionCount;
-
-    this.germanSessionsCount = germanSessionsCount;
-    this.englishSessionsCount = englishSessionsCount;
-    this.frenchSessionsCount = frenchSessionsCount;
-
-    this.sources = sources.sort((a, b) => b.count - a.count);
-
-    this.updateChartData();
 
     this.filterSessions();
     this.showPage(this.page);
@@ -302,15 +278,31 @@ export class ChatbotAuswertungenComponent implements OnInit {
   }
 
   filterSessions() {
-    let sessions = this.nonEmptyChatbotSessions;
-    if (this.dateFilter) {
-      sessions = sessions.filter((x) => x.date.getDate() === this.dateFilter!.getDate());
-    }
-    if (this.showOnlySessionsWithFeedback) {
-      sessions = sessions.filter((x) => x.infos.some((x) => x.userFeedback));
-    }
+    this.sessionCount = this.chatbotSessions.filter((x) => {
+      let result = true;
+      if (this.dateFilter && result === true) {
+        result = x.date.getDate() === this.dateFilter.getDate();
+      }
+      if (this.showOnlySessionsWithFeedback && result === true) {
+        result = x.infos.some((x) => x.userFeedback);
+      }
+      return result;
+    }).length;
+
+    let sessions = this.nonEmptyChatbotSessions.filter((x) => {
+      let result = true;
+      if (this.dateFilter && result === true) {
+        result = x.date.getDate() === this.dateFilter.getDate();
+      }
+      if (this.showOnlySessionsWithFeedback && result === true) {
+        result = x.infos.some((x) => x.userFeedback);
+      }
+      return result;
+    });
     this.filteredChatbotSessions = sessions;
     this.showPage(1);
+
+    this.updateSessionMetaData();
   }
 
   private showPage(page: number) {
@@ -329,17 +321,85 @@ export class ChatbotAuswertungenComponent implements OnInit {
     }
   };
 
+  updateSessionMetaData() {
+    let positiveUserFeedbackCount = 0;
+    let negativeUserFeedbackCount = 0;
+    let germanSessionsCount = 0;
+    let englishSessionsCount = 0;
+    let frenchSessionsCount = 0;
+    let emptySessionCount = 0;
+    const sources: Source[] = [];
+    const aiResponsesCount: { responses: number; count: number }[] = [];
+
+    for (const session of this.filteredChatbotSessions) {
+      if (session.hasPositiveFeedback) {
+        positiveUserFeedbackCount++;
+      }
+      if (session.hasNegativeFeedback) {
+        negativeUserFeedbackCount++;
+      }
+      if (!session.isEmptySession && session.isGerman) {
+        germanSessionsCount++;
+      }
+      if (!session.isEmptySession && session.isEnglish) {
+        englishSessionsCount++;
+      }
+      if (!session.isEmptySession && session.isFrench) {
+        frenchSessionsCount++;
+      }
+      if (session.isEmptySession) {
+        emptySessionCount++;
+      }
+      for (const source of session.sources) {
+        const existingSource = sources.find((x) => x.id === source.id);
+        if (existingSource) {
+          existingSource.sessionCount++;
+          existingSource.totalCount += source.totalCount;
+        } else {
+          sources.push({ id: source.id, name: source.name, sessionCount: source.sessionCount, totalCount: source.totalCount });
+        }
+      }
+
+      if (session.infos.length > 0) {
+        const aiResponses = session.infos.filter((x) => x.botAnswer && x.botAnswer.content && x.botAnswer.content.length > 0).length;
+        const existingAiResponsesEntry = aiResponsesCount.find((x) => x.responses === aiResponses);
+        if (existingAiResponsesEntry) {
+          existingAiResponsesEntry.count++;
+        } else {
+          aiResponsesCount.push({ responses: aiResponses, count: 1 });
+        }
+      }
+    }
+
+    this.positiveUserFeedbackCount = positiveUserFeedbackCount;
+    this.negativeUserFeedbackCount = negativeUserFeedbackCount;
+    this.emptySessionCount = emptySessionCount;
+
+    this.germanSessionsCount = germanSessionsCount;
+    this.englishSessionsCount = englishSessionsCount;
+    this.frenchSessionsCount = frenchSessionsCount;
+    this.sources = sources.sort((a, b) => b.sessionCount - a.sessionCount);
+    this.aiResponsesCount = aiResponsesCount.sort((a, b) => a.responses - b.responses);
+
+    this.updateChartData();
+  }
+
   updateChartData() {
     this.languageChart.data = {
       labels: ['Deutsch', 'Englisch', 'Französisch'],
-      datasets: [{ data: [this.germanSessionsCount, this.englishSessionsCount, this.frenchSessionsCount], label: 'Sessions' }],
+      datasets: [{ data: [this.germanSessionsCount, this.englishSessionsCount, this.frenchSessionsCount], label: 'Anzahl Sessions' }],
     };
 
     const sourceLabels = this.sources.map((x) => x.name);
-    const sourceCounts = this.sources.map((x) => x.count);
+    const sourceCounts = this.sources.map((x) => x.sessionCount);
     this.contentChart.data = {
       labels: sourceLabels,
-      datasets: [{ data: sourceCounts, label: 'Ausgaben' }],
+      datasets: [{ data: sourceCounts, label: 'Anzahl Sessions' }],
+    };
+
+    this.lengthChart.data = {
+      labels: this.aiResponsesCount.map((x) => x.responses.toString()),
+      datasets: [{ data: this.aiResponsesCount.map((x) => x.count), label: 'Anzahl Sessions' }],
     };
   }
 }
