@@ -361,7 +361,7 @@ export class ChatbotAuswertungenComponent implements OnInit {
       }
 
       if (session.infos.length > 0) {
-        const aiResponses = session.infos.filter((x) => x.botAnswer && x.botAnswer.content && x.botAnswer.content.length > 0).length;
+        const aiResponses = session.infos.filter((x) => x.botAnswer && x.botAnswer.content && x.botAnswer.content.length > 0).length - 1; // -1 Because first message is the automated greeting;
         const existingAiResponsesEntry = aiResponsesCount.find((x) => x.responses === aiResponses);
         if (existingAiResponsesEntry) {
           existingAiResponsesEntry.count++;
