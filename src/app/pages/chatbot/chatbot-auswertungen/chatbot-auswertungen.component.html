@@ -224,7 +224,21 @@
       </canvas>
     </div>
     <div style="margin-top: 32px">
-      <h3 style="text-align: center">Erzeugte KI-Ausgaben pro Session</h3>
+      <h3 style="text-align: center">Zeitliche Verteilung</h3>
+      <canvas
+        baseChart
+        [data]="timeChart.data"
+        [options]="timeChart.options"
+        [type]="timeChart.type"
+      >
+      </canvas>
+    </div>
+    <div style="margin-top: 32px">
+      <h3 style="text-align: center">
+        Erzeugte KI-Ausgaben pro Session @if (aiResponsesAverage) {(Ø{{
+          aiResponsesAverage
+        }})}
+      </h3>
       <canvas
         baseChart
         [data]="lengthChart.data"
@@ -237,6 +251,16 @@
       <h3 style="text-align: center">Inhalte</h3>
       <canvas baseChart [data]="contentChart.data" [type]="contentChart.type">
       </canvas>
+      <div style="margin-top: 16px; text-align: center">
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="onDownloadSourcesAsCSVClicked()"
+        >
+          Download
+          <mat-icon>arrow_downward</mat-icon>
+        </button>
+      </div>
     </div>
   </mat-tab>
 </mat-tab-group>

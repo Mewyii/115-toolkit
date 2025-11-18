@@ -25,6 +25,8 @@ export interface ChatbotInfo {
 export interface ChatbotSessionInfo {
   sessionId: number;
   date: Date;
+  startTime: string;
+  endTime: string;
   isEmptySession: boolean;
   infos: ChatbotInfo[];
   hasPositiveFeedback?: boolean;
@@ -68,6 +70,8 @@ export class ChatbotAuswertungenComponent implements OnInit {
   public frenchSessionsCount = 0;
   public sources: Source[] = [];
   public aiResponsesCount: { responses: number; count: number }[] = [];
+  public aiResponsesAverage: string | undefined;
+  public sessionTimes: { time: string; count: number }[] = [];
   public earliestDate: Date | undefined;
   public latestDate: Date | undefined;
 
@@ -141,6 +145,43 @@ export class ChatbotAuswertungenComponent implements OnInit {
     },
   };
 
+  timeChart = {
+    type: 'bar' as any,
+    options: {
+      responsive: true,
+      scales: { x: {}, y: { beginAtZero: true } },
+    },
+    data: {
+      labels: [
+        '1:00',
+        '2:00',
+        '3:00',
+        '4:00',
+        '5:00',
+        '6:00',
+        '7:00',
+        '8:00',
+        '9:00',
+        '10:00',
+        '11:00',
+        '12:00',
+        '13:00',
+        '14:00',
+        '15:00',
+        '16:00',
+        '17:00',
+        '18:00',
+        '19:00',
+        '20:00',
+        '21:00',
+        '22:00',
+        '23:00',
+        '0:00',
+      ],
+      datasets: [{ data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], label: 'Anzahl Sessions' }],
+    },
+  };
+
   constructor(public xlsService: XLSService, public converterService: ConverterService) {}
 
   ngOnInit(): void {}
@@ -181,13 +222,13 @@ export class ChatbotAuswertungenComponent implements OnInit {
         if (chatbotInfo.userFeedback === 'bad') {
           entry.hasNegativeFeedback = true;
         }
-        if (answer.includes('<b>Hallo!</b> Ich bin der KI-Chatbot der Behördennummer 115')) {
+        if (answer.includes('<b>Hallo!</b> Ich bin der KI-Chatbot') || answer.includes(' du ') || answer.includes(' um ')) {
           entry.isGerman = true;
         }
-        if (answer.includes('<b>Hello!</b> I am the AI chatbot for the public service number 115')) {
+        if (answer.includes('<b>Hello!</b> I am the AI chatbot') || answer.includes(' you ') || answer.includes(' to ')) {
           entry.isEnglish = true;
         }
-        if (answer.includes('<b>Bonjour!</b> Je suis')) {
+        if (answer.includes('<b>Bonjour!</b> Je suis') || answer.includes(' tu ') || answer.includes(' pour ')) {
           entry.isFrench = true;
         }
 
@@ -202,9 +243,14 @@ export class ChatbotAuswertungenComponent implements OnInit {
 
         entry.infos.push(chatbotInfo);
       } else {
+        const sessionDate = chatbotInfo.date ?? new Date();
+        const sessionTime = `${sessionDate.getHours()}:00`;
+
         const newEntry: ChatbotSessionInfo = {
           sessionId: chatbotInfo.sessionId ?? 0,
-          date: chatbotInfo.date ?? new Date(),
+          date: sessionDate,
+          startTime: sessionTime,
+          endTime: sessionTime,
           infos: [chatbotInfo],
           isEmptySession: true,
           sources: [],
@@ -218,7 +264,7 @@ export class ChatbotAuswertungenComponent implements OnInit {
         if (answer.includes('<b>Hallo!</b> Ich bin der KI-Chatbot der Behördennummer 115')) {
           newEntry.isGerman = true;
         }
-        if (answer.includes('<b>Hello!</b> I am the AI chatbot for the public service number 115')) {
+        if (answer.includes('<b>Hello!</b> I am the AI chatbot')) {
           newEntry.isEnglish = true;
         }
         if (answer.includes('<b>Bonjour!</b> Je suis')) {
@@ -277,6 +323,26 @@ export class ChatbotAuswertungenComponent implements OnInit {
     this.filterSessions();
   }
 
+  onDownloadSourcesAsCSVClicked() {
+    // Prepare CSV header
+    const header = ['ID', 'Name', 'SessionCount', 'TotalCount'];
+    // Map sources to CSV rows
+    const rows = this.sources.map((source) => [source.id, source.name, source.sessionCount, source.totalCount]);
+    // Build CSV string
+    const csvContent = [header, ...rows].map((row) => row.map((field) => `"${String(field).replace(/"/g, '""')}`).join(',')).join('\r\n');
+
+    // Create Blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sources.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   filterSessions() {
     this.sessionCount = this.chatbotSessions.filter((x) => {
       let result = true;
@@ -330,6 +396,32 @@ export class ChatbotAuswertungenComponent implements OnInit {
     let emptySessionCount = 0;
     const sources: Source[] = [];
     const aiResponsesCount: { responses: number; count: number }[] = [];
+    const sessionTimes: { time: string; count: number }[] = [
+      { time: '1:00', count: 0 },
+      { time: '2:00', count: 0 },
+      { time: '3:00', count: 0 },
+      { time: '4:00', count: 0 },
+      { time: '5:00', count: 0 },
+      { time: '6:00', count: 0 },
+      { time: '7:00', count: 0 },
+      { time: '8:00', count: 0 },
+      { time: '9:00', count: 0 },
+      { time: '10:00', count: 0 },
+      { time: '11:00', count: 0 },
+      { time: '12:00', count: 0 },
+      { time: '13:00', count: 0 },
+      { time: '14:00', count: 0 },
+      { time: '15:00', count: 0 },
+      { time: '16:00', count: 0 },
+      { time: '17:00', count: 0 },
+      { time: '18:00', count: 0 },
+      { time: '19:00', count: 0 },
+      { time: '20:00', count: 0 },
+      { time: '21:00', count: 0 },
+      { time: '22:00', count: 0 },
+      { time: '23:00', count: 0 },
+      { time: '0:00', count: 0 },
+    ];
 
     for (const session of this.filteredChatbotSessions) {
       if (session.hasPositiveFeedback) {
@@ -369,6 +461,11 @@ export class ChatbotAuswertungenComponent implements OnInit {
           aiResponsesCount.push({ responses: aiResponses, count: 1 });
         }
       }
+
+      const sessionTime = sessionTimes.find((x) => x.time === session.startTime);
+      if (sessionTime) {
+        sessionTime.count++;
+      }
     }
 
     this.positiveUserFeedbackCount = positiveUserFeedbackCount;
@@ -380,6 +477,7 @@ export class ChatbotAuswertungenComponent implements OnInit {
     this.frenchSessionsCount = frenchSessionsCount;
     this.sources = sources.sort((a, b) => b.sessionCount - a.sessionCount);
     this.aiResponsesCount = aiResponsesCount.sort((a, b) => a.responses - b.responses);
+    this.sessionTimes = sessionTimes;
 
     this.updateChartData();
   }
@@ -400,6 +498,13 @@ export class ChatbotAuswertungenComponent implements OnInit {
     this.lengthChart.data = {
       labels: this.aiResponsesCount.map((x) => x.responses.toString()),
       datasets: [{ data: this.aiResponsesCount.map((x) => x.count), label: 'Anzahl Sessions' }],
+    };
+
+    this.aiResponsesAverage = (this.aiResponsesCount.reduce((sum, entry) => sum + entry.responses * entry.count, 0) / this.filteredChatbotSessions.length).toFixed(1);
+
+    this.timeChart.data = {
+      labels: this.sessionTimes.map((x) => x.time),
+      datasets: [{ data: this.sessionTimes.map((x) => x.count), label: 'Anzahl Sessions' }],
     };
   }
 }
