@@ -35,6 +35,7 @@ export interface ChatbotSessionInfo {
   isEnglish?: boolean;
   isFrench?: boolean;
   sources: Source[];
+  sessionLength: number;
 }
 
 interface Source {
@@ -74,6 +75,24 @@ export class ChatbotAuswertungenComponent implements OnInit {
   public sessionTimes: { time: string; count: number }[] = [];
   public earliestDate: Date | undefined;
   public latestDate: Date | undefined;
+  public languageFilter = '';
+  public languages: { name: string; count: number }[] = [
+    { name: 'Deutsch', count: 0 },
+    { name: 'Englisch', count: 0 },
+    { name: 'Französisch', count: 0 },
+  ];
+  public sessionLengthFilter: number | '' | '>5' = '';
+  public sessionLengths: { name: string; count: number }[] = [
+    { name: '0', count: 0 },
+    { name: '1', count: 0 },
+    { name: '2', count: 0 },
+    { name: '3', count: 0 },
+    { name: '4', count: 0 },
+    { name: '5', count: 0 },
+    { name: '>5', count: 0 },
+  ];
+  public sessionSourceFilter = '';
+  public sessionSources: { name: string; count: number }[] = [];
 
   public page = 1;
   public pageSize = 10;
@@ -242,6 +261,9 @@ export class ChatbotAuswertungenComponent implements OnInit {
         }
 
         entry.infos.push(chatbotInfo);
+        if (!entry.isEmptySession) {
+          entry.sessionLength = entry.infos.filter((x) => x.botAnswer && x.botAnswer.content && x.botAnswer.content.length > 0).length - 1;
+        }
       } else {
         const sessionDate = chatbotInfo.date ?? new Date();
         const sessionTime = `${sessionDate.getHours()}:00`;
@@ -254,6 +276,7 @@ export class ChatbotAuswertungenComponent implements OnInit {
           infos: [chatbotInfo],
           isEmptySession: true,
           sources: [],
+          sessionLength: 0,
         };
         if (chatbotInfo.userFeedback === 'good') {
           newEntry.hasPositiveFeedback = true;
@@ -292,8 +315,63 @@ export class ChatbotAuswertungenComponent implements OnInit {
     if (this.latestDate) {
       this.latestDate.setHours(0, 0, 0, 0);
     }
+
     this.chatbotSessions = result;
     this.nonEmptyChatbotSessions = result.filter((x) => !x.isEmptySession);
+
+    this.languages.map((x) => (x.count = 0));
+    this.sessionLengths.map((x) => (x.count = 0));
+    this.sessionSources = [];
+
+    this.chatbotSessions.map((x) => {
+      if (x.isGerman) {
+        const languageEntry = this.languages.find((lang) => lang.name === 'Deutsch');
+        if (languageEntry) {
+          languageEntry.count++;
+        }
+      }
+      if (x.isEnglish) {
+        const languageEntry = this.languages.find((lang) => lang.name === 'Englisch');
+        if (languageEntry) {
+          languageEntry.count++;
+        }
+      }
+      if (x.isFrench) {
+        const languageEntry = this.languages.find((lang) => lang.name === 'Französisch');
+        if (languageEntry) {
+          languageEntry.count++;
+        }
+      }
+      if (x.sessionLength < 6) {
+        const lengthEntry = this.sessionLengths.find((len) => len.name === x.sessionLength.toString());
+        if (lengthEntry) {
+          lengthEntry.count++;
+        }
+      } else {
+        const lengthEntry = this.sessionLengths.find((len) => len.name === '>5');
+        if (lengthEntry) {
+          lengthEntry.count++;
+        }
+      }
+      for (const source of x.sources) {
+        const existingSource = this.sessionSources.find((s) => s.name === source.name);
+        if (existingSource) {
+          existingSource.count++;
+        } else {
+          this.sessionSources.push({ name: source.name, count: 1 });
+        }
+      }
+      if (x.sources.length === 0) {
+        const existingSource = this.sessionSources.find((s) => s.name === 'Keine');
+        if (existingSource) {
+          existingSource.count++;
+        } else {
+          this.sessionSources.push({ name: 'Keine', count: 1 });
+        }
+      }
+    });
+
+    this.sessionSources.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 
     this.filterSessions();
     this.showPage(this.page);
@@ -323,6 +401,30 @@ export class ChatbotAuswertungenComponent implements OnInit {
     this.filterSessions();
   }
 
+  onSessionLengthFilterChanged(event: any) {
+    const pickedLength = event.target.value;
+    if (pickedLength === '') {
+      this.sessionLengthFilter = '';
+    } else if (pickedLength === '>5') {
+      this.sessionLengthFilter = '>5';
+    } else {
+      this.sessionLengthFilter = parseInt(pickedLength, 10);
+    }
+    this.filterSessions();
+  }
+
+  onSessionSourceFilterChanged(event: any) {
+    const pickedSource = event.target.value;
+    this.sessionSourceFilter = pickedSource;
+    this.filterSessions();
+  }
+
+  onLanguageFilterChanged(event: any) {
+    const pickedLanguage = event.target.value;
+    this.languageFilter = pickedLanguage;
+    this.filterSessions();
+  }
+
   onDownloadSourcesAsCSVClicked() {
     // Prepare CSV header
     const header = ['ID', 'Name', 'SessionCount', 'TotalCount'];
@@ -349,8 +451,31 @@ export class ChatbotAuswertungenComponent implements OnInit {
       if (this.dateFilter && result === true) {
         result = x.date.getDate() === this.dateFilter.getDate();
       }
+      if (this.sessionLengthFilter && result === true) {
+        if (this.sessionLengthFilter === '>5') {
+          result = x.sessionLength > 5;
+        } else {
+          result = x.sessionLength === this.sessionLengthFilter;
+        }
+      }
+      if (this.languageFilter && result === true) {
+        if (this.languageFilter === 'Deutsch') {
+          result = x.isGerman === true;
+        } else if (this.languageFilter === 'Englisch') {
+          result = x.isEnglish === true;
+        } else if (this.languageFilter === 'Französisch') {
+          result = x.isFrench === true;
+        }
+      }
       if (this.showOnlySessionsWithFeedback && result === true) {
         result = x.infos.some((x) => x.userFeedback);
+      }
+      if (this.sessionSourceFilter && result === true) {
+        if (this.sessionSourceFilter === 'Keine') {
+          result = x.sources.length === 0;
+        } else {
+          result = x.sources.some((s) => s.name === this.sessionSourceFilter);
+        }
       }
       return result;
     }).length;
@@ -360,8 +485,31 @@ export class ChatbotAuswertungenComponent implements OnInit {
       if (this.dateFilter && result === true) {
         result = x.date.getDate() === this.dateFilter.getDate();
       }
+      if (this.sessionLengthFilter && result === true) {
+        if (this.sessionLengthFilter === '>5') {
+          result = x.sessionLength > 5;
+        } else {
+          result = x.sessionLength === this.sessionLengthFilter;
+        }
+      }
+      if (this.languageFilter && result === true) {
+        if (this.languageFilter === 'Deutsch') {
+          result = x.isGerman === true;
+        } else if (this.languageFilter === 'Englisch') {
+          result = x.isEnglish === true;
+        } else if (this.languageFilter === 'Französisch') {
+          result = x.isFrench === true;
+        }
+      }
       if (this.showOnlySessionsWithFeedback && result === true) {
         result = x.infos.some((x) => x.userFeedback);
+      }
+      if (this.sessionSourceFilter && result === true) {
+        if (this.sessionSourceFilter === 'Keine') {
+          result = x.sources.length === 0;
+        } else {
+          result = x.sources.some((s) => s.name === this.sessionSourceFilter);
+        }
       }
       return result;
     });
@@ -453,7 +601,7 @@ export class ChatbotAuswertungenComponent implements OnInit {
       }
 
       if (session.infos.length > 0) {
-        const aiResponses = session.infos.filter((x) => x.botAnswer && x.botAnswer.content && x.botAnswer.content.length > 0).length - 1; // -1 Because first message is the automated greeting;
+        const aiResponses = session.sessionLength;
         const existingAiResponsesEntry = aiResponsesCount.find((x) => x.responses === aiResponses);
         if (existingAiResponsesEntry) {
           existingAiResponsesEntry.count++;

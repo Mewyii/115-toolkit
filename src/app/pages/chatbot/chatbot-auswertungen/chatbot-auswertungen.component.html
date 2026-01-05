@@ -32,11 +32,49 @@
     ></mat-datepicker-toggle>
     <mat-datepicker #datePicker></mat-datepicker>
   </mat-form-field>
-
+  <mat-form-field [subscriptSizing]="'dynamic'">
+    <mat-label>Sprachen</mat-label>
+    <select
+      matNativeControl
+      [value]="languageFilter"
+      (change)="onLanguageFilterChanged($event)"
+    >
+      <option [value]="''" ´ [defaultSelected]="true">Alle</option>
+      @for (value of languages; track $index) {
+      <option [value]="value.name">{{ value.name }} ({{ value.count }})</option>
+      }
+    </select>
+  </mat-form-field>
+  <mat-form-field [subscriptSizing]="'dynamic'">
+    <mat-label>Inhalte</mat-label>
+    <select
+      matNativeControl
+      [value]="sessionSourceFilter"
+      (change)="onSessionSourceFilterChanged($event)"
+    >
+      <option [value]="''" [defaultSelected]="true">Alle</option>
+      @for (value of sessionSources; track $index) {
+      <option [value]="value.name">{{ value.name }} ({{ value.count }})</option>
+      }
+    </select>
+  </mat-form-field>
+  <mat-form-field [subscriptSizing]="'dynamic'">
+    <mat-label>Länge</mat-label>
+    <select
+      matNativeControl
+      [value]="sessionLengthFilter"
+      (change)="onSessionLengthFilterChanged($event)"
+    >
+      <option [value]="''" [defaultSelected]="true">Alle</option>
+      @for (value of sessionLengths; track $index) {
+      <option [value]="value.name">{{ value.name }} ({{ value.count }})</option>
+      }
+    </select>
+  </mat-form-field>
   <mat-checkbox
     [(ngModel)]="showOnlySessionsWithFeedback"
     (change)="filterSessions()"
-    >Nur Sessions mit Feedback</mat-checkbox
+    >Nur mit Feedback</mat-checkbox
   >
 </div>
 
