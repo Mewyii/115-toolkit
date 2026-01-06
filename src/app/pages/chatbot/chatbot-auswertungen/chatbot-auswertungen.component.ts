@@ -547,11 +547,14 @@ export class ChatbotAuswertungenComponent implements OnInit {
           }
 
           if (entry.lage) {
-            const existingLagenEntry = this.lagenData.find((x) => x.lage === entry.lage);
-            if (existingLagenEntry) {
-              existingLagenEntry.sessionCount += entry.sessionCount;
-            } else {
-              this.lagenData.push({ lage: entry.lage, sessionCount: entry.sessionCount });
+            const lagen = entry.lage.split('|').map((x) => x.trim());
+            for (const lage of lagen) {
+              const existingLagenEntry = this.lagenData.find((x) => x.lage === lage);
+              if (existingLagenEntry) {
+                existingLagenEntry.sessionCount += entry.sessionCount;
+              } else {
+                this.lagenData.push({ lage: lage, sessionCount: entry.sessionCount });
+              }
             }
           } else {
             this.lagenData[0].sessionCount += entry.sessionCount;
