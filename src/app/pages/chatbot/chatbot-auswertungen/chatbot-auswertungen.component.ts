@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { isArray, startsWith } from 'lodash';
 import { BehaviorSubject } from 'rxjs';
 import { ConverterService, SheetDataMapping, XLSService } from 'src/app/services';
+import { LeikasService } from './services/leikas.service';
 
 export type UserFeedback = 'good' | 'bad';
 
@@ -50,6 +51,7 @@ interface Source {
   templateUrl: './chatbot-auswertungen.component.html',
   styleUrls: ['./chatbot-auswertungen.component.scss'],
   standalone: false,
+  providers: [LeikasService],
 })
 export class ChatbotAuswertungenComponent implements OnInit {
   public chatbotSessions: ChatbotSessionInfo[] = [];
@@ -98,6 +100,9 @@ export class ChatbotAuswertungenComponent implements OnInit {
   public pageSize = 10;
 
   public dateFilter: Date | undefined;
+
+  private leikaData: { name: string; key: number; lage?: string; sessionCount: number }[] = [];
+  private lagenData: { lage: string; sessionCount: number }[] = [];
 
   private sheetMapping: SheetDataMapping<ChatbotInfo>[] = [
     {
@@ -201,11 +206,37 @@ export class ChatbotAuswertungenComponent implements OnInit {
     },
   };
 
-  constructor(public xlsService: XLSService, public converterService: ConverterService) {}
+  leikaChart = {
+    type: 'doughnut' as any,
+    options: {
+      responsive: true,
+      scales: { x: {}, y: {} },
+    },
+    data: {
+      labels: ['-'],
+      datasets: [{ data: [0], label: 'Anzahl Sessions' }],
+    },
+  };
 
-  ngOnInit(): void {}
+  lagenChart = {
+    type: 'doughnut' as any,
+    options: {
+      responsive: true,
+      scales: { x: {}, y: {} },
+    },
+    data: {
+      labels: ['-'],
+      datasets: [{ data: [0], label: 'Anzahl Sessions' }],
+    },
+  };
 
-  async onStammdatenExcelFileSelected(event: Event) {
+  constructor(public xlsService: XLSService, public converterService: ConverterService, private leikasService: LeikasService) {}
+
+  ngOnInit(): void {
+    this.leikasService.leikas$.subscribe();
+  }
+
+  async onStammdatenExcelFileSelected(event: Event, mode: 'new' | 'add') {
     this.verfugbarkeitsInfosAreLoading = true;
 
     const input = event.target as HTMLInputElement;
@@ -219,6 +250,11 @@ export class ChatbotAuswertungenComponent implements OnInit {
     const workbookData = await this.xlsService.readFile(file, { firstLinesToSkip: 1 });
 
     const chatbotInfos = await this.xlsService.convertWorkbookDataToCustomData(workbookData, this.sheetMapping);
+
+    if (mode === 'new') {
+      this.earliestDate = undefined;
+      this.latestDate = undefined;
+    }
 
     const result: ChatbotSessionInfo[] = [];
     for (const chatbotInfo of chatbotInfos) {
@@ -316,8 +352,12 @@ export class ChatbotAuswertungenComponent implements OnInit {
       this.latestDate.setHours(0, 0, 0, 0);
     }
 
-    this.chatbotSessions = result;
-    this.nonEmptyChatbotSessions = result.filter((x) => !x.isEmptySession);
+    if (mode === 'new') {
+      this.chatbotSessions = result;
+    } else if (mode === 'add') {
+      this.chatbotSessions = [...this.chatbotSessions, ...result];
+    }
+    this.nonEmptyChatbotSessions = this.chatbotSessions.filter((x) => !x.isEmptySession);
 
     this.languages.map((x) => (x.count = 0));
     this.sessionLengths.map((x) => (x.count = 0));
@@ -430,19 +470,111 @@ export class ChatbotAuswertungenComponent implements OnInit {
     const header = ['ID', 'Name', 'SessionCount', 'TotalCount'];
     // Map sources to CSV rows
     const rows = this.sources.map((source) => [source.id, source.name, source.sessionCount, source.totalCount]);
+
     // Build CSV string
-    const csvContent = [header, ...rows].map((row) => row.map((field) => `"${String(field).replace(/"/g, '""')}`).join(',')).join('\r\n');
+    const csvContent = [header, ...rows].map((row) => row.map((field) => `${String(field).replace(/"/g, '').replace(',', ';')}`).join(',')).join('\r\n');
 
     // Create Blob and download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'sources.csv';
+    a.download = 'Inhalte.csv';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+
+  onDownloadLeikasAsCSVClicked() {
+    // Prepare CSV header
+    const header = ['Name', 'LeikaID', 'Lage', 'SessionCount'];
+    // Map sources to CSV rows
+    const rows = this.leikaData.map((source) => [source.name, source.key, source.lage, source.sessionCount]);
+
+    // Build CSV string
+    const csvContent = [header, ...rows].map((row) => row.map((field) => `${String(field).replace(/"/g, '').replace(',', ';')}`).join(',')).join('\r\n');
+
+    // Create Blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Leikas.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  onDownloadLagenAsCSVClicked() {
+    // Prepare CSV header
+    const header = ['Lage', 'SessionCount'];
+    // Map sources to CSV rows
+    const rows = this.lagenData.map((source) => [source.lage, source.sessionCount]);
+    // Build CSV string
+    const csvContent = [header, ...rows].map((row) => row.map((field) => `${String(field).replace(/"/g, '').replace(',', ';')}`).join(',')).join('\r\n');
+
+    // Create Blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Lagen.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  onLoadLeikasClicked() {
+    this.leikasService.leikas$.subscribe((leikas) => {
+      const result = this.sources.map((source) => {
+        const leika = leikas.find((leika) => source.id.includes(leika.key.toString()));
+        return leika ? { ...leika, sessionCount: source.sessionCount } : undefined;
+      });
+
+      this.leikaData = [{ name: 'Unbekannt', lage: 'Unbekannt', key: 0, sessionCount: 0 }];
+      this.lagenData = [{ lage: 'Unbekannt', sessionCount: 0 }];
+
+      for (const entry of result) {
+        if (entry) {
+          const existingLeikaEntry = this.leikaData.find((x) => x.key === entry.key);
+          if (existingLeikaEntry) {
+            existingLeikaEntry.sessionCount += entry.sessionCount;
+          } else {
+            this.leikaData.push({ name: entry.name, key: entry.key, lage: entry.lage, sessionCount: entry.sessionCount });
+          }
+
+          if (entry.lage) {
+            const existingLagenEntry = this.lagenData.find((x) => x.lage === entry.lage);
+            if (existingLagenEntry) {
+              existingLagenEntry.sessionCount += entry.sessionCount;
+            } else {
+              this.lagenData.push({ lage: entry.lage, sessionCount: entry.sessionCount });
+            }
+          } else {
+            this.lagenData[0].sessionCount += entry.sessionCount;
+          }
+        } else {
+          this.leikaData[0].sessionCount += 1;
+          this.lagenData[0].sessionCount += 1;
+        }
+      }
+
+      this.leikaData.sort((a, b) => b.sessionCount - a.sessionCount || a.name.localeCompare(b.name));
+      this.lagenData.sort((a, b) => b.sessionCount - a.sessionCount || a.lage.localeCompare(b.lage));
+
+      this.leikaChart.data = {
+        labels: this.leikaData.map((x) => `${x.name} (${x.key})`),
+        datasets: [{ data: this.leikaData.map((x) => x.sessionCount), label: 'Anzahl Sessions' }],
+      };
+
+      this.lagenChart.data = {
+        labels: this.lagenData.map((x) => x.lage),
+        datasets: [{ data: this.lagenData.map((x) => x.sessionCount), label: 'Anzahl Sessions' }],
+      };
+    });
   }
 
   filterSessions() {

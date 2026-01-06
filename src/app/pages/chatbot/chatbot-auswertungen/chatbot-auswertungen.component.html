@@ -1,7 +1,7 @@
 <div class="control-bar">
   <button mat-raised-button color="primary" (click)="xlsFileIPicker.click()">
     <span class="text-with-loading-indicator"
-      >Chatbot-Protokoll öffnen
+      >Protokoll öffnen
       <mat-progress-spinner
         *ngIf="verfugbarkeitsInfosAreLoading"
         diameter="20"
@@ -15,7 +15,25 @@
     [hidden]="true"
     [type]="'file'"
     [accept]="'.csv'"
-    (change)="onStammdatenExcelFileSelected($event)"
+    (change)="onStammdatenExcelFileSelected($event, 'new')"
+  />
+  <button mat-raised-button color="primary" (click)="xlsFileIPicker2.click()">
+    <span class="text-with-loading-indicator"
+      >Protokoll hinzufügen
+      <mat-progress-spinner
+        *ngIf="verfugbarkeitsInfosAreLoading"
+        diameter="20"
+        mode="indeterminate"
+        color="accent"
+      ></mat-progress-spinner>
+    </span>
+  </button>
+  <input
+    #xlsFileIPicker2
+    [hidden]="true"
+    [type]="'file'"
+    [accept]="'.csv'"
+    (change)="onStammdatenExcelFileSelected($event, 'add')"
   />
   <mat-form-field class="date-picker">
     <input
@@ -25,7 +43,7 @@
       [value]="dateFilter"
       (dateChange)="onDateFilterChanged($event)"
     />
-    <mat-label>Filtern nach Datum</mat-label>
+    <mat-label>Datum</mat-label>
     <mat-datepicker-toggle
       matIconSuffix
       [for]="datePicker"
@@ -171,15 +189,6 @@
                   >
                 </div>
               </div>
-              <!-- <div
-                [class]="'bot-answer' + (showFullBotAnswers ? ' full' : '')"
-                *ngIf="item.botAnswer"
-              >
-                <div *ngIf="item.botAnswer.metadata">
-                  {{ item.botAnswer.metadata.mappedUserInput }}
-                </div>
-                <div [innerHTML]="item.botAnswer.content"></div>
-              </div> -->
               <ng-container *ngIf="item.botAnswer">
                 <div
                   *ngIf="!item.botAnswer.metadata.mappedUserInput"
@@ -294,6 +303,44 @@
           mat-flat-button
           color="primary"
           (click)="onDownloadSourcesAsCSVClicked()"
+        >
+          Download
+          <mat-icon>arrow_downward</mat-icon>
+        </button>
+      </div>
+    </div>
+    <div style="margin-top: 32px; margin-bottom: 128px">
+      <h3 style="text-align: center">Leikas</h3>
+      <div style="margin-top: 16px; text-align: center">
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="onLoadLeikasClicked()"
+          [disabled]="sessionCount < 1"
+        >
+          Leikas Laden
+        </button>
+      </div>
+      <canvas baseChart [data]="leikaChart.data" [type]="leikaChart.type">
+      </canvas>
+      <div style="margin-top: 16px; text-align: center">
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="onDownloadLeikasAsCSVClicked()"
+        >
+          Download
+          <mat-icon>arrow_downward</mat-icon>
+        </button>
+      </div>
+      <h3 style="text-align: center">Lebenslagen</h3>
+      <canvas baseChart [data]="lagenChart.data" [type]="lagenChart.type">
+      </canvas>
+      <div style="margin-top: 16px; text-align: center">
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="onDownloadLagenAsCSVClicked()"
         >
           Download
           <mat-icon>arrow_downward</mat-icon>
