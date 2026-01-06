@@ -57,7 +57,7 @@
       [value]="languageFilter"
       (change)="onLanguageFilterChanged($event)"
     >
-      <option [value]="''" ´ [defaultSelected]="true">Alle</option>
+      <option [value]="''" [defaultSelected]="true">Alle</option>
       @for (value of languages; track $index) {
       <option [value]="value.name">{{ value.name }} ({{ value.count }})</option>
       }
