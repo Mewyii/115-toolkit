@@ -75,6 +75,7 @@ export class ChatbotAuswertungenComponent implements OnInit {
   public aiResponsesCount: { responses: number; count: number }[] = [];
   public aiResponsesAverage: string | undefined;
   public sessionTimes: { time: string; count: number }[] = [];
+  public dailySessions: { date: string; count: number }[] = [];
   public earliestDate: Date | undefined;
   public latestDate: Date | undefined;
   public languageFilter = '';
@@ -227,6 +228,18 @@ export class ChatbotAuswertungenComponent implements OnInit {
     data: {
       labels: ['-'],
       datasets: [{ data: [0], label: 'Anzahl Sessions' }],
+    },
+  };
+
+  dailyChart = {
+    type: 'bar' as any,
+    options: {
+      responsive: true,
+      scales: { x: {}, y: { beginAtZero: true } },
+    },
+    data: {
+      labels: ['-'],
+      datasets: [{ data: [0], label: 'Anzahl Sessions pro Tag' }],
     },
   };
 
@@ -721,6 +734,7 @@ export class ChatbotAuswertungenComponent implements OnInit {
       { time: '23:00', count: 0 },
       { time: '0:00', count: 0 },
     ];
+    const dailySessions: { date: string; count: number }[] = [];
 
     for (const session of this.filteredChatbotSessions) {
       if (session.hasPositiveFeedback) {
@@ -764,6 +778,16 @@ export class ChatbotAuswertungenComponent implements OnInit {
       const sessionTime = sessionTimes.find((x) => x.time === session.startTime);
       if (sessionTime) {
         sessionTime.count++;
+      } else {
+        sessionTimes.push({ time: session.startTime, count: 1 });
+      }
+
+      const sessionDay = session.date.toISOString().split('T')[0];
+      const dailySession = dailySessions.find((x) => x.date === sessionDay);
+      if (dailySession) {
+        dailySession.count++;
+      } else {
+        dailySessions.push({ date: sessionDay, count: 1 });
       }
     }
 
@@ -777,6 +801,26 @@ export class ChatbotAuswertungenComponent implements OnInit {
     this.sources = sources.sort((a, b) => b.sessionCount - a.sessionCount);
     this.aiResponsesCount = aiResponsesCount.sort((a, b) => a.responses - b.responses);
     this.sessionTimes = sessionTimes;
+
+    // Fill gaps in daily sessions
+    if (dailySessions.length > 0) {
+      const sortedDailySessions = dailySessions.sort((a, b) => a.date.localeCompare(b.date));
+      const firstDate = new Date(sortedDailySessions[0].date + 'T00:00:00Z');
+      const lastDate = new Date(sortedDailySessions[sortedDailySessions.length - 1].date + 'T00:00:00Z');
+      const filledSessions: { date: string; count: number }[] = [];
+
+      const dayInMs = 24 * 60 * 60 * 1000;
+      for (let time = firstDate.getTime(); time <= lastDate.getTime(); time += dayInMs) {
+        const d = new Date(time);
+        const dateKey = d.toISOString().split('T')[0];
+        const existing = sortedDailySessions.find((x) => x.date === dateKey);
+        filledSessions.push({ date: dateKey, count: existing ? existing.count : 0 });
+      }
+
+      this.dailySessions = filledSessions;
+    } else {
+      this.dailySessions = dailySessions;
+    }
 
     this.updateChartData();
   }
@@ -804,6 +848,14 @@ export class ChatbotAuswertungenComponent implements OnInit {
     this.timeChart.data = {
       labels: this.sessionTimes.map((x) => x.time),
       datasets: [{ data: this.sessionTimes.map((x) => x.count), label: 'Anzahl Sessions' }],
+    };
+
+    this.dailyChart.data = {
+      labels: this.dailySessions.map((x) => {
+        const d = new Date(x.date + 'T00:00:00');
+        return d.toLocaleDateString('de-DE', { year: 'numeric', month: '2-digit', day: '2-digit' });
+      }),
+      datasets: [{ data: this.dailySessions.map((x) => x.count), label: 'Anzahl Sessions pro Tag' }],
     };
   }
 }
