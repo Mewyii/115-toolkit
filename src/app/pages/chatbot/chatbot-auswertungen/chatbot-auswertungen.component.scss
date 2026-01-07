@@ -6,6 +6,10 @@
   align-items: center;
 }
 
+.control-bar.space-between {
+  justify-content: space-between;
+}
+
 .results-container {
   max-width: 800px;
   margin: auto;

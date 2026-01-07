@@ -466,15 +466,11 @@ export class ChatbotAuswertungenComponent implements OnInit {
   }
 
   onDownloadSourcesAsCSVClicked() {
-    // Prepare CSV header
     const header = ['ID', 'Name', 'SessionCount', 'TotalCount'];
-    // Map sources to CSV rows
     const rows = this.sources.map((source) => [source.id, source.name, source.sessionCount, source.totalCount]);
 
-    // Build CSV string
     const csvContent = [header, ...rows].map((row) => row.map((field) => `${String(field).replace(/"/g, '').replace(',', ';')}`).join(',')).join('\r\n');
 
-    // Create Blob and download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -487,15 +483,11 @@ export class ChatbotAuswertungenComponent implements OnInit {
   }
 
   onDownloadLeikasAsCSVClicked() {
-    // Prepare CSV header
     const header = ['Name', 'LeikaID', 'Lage', 'SessionCount'];
-    // Map sources to CSV rows
     const rows = this.leikaData.map((source) => [source.name, source.key, source.lage, source.sessionCount]);
 
-    // Build CSV string
     const csvContent = [header, ...rows].map((row) => row.map((field) => `${String(field).replace(/"/g, '').replace(',', ';')}`).join(',')).join('\r\n');
 
-    // Create Blob and download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -508,19 +500,43 @@ export class ChatbotAuswertungenComponent implements OnInit {
   }
 
   onDownloadLagenAsCSVClicked() {
-    // Prepare CSV header
     const header = ['Lage', 'SessionCount'];
-    // Map sources to CSV rows
     const rows = this.lagenData.map((source) => [source.lage, source.sessionCount]);
-    // Build CSV string
+
     const csvContent = [header, ...rows].map((row) => row.map((field) => `${String(field).replace(/"/g, '').replace(',', ';')}`).join(',')).join('\r\n');
 
-    // Create Blob and download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'Lagen.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  onDownloadFilteredSessionsClicked() {
+    const jsonContent = JSON.stringify(
+      this.filteredChatbotSessions.map((x) => ({
+        sessionId: x.sessionId,
+        date: x.date,
+        content: x.infos.map((x) => ({
+          userinput: x.userInput,
+          botAnswer: x.botAnswer?.content,
+          userFeedbackForBotAnswer: x.userFeedback,
+          userFeedbackText: x.userFeedbackText,
+        })),
+      })),
+      null,
+      2
+    );
+
+    const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Gefilterte Sessions.json';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
