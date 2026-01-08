@@ -105,6 +105,8 @@ export class ChatbotAuswertungenComponent implements OnInit {
   private leikaData: { name: string; key: number; lage?: string; sessionCount: number }[] = [];
   private lagenData: { lage: string; sessionCount: number }[] = [];
 
+  public leistungsInfoBaseURL = 'https://chatbot.test.115.de/';
+
   private sheetMapping: SheetDataMapping<ChatbotInfo>[] = [
     {
       name: 'Sheet1',
@@ -143,6 +145,18 @@ export class ChatbotAuswertungenComponent implements OnInit {
     data: {
       labels: ['Deutsch', 'Englisch', 'Französisch'],
       datasets: [{ data: [0, 0, 0], label: 'Anzahl Sessions' }],
+    },
+  };
+
+  sourceOriginChart = {
+    type: 'doughnut' as any,
+    options: {
+      responsive: true,
+      scales: { x: {}, y: {} },
+    },
+    data: {
+      labels: ['-'],
+      datasets: [{ data: [0], label: 'Anzahl Sessions' }],
     },
   };
 
@@ -838,11 +852,19 @@ export class ChatbotAuswertungenComponent implements OnInit {
       datasets: [{ data: [this.germanSessionsCount, this.englishSessionsCount, this.frenchSessionsCount], label: 'Anzahl Sessions' }],
     };
 
+    const sourceCountTotal = this.sources.reduce((sum, entry) => sum + entry.sessionCount, 0);
     const sourceLabels = this.sources.map((x) => x.name);
     const sourceCounts = this.sources.map((x) => x.sessionCount);
     this.contentChart.data = {
       labels: sourceLabels,
       datasets: [{ data: sourceCounts, label: 'Anzahl Sessions' }],
+    };
+
+    const leistungsInfoSourceCounts = this.sources.filter((x) => x.id.includes(this.leistungsInfoBaseURL)).reduce((sum, entry) => sum + entry.sessionCount, 0);
+    const leistungsInfoSourceCountPercent = Math.round((leistungsInfoSourceCounts / sourceCountTotal) * 100);
+    this.sourceOriginChart.data = {
+      labels: ['115-Informationen (' + leistungsInfoSourceCountPercent + '%)', 'Website-Informationen (' + (100 - leistungsInfoSourceCountPercent) + '%)'],
+      datasets: [{ data: [leistungsInfoSourceCounts, sourceCountTotal - leistungsInfoSourceCounts], label: 'Anzahl Sessions' }],
     };
 
     this.lengthChart.data = {
