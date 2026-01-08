@@ -336,7 +336,7 @@
       >
       </canvas>
     </div>
-    <div style="margin-top: 32px; margin-bottom: 128px">
+    <div style="margin-top: 32px">
       <h3 style="text-align: center">Inhalte</h3>
       <canvas
         baseChart
@@ -344,6 +344,8 @@
         [type]="sourceOriginChart.type"
       >
       </canvas>
+    </div>
+    <div style="margin-top: 64px; margin-bottom: 128px">
       <canvas baseChart [data]="contentChart.data" [type]="contentChart.type">
       </canvas>
       <div style="margin-top: 16px; text-align: center">
@@ -381,7 +383,18 @@
           <mat-icon>arrow_downward</mat-icon>
         </button>
       </div>
-      <h3 style="text-align: center">Lebenslagen</h3>
+      <h3 style="margin-top: 64px; text-align: center">
+        Lebenslagen (Kategorien)
+      </h3>
+      <canvas
+        baseChart
+        [data]="lagenCategoriesChart.data"
+        [type]="lagenCategoriesChart.type"
+      >
+      </canvas>
+      <h3 style="margin-top: 64px; text-align: center">
+        Lebenslagen (Detailliert)
+      </h3>
       <canvas baseChart [data]="lagenChart.data" [type]="lagenChart.type">
       </canvas>
       <div style="margin-top: 16px; text-align: center">

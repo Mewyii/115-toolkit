@@ -1,0 +1,157 @@
+code;description-de-DE
+1000000;Lebenslagen für Bürgerinnen und Bürger
+1010000;Geburt
+1010100;Vor der Geburt
+1010200;Nach der Geburt
+1020000;Partnerschaft und Familie
+1020100;Adoption und Pflegekinder
+1020200;Kinderbetreuung
+1020300;Eheschließung
+1020400;Scheidung
+1020500;Trennung mit Kind
+1030000;Schule, Ausbildung und Studium
+1030100;Schule
+1030200;Berufsausbildung
+1030300;Studium
+1040000;Arbeit
+1040100;Weiterbildung
+1040300;Jobsuche und Arbeitslosigkeit
+1040400;Anerkennung ausländischer Berufsqualifikationen
+1040500;Berufszulassungen und Berechtigungen
+1050000;Bauen und Wohnen
+1050100;Hausbau und Immobilienerwerb
+1050200;Wohnen und Umzug
+1060000;Steuern und Abgaben
+1060100;Steuererklärung
+1060200;Einkommensteuer und Kirchensteuer
+1060300;Sozialabgaben
+1060400;Grundsteuer und Grunderwerbsteuer
+1060500;Zweitwohnsteuer
+1060600;Fahrzeugsteuern
+1060700;Erbschaftsteuer und Schenkungsteuer
+1060800;Sonstige Steuern
+1070000;Ausweise und Dokumente
+1070100;Ausweise
+1070200;Urkunden und Bescheinigungen
+1080000;Migration und Integration
+1080100;Einwanderung
+1080200;Asyl
+1080300;Einbürgerung
+1080400;Integration
+1090000;Mobilität und Fahrzeuge
+1090100;Führerscheine
+1090200;Fahrzeugbesitz
+1100000;Wahlen, Engagement und Beteiligung
+1100100;Engagement und Beteiligung
+1100200;Wahlen
+1110000;Hobby und Freizeit
+1110100;Veranstaltungen und Feste
+1110200;Fischen und Jagen
+1110300;Tierhaltung
+1120000;Reisen und Auslandsaufenthalt
+1120100;Reisen
+1120200;Auslandsaufenthalt
+1120300;Auswanderung
+1130000;Gesundheit und Vorsorge
+1130100;Gesundheitsvorsorge
+1130200;Krankheit
+1130300;Behinderung
+1130400;Pflege
+1140000;Sozialleistungen
+1140100;Existenzsicherung und staatliche Unterstützung
+1150000;Recht und Verbraucherschutz
+1150100;Außergerichtliche Verfahren und Streitschlichtung
+1150200;Gerichtliche Verfahren, Anzeige und Klage
+1150300;Verbraucherschutz
+1150400;Datenschutz, Auskünfte und Akteneinsicht
+1160000;Notlagen und Opferhilfen
+1160100;Katastrophenhilfe
+1160200;Hilfen für Geschädigte
+1170000;Umwelt und Klima
+1170100;Klima, Natur und Arten
+1170200;Wasser, Gewässer und Boden
+1180000;Altersvorsorge und Ruhestand
+1180100;Altersvorsorge
+1180200;Rente
+1190000;Sterbefall und Nachlass
+1190100;Todesfall
+1190200;Erbschaft, Nachlass und Testament
+2000000;Geschäftslagen für Unternehmen
+2010000;Unternehmensstart und Gewerbezulassung
+2010100;Anmeldepflichten
+2010200;Befähigungs- und Sachkundenachweise
+2010300;Beratung und Netzwerke
+2010400;Erlaubnisse und Genehmigungen
+2010600;Standortsuche und Standortwahl
+2020000;Register und Kataster
+2020100;Eintragung in Register
+2020200;Auszüge aus Registern
+2030000;Arbeitgeber sein
+2030100;Personal finden
+2030200;Personal einstellen
+2030300;Aus-, Weiterbildung und Sachkunde
+2030400;Mitarbeiterbezogene Meldepflichten
+2030500;Arbeitssicherheit
+2030600;Schwangerschaft und Elternschaft
+2030700;Sonderregelungen der Arbeitszeit
+2030800;Beendigung von Arbeitsverhältnissen
+2040000;Steuern und Abgaben
+2040100;Steuern und Abgaben für Mitarbeiter
+2040200;Steuern und Abgaben für Betriebe
+2050000;Bauen und Immobilien
+2050100;Kauf, Miete und Pacht
+2050200;Standortsuche
+2050300;Erschließung und Infrastruktur
+2050400;Bauplanung
+2050500;Bauverfahren
+2050600;Brandschutz und sonstige Auflagen
+2060000;Finanzierung und Förderung
+2060100;Finanzierungs- und Förderberatung
+2060200;Gründungsfinanzierung
+2060300;Finanzierung zur Krisenbewältigung
+2060500;Wirtschaftsförderung
+2060600;Infrastruktur-, Bau- und Wohnförderung
+2060700;Förderung von Energie und Klimaschutz
+2060800;Förderung von Kultur
+2060900;Förderung von Bildung und Forschung
+2060990;Weitere Förderbereiche
+2070000;Auslandsgeschäft
+2070100;Grenzüberschreitende Tätigkeit
+2070200;Import und Export
+2070300;Außenwirtschaftsförderung und -investitionen
+2080000;Ausschreibungen und öffentliche Aufträge
+2080100;Informationen zur öffentlichen Vergabe
+2080200;Elektronische Vergabeplattformen
+2080300;EU-weite Ausschreibungen
+2090000;Statistik- und Berichtspflichten
+2090100;Statistische Auswertungen
+2090200;Statistische Erhebungen und Meldepflichten
+2100000;Forschung und Entwicklung
+2100200;Erlaubnisse und Genehmigungen für Forschungsvorhaben
+2100300;Forschungs- und Entwicklungsnetzwerke
+2100400;Wissens- und Technologietransfer
+2100500;Patente und geistiges Eigentum
+2110000;Logistik und Transport
+2110100;Fahrerlaubnis und Sachkenntnisse
+2110200;Transportgenehmigungen
+2110300;An- und Abmelden von Fahrzeugen
+2120000;Anlagen, Waren und Stoffe
+2120100;Anlagenbetrieb und -prüfung
+2120200;Produkt- und Stoffzulassung
+2120300;Prüfung und Nachweise für Sachkunde und Sicherheit
+2130000;Abfall und Umweltschutz
+2130100;Abfall, Schadstoffe und Emissionen
+2130200;Tier-, Pflanzen- und Naturschutz
+2140000;Verbraucherschutz, Compliance und Recht
+2140100;Verbraucherschutz
+2140200;Beschwerden und Petitionen
+2140300;Gerichtliche Entscheidungen
+2140400;Mahnwesen
+2140500;Rechtsmittel im Verwaltungsverfahren
+2150000;Veranstaltungen
+2150100;Messen, Straßenfeste und Sonderveranstaltungen
+2150200;Sonderöffnungszeiten und -genehmigungen
+2160000;Geschäftsauflösung und Unternehmensübergang
+2160100;Betriebsaufgabe und zeitweise Stilllegung
+2160200;Betriebsübernahme
+2160300;Sanierung und Insolvenz

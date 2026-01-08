@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { isArray, startsWith } from 'lodash';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { ConverterService, SheetDataMapping, XLSService } from 'src/app/services';
 import { LeikasService } from './services/leikas.service';
 
@@ -103,7 +104,8 @@ export class ChatbotAuswertungenComponent implements OnInit {
   public dateFilter: Date | undefined;
 
   private leikaData: { name: string; key: number; lage?: string; sessionCount: number }[] = [];
-  private lagenData: { lage: string; sessionCount: number }[] = [];
+  private lagenData: { lage: string; code: string; sessionCount: number }[] = [];
+  private mainLagenData: { lage: string; sessionCount: number }[] = [];
 
   public leistungsInfoBaseURL = 'https://chatbot.test.115.de/';
 
@@ -245,6 +247,18 @@ export class ChatbotAuswertungenComponent implements OnInit {
     },
   };
 
+  lagenCategoriesChart = {
+    type: 'doughnut' as any,
+    options: {
+      responsive: true,
+      scales: { x: {}, y: {} },
+    },
+    data: {
+      labels: ['-'],
+      datasets: [{ data: [0], label: 'Anzahl Sessions' }],
+    },
+  };
+
   dailyChart = {
     type: 'bar' as any,
     options: {
@@ -260,7 +274,7 @@ export class ChatbotAuswertungenComponent implements OnInit {
   constructor(public xlsService: XLSService, public converterService: ConverterService, private leikasService: LeikasService) {}
 
   ngOnInit(): void {
-    this.leikasService.leikas$.subscribe();
+    this.leikasService.lagen$.pipe(switchMap(() => this.leikasService.leikas$)).subscribe();
   }
 
   async onStammdatenExcelFileSelected(event: Event, mode: 'new' | 'add') {
@@ -571,14 +585,14 @@ export class ChatbotAuswertungenComponent implements OnInit {
   }
 
   onLoadLeikasClicked() {
-    this.leikasService.leikas$.subscribe((leikas) => {
+    combineLatest([this.leikasService.lagen$, this.leikasService.leikas$]).subscribe(([allLagen, leikas]) => {
       const result = this.sources.map((source) => {
         const leika = leikas.find((leika) => source.id.includes(leika.key.toString()));
         return leika ? { ...leika, sessionCount: source.sessionCount } : undefined;
       });
 
       this.leikaData = [{ name: 'Unbekannt', lage: 'Unbekannt', key: 0, sessionCount: 0 }];
-      this.lagenData = [{ lage: 'Unbekannt', sessionCount: 0 }];
+      this.lagenData = [{ lage: 'Unbekannt', code: '0000000', sessionCount: 0 }];
 
       for (const entry of result) {
         if (entry) {
@@ -589,14 +603,15 @@ export class ChatbotAuswertungenComponent implements OnInit {
             this.leikaData.push({ name: entry.name, key: entry.key, lage: entry.lage, sessionCount: entry.sessionCount });
           }
 
-          if (entry.lage) {
-            const lagen = entry.lage.split('|').map((x) => x.trim());
-            for (const lage of lagen) {
+          if (entry.lage && entry.lageCode) {
+            const subLagen = entry.lage.split('|').map((x) => x.trim());
+            const subLagenCodes = entry.lageCode.split('|').map((x) => x.trim());
+            for (const [index, lage] of subLagen.entries()) {
               const existingLagenEntry = this.lagenData.find((x) => x.lage === lage);
               if (existingLagenEntry) {
                 existingLagenEntry.sessionCount += entry.sessionCount;
               } else {
-                this.lagenData.push({ lage: lage, sessionCount: entry.sessionCount });
+                this.lagenData.push({ lage: lage, code: subLagenCodes[index as any], sessionCount: entry.sessionCount });
               }
             }
           } else {
@@ -610,6 +625,7 @@ export class ChatbotAuswertungenComponent implements OnInit {
 
       this.leikaData.sort((a, b) => b.sessionCount - a.sessionCount || a.name.localeCompare(b.name));
       this.lagenData.sort((a, b) => b.sessionCount - a.sessionCount || a.lage.localeCompare(b.lage));
+      this.mainLagenData.sort((a, b) => b.sessionCount - a.sessionCount || a.lage.localeCompare(b.lage));
 
       this.leikaChart.data = {
         labels: this.leikaData.map((x) => `${x.name} (${x.key})`),
@@ -619,6 +635,20 @@ export class ChatbotAuswertungenComponent implements OnInit {
       this.lagenChart.data = {
         labels: this.lagenData.map((x) => x.lage),
         datasets: [{ data: this.lagenData.map((x) => x.sessionCount), label: 'Anzahl Sessions' }],
+      };
+
+      const lagenCategoriesData = this.lagenData.reduce<{ [key: string]: number }>((acc, curr) => {
+        const mainLagenCode = curr.code.substring(0, 3) + '0000';
+        const mainLageEntry = allLagen.find((x) => x.code === mainLagenCode);
+        if (mainLageEntry) {
+          acc[mainLageEntry.description] = (acc[mainLageEntry.description] || 0) + curr.sessionCount;
+        }
+        return acc;
+      }, {});
+
+      this.lagenCategoriesChart.data = {
+        labels: Object.keys(lagenCategoriesData),
+        datasets: [{ data: Object.values(lagenCategoriesData), label: 'Anzahl Sessions' }],
       };
     });
   }
