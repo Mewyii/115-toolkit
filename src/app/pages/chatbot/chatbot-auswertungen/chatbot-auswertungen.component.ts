@@ -860,7 +860,8 @@ export class ChatbotAuswertungenComponent implements OnInit {
       datasets: [{ data: sourceCounts, label: 'Anzahl Sessions' }],
     };
 
-    const leistungsInfoSourceCounts = this.sources.filter((x) => x.id.includes(this.leistungsInfoBaseURL)).reduce((sum, entry) => sum + entry.sessionCount, 0);
+    const baseURLs = this.leistungsInfoBaseURL.split(';').map((x) => x.trim());
+    const leistungsInfoSourceCounts = this.sources.filter((x) => baseURLs.some((url) => x.id.includes(url))).reduce((sum, entry) => sum + entry.sessionCount, 0);
     const leistungsInfoSourceCountPercent = Math.round((leistungsInfoSourceCounts / sourceCountTotal) * 100);
     this.sourceOriginChart.data = {
       labels: ['115-Informationen (' + leistungsInfoSourceCountPercent + '%)', 'Website-Informationen (' + (100 - leistungsInfoSourceCountPercent) + '%)'],
