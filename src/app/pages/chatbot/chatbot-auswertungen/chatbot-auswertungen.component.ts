@@ -803,26 +803,33 @@ export class ChatbotAuswertungenComponent implements OnInit {
     this.sessionTimes = sessionTimes;
 
     // Fill gaps in daily sessions
-    if (dailySessions.length > 0) {
-      const sortedDailySessions = dailySessions.sort((a, b) => a.date.localeCompare(b.date));
-      const firstDate = new Date(sortedDailySessions[0].date + 'T00:00:00Z');
-      const lastDate = new Date(sortedDailySessions[sortedDailySessions.length - 1].date + 'T00:00:00Z');
-      const filledSessions: { date: string; count: number }[] = [];
-
-      const dayInMs = 24 * 60 * 60 * 1000;
-      for (let time = firstDate.getTime(); time <= lastDate.getTime(); time += dayInMs) {
-        const d = new Date(time);
-        const dateKey = d.toISOString().split('T')[0];
-        const existing = sortedDailySessions.find((x) => x.date === dateKey);
-        filledSessions.push({ date: dateKey, count: existing ? existing.count : 0 });
-      }
-
-      this.dailySessions = filledSessions;
-    } else {
-      this.dailySessions = dailySessions;
+    if (this.earliestDate && this.latestDate) {
+      this.dailySessions = this.fillDailySessionsGaps(dailySessions, this.earliestDate, this.latestDate);
     }
 
     this.updateChartData();
+  }
+
+  fillDailySessionsGaps(dailySessions: any[], startDate: Date, endDate: Date): any[] {
+    const sortedDailySessions = dailySessions.sort((a, b) => a.date.localeCompare(b.date));
+    const existingDates = new Set(sortedDailySessions.map((session) => session.date));
+
+    const getLocalDateString = (date: Date): string => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const currentDate = new Date(startDate);
+    for (; currentDate <= endDate; currentDate.setDate(currentDate.getDate() + 1)) {
+      const dateString = getLocalDateString(currentDate);
+      if (!existingDates.has(dateString)) {
+        sortedDailySessions.push({ date: dateString, sessionCount: 0 });
+      }
+    }
+
+    return sortedDailySessions.sort((a, b) => a.date.localeCompare(b.date));
   }
 
   updateChartData() {

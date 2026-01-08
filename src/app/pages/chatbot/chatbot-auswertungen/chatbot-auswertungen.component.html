@@ -1,16 +1,9 @@
 <div class="control-bar space-between">
   <div>
-    <input
-      #xlsFileIPicker
-      [hidden]="true"
-      [type]="'file'"
-      [accept]="'.csv'"
-      (change)="onStammdatenExcelFileSelected($event, 'new')"
-    />
     <button
       mat-raised-button
       color="primary"
-      (click)="xlsFileIPicker2.click()"
+      (click)="xlsFileIPicker.click()"
       [style]="'margin-right: 16px'"
     >
       <span class="text-with-loading-indicator"
@@ -25,13 +18,13 @@
       <mat-icon>upload</mat-icon>
     </button>
     <input
-      #xlsFileIPicker2
+      #xlsFileIPicker
       [hidden]="true"
       [type]="'file'"
       [accept]="'.csv'"
-      (change)="onStammdatenExcelFileSelected($event, 'add')"
+      (change)="onStammdatenExcelFileSelected($event, 'new')"
     />
-    <button mat-raised-button color="primary" (click)="xlsFileIPicker.click()">
+    <button mat-raised-button color="primary" (click)="xlsFileIPicker2.click()">
       <span class="text-with-loading-indicator"
         >Protokoll Hinzufügen
         <mat-progress-spinner
@@ -43,6 +36,13 @@
       </span>
       <mat-icon>add</mat-icon>
     </button>
+    <input
+      #xlsFileIPicker2
+      [hidden]="true"
+      [type]="'file'"
+      [accept]="'.csv'"
+      (change)="onStammdatenExcelFileSelected($event, 'add')"
+    />
   </div>
   <div>
     <button
