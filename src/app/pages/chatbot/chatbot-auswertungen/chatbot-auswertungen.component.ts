@@ -37,12 +37,14 @@ export interface ChatbotSessionInfo {
   isEnglish?: boolean;
   isFrench?: boolean;
   sources: Source[];
+  sourceCategory: 'leistung' | 'website' | 'beides' | 'keine';
   sessionLength: number;
 }
 
 interface Source {
   id: string;
   name: string;
+  category: 'leistung' | 'website';
   sessionCount: number;
   totalCount: number;
 }
@@ -247,6 +249,18 @@ export class ChatbotAuswertungenComponent implements OnInit {
     },
   };
 
+  websiteSourcesChart = {
+    type: 'doughnut' as any,
+    options: {
+      responsive: true,
+      scales: { x: {}, y: {} },
+    },
+    data: {
+      labels: ['-'],
+      datasets: [{ data: [0], label: 'Anzahl Sessions' }],
+    },
+  };
+
   lagenCategoriesChart = {
     type: 'doughnut' as any,
     options: {
@@ -333,9 +347,25 @@ export class ChatbotAuswertungenComponent implements OnInit {
           if (existingSource) {
             existingSource.totalCount++;
           } else {
-            entry.sources.push({ id: extractedSource.id, name: extractedSource.name, sessionCount: 1, totalCount: 1 });
+            const baseURLs = this.leistungsInfoBaseURL.split(';').map((x) => x.trim());
+            entry.sources.push({
+              id: extractedSource.id,
+              name: extractedSource.name,
+              sessionCount: 1,
+              totalCount: 1,
+              category: baseURLs.some((url) => extractedSource.id.includes(url)) ? 'leistung' : 'website',
+            });
           }
         }
+
+        entry.sourceCategory =
+          entry.sources.length === 0
+            ? 'keine'
+            : entry.sources.every((x) => x.category === 'leistung')
+            ? 'leistung'
+            : entry.sources.every((x) => x.category === 'website')
+            ? 'website'
+            : 'beides';
 
         entry.infos.push(chatbotInfo);
         if (!entry.isEmptySession) {
@@ -353,6 +383,7 @@ export class ChatbotAuswertungenComponent implements OnInit {
           infos: [chatbotInfo],
           isEmptySession: true,
           sources: [],
+          sourceCategory: 'keine',
           sessionLength: 0,
         };
         if (chatbotInfo.userFeedback === 'good') {
@@ -372,7 +403,8 @@ export class ChatbotAuswertungenComponent implements OnInit {
         }
 
         newEntry.sources = extractSources(answer).map((source) => {
-          return { id: source.id, name: source.name, sessionCount: 1, totalCount: 1 };
+          const baseURLs = this.leistungsInfoBaseURL.split(';').map((x) => x.trim());
+          return { id: source.id, name: source.name, sessionCount: 1, totalCount: 1, category: baseURLs.some((url) => source.id.includes(url)) ? 'leistung' : 'website' };
         });
 
         result.push(newEntry);
@@ -516,7 +548,7 @@ export class ChatbotAuswertungenComponent implements OnInit {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'Inhalte.csv';
+    a.download = 'Leistungsquellen.csv';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -557,6 +589,23 @@ export class ChatbotAuswertungenComponent implements OnInit {
     URL.revokeObjectURL(url);
   }
 
+  onDownloadWebsiteInfosAsCSVClicked() {
+    const header = ['ID', 'Name', 'SessionCount'];
+    const rows = this.sources.filter((x) => x.category === 'website').map((source) => [source.id, source.name, source.sessionCount]);
+
+    const csvContent = [header, ...rows].map((row) => row.map((field) => `${String(field).replace(/"/g, '').replace(',', ';')}`).join(',')).join('\r\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Webseitenquellen.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   onDownloadFilteredSessionsClicked() {
     const jsonContent = JSON.stringify(
       this.filteredChatbotSessions.map((x) => ({
@@ -586,7 +635,8 @@ export class ChatbotAuswertungenComponent implements OnInit {
 
   onLoadLeikasClicked() {
     combineLatest([this.leikasService.lagen$, this.leikasService.leikas$]).subscribe(([allLagen, leikas]) => {
-      const result = this.sources.map((source) => {
+      const leistungsSources = this.sources.filter((x) => x.category === 'leistung');
+      const result = leistungsSources.map((source) => {
         const leika = leikas.find((leika) => source.id.includes(leika.key.toString()));
         return leika ? { ...leika, sessionCount: source.sessionCount } : undefined;
       });
@@ -805,7 +855,14 @@ export class ChatbotAuswertungenComponent implements OnInit {
           existingSource.sessionCount++;
           existingSource.totalCount += source.totalCount;
         } else {
-          sources.push({ id: source.id, name: source.name, sessionCount: source.sessionCount, totalCount: source.totalCount });
+          const baseURLs = this.leistungsInfoBaseURL.split(';').map((x) => x.trim());
+          sources.push({
+            id: source.id,
+            name: source.name,
+            sessionCount: source.sessionCount,
+            totalCount: source.totalCount,
+            category: baseURLs.some((url) => source.id.includes(url)) ? 'leistung' : 'website',
+          });
         }
       }
 
@@ -882,7 +939,6 @@ export class ChatbotAuswertungenComponent implements OnInit {
       datasets: [{ data: [this.germanSessionsCount, this.englishSessionsCount, this.frenchSessionsCount], label: 'Anzahl Sessions' }],
     };
 
-    const sourceCountTotal = this.sources.reduce((sum, entry) => sum + entry.sessionCount, 0);
     const sourceLabels = this.sources.map((x) => x.name);
     const sourceCounts = this.sources.map((x) => x.sessionCount);
     this.contentChart.data = {
@@ -890,12 +946,19 @@ export class ChatbotAuswertungenComponent implements OnInit {
       datasets: [{ data: sourceCounts, label: 'Anzahl Sessions' }],
     };
 
-    const baseURLs = this.leistungsInfoBaseURL.split(';').map((x) => x.trim());
-    const leistungsInfoSourceCounts = this.sources.filter((x) => baseURLs.some((url) => x.id.includes(url))).reduce((sum, entry) => sum + entry.sessionCount, 0);
-    const leistungsInfoSourceCountPercent = Math.round((leistungsInfoSourceCounts / sourceCountTotal) * 100);
+    const leistungsInfoSourceCounts = this.filteredChatbotSessions.filter((x) => x.sourceCategory === 'leistung').length;
+    const websiteInfoSourceCounts = this.filteredChatbotSessions.filter((x) => x.sourceCategory === 'website').length;
+    const bothSourceCounts = this.filteredChatbotSessions.filter((x) => x.sourceCategory === 'beides').length;
+    const noSourceCounts = this.filteredChatbotSessions.filter((x) => x.sourceCategory === 'keine').length;
+
     this.sourceOriginChart.data = {
-      labels: ['115-Informationen (' + leistungsInfoSourceCountPercent + '%)', 'Website-Informationen (' + (100 - leistungsInfoSourceCountPercent) + '%)'],
-      datasets: [{ data: [leistungsInfoSourceCounts, sourceCountTotal - leistungsInfoSourceCounts], label: 'Anzahl Sessions' }],
+      labels: ['Leistungs-Informationen', 'Website-Informationen', 'Beides', 'Keine Quellen'],
+      datasets: [{ data: [leistungsInfoSourceCounts, websiteInfoSourceCounts, bothSourceCounts, noSourceCounts], label: 'Anzahl Sessions' }],
+    };
+
+    this.websiteSourcesChart.data = {
+      labels: this.sources.filter((x) => x.category === 'website').map((x) => x.name),
+      datasets: [{ data: this.sources.filter((x) => x.category === 'website').map((x) => x.sessionCount), label: 'Anzahl Sessions' }],
     };
 
     this.lengthChart.data = {

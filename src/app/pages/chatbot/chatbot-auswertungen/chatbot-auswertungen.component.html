@@ -324,7 +324,7 @@
     </div>
     <div style="margin-top: 32px">
       <h3 style="text-align: center">
-        Erzeugte KI-Ausgaben pro Session @if (aiResponsesAverage) {(Ø{{
+        Bot-Antworten pro Session @if (aiResponsesAverage) {(Ø{{
           aiResponsesAverage
         }})}
       </h3>
@@ -337,7 +337,7 @@
       </canvas>
     </div>
     <div style="margin-top: 32px">
-      <h3 style="text-align: center">Inhalte</h3>
+      <h3 style="text-align: center">Verwendete Quellen</h3>
       <canvas
         baseChart
         [data]="sourceOriginChart.data"
@@ -346,6 +346,7 @@
       </canvas>
     </div>
     <div style="margin-top: 64px; margin-bottom: 128px">
+      <h3 style="text-align: center">Leistungs-Informationen</h3>
       <canvas baseChart [data]="contentChart.data" [type]="contentChart.type">
       </canvas>
       <div style="margin-top: 16px; text-align: center">
@@ -402,6 +403,27 @@
           mat-flat-button
           color="primary"
           (click)="onDownloadLagenAsCSVClicked()"
+        >
+          Download
+          <mat-icon>arrow_downward</mat-icon>
+        </button>
+      </div>
+    </div>
+    <div style="margin-top: 32px; margin-bottom: 128px">
+      <h3 style="margin-top: 64px; text-align: center">
+        Website-Informationen
+      </h3>
+      <canvas
+        baseChart
+        [data]="websiteSourcesChart.data"
+        [type]="websiteSourcesChart.type"
+      >
+      </canvas>
+      <div style="margin-top: 16px; text-align: center">
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="onDownloadWebsiteInfosAsCSVClicked()"
         >
           Download
           <mat-icon>arrow_downward</mat-icon>
