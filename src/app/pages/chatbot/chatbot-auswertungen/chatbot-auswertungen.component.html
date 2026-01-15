@@ -121,11 +121,18 @@
       }
     </select>
   </mat-form-field>
-  <mat-checkbox
-    [(ngModel)]="showOnlySessionsWithFeedback"
-    (change)="filterSessions()"
-    >Nur mit Feedback</mat-checkbox
-  >
+  <mat-form-field [subscriptSizing]="'dynamic'">
+    <mat-label>Feedback</mat-label>
+    <select
+      matNativeControl
+      [value]="feedbackFilter"
+      (change)="onSessionFeedbackFilterChanged($event)"
+    >
+      @for (item of feedbackOptions; track $index) {
+      <option [value]="item.value">{{ item.label }}</option>
+      }
+    </select>
+  </mat-form-field>
 </div>
 
 <div class="control-bar">

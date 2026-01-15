@@ -87,7 +87,7 @@ export class ChatbotAuswertungenComponent implements OnInit {
     { name: 'Englisch', count: 0 },
     { name: 'Französisch', count: 0 },
   ];
-  public sessionLengthFilter: number | '' | '>5' = '';
+  public sessionLengthFilter: number | '' | '>9' = '';
   public sessionLengths: { name: string; count: number }[] = [
     { name: '0', count: 0 },
     { name: '1', count: 0 },
@@ -95,7 +95,11 @@ export class ChatbotAuswertungenComponent implements OnInit {
     { name: '3', count: 0 },
     { name: '4', count: 0 },
     { name: '5', count: 0 },
-    { name: '>5', count: 0 },
+    { name: '6', count: 0 },
+    { name: '7', count: 0 },
+    { name: '8', count: 0 },
+    { name: '9', count: 0 },
+    { name: '>9', count: 0 },
   ];
   public sessionSourceFilter = '';
   public sessionSources: { name: string; count: number }[] = [];
@@ -135,7 +139,14 @@ export class ChatbotAuswertungenComponent implements OnInit {
   private inputChangeSubject = new BehaviorSubject<string>('');
   public inputChange$ = this.inputChangeSubject.asObservable();
 
-  public showOnlySessionsWithFeedback = false;
+  public feedbackOptions: { value: 'off' | 'feedback' | 'positive' | 'negative' | 'text'; label: string }[] = [
+    { value: 'off', label: 'Alles' },
+    { value: 'feedback', label: 'Mit Feedback' },
+    { value: 'positive', label: 'Nur positives Feedback' },
+    { value: 'negative', label: 'Nur negatives Feedback' },
+    { value: 'text', label: 'Nur Text-Feedback' },
+  ];
+  public feedbackFilter: 'off' | 'feedback' | 'positive' | 'negative' | 'text' = 'off';
 
   // Analytics
   sourceRegexp = /<small>\s*Quelle\(n\):\s*<a[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>\s*<\/small>/is;
@@ -455,13 +466,13 @@ export class ChatbotAuswertungenComponent implements OnInit {
           languageEntry.count++;
         }
       }
-      if (x.sessionLength < 6) {
+      if (x.sessionLength < 10) {
         const lengthEntry = this.sessionLengths.find((len) => len.name === x.sessionLength.toString());
         if (lengthEntry) {
           lengthEntry.count++;
         }
       } else {
-        const lengthEntry = this.sessionLengths.find((len) => len.name === '>5');
+        const lengthEntry = this.sessionLengths.find((len) => len.name === '>9');
         if (lengthEntry) {
           lengthEntry.count++;
         }
@@ -518,11 +529,17 @@ export class ChatbotAuswertungenComponent implements OnInit {
     const pickedLength = event.target.value;
     if (pickedLength === '') {
       this.sessionLengthFilter = '';
-    } else if (pickedLength === '>5') {
-      this.sessionLengthFilter = '>5';
+    } else if (pickedLength === '>9') {
+      this.sessionLengthFilter = '>9';
     } else {
       this.sessionLengthFilter = parseInt(pickedLength, 10);
     }
+    this.filterSessions();
+  }
+
+  onSessionFeedbackFilterChanged(event: any) {
+    const pickedFeedback = event.target.value;
+    this.feedbackFilter = pickedFeedback;
     this.filterSessions();
   }
 
@@ -710,8 +727,8 @@ export class ChatbotAuswertungenComponent implements OnInit {
         result = x.date.getDate() === this.dateFilter.getDate();
       }
       if (this.sessionLengthFilter && result === true) {
-        if (this.sessionLengthFilter === '>5') {
-          result = x.sessionLength > 5;
+        if (this.sessionLengthFilter === '>9') {
+          result = x.sessionLength > 9;
         } else {
           result = x.sessionLength === this.sessionLengthFilter;
         }
@@ -725,8 +742,16 @@ export class ChatbotAuswertungenComponent implements OnInit {
           result = x.isFrench === true;
         }
       }
-      if (this.showOnlySessionsWithFeedback && result === true) {
-        result = x.infos.some((x) => x.userFeedback);
+      if (this.feedbackFilter !== 'off' && result === true) {
+        if (this.feedbackFilter === 'feedback') {
+          result = x.infos.some((x) => x.userFeedback);
+        } else if (this.feedbackFilter === 'positive') {
+          result = x.infos.some((x) => x.userFeedback === 'good');
+        } else if (this.feedbackFilter === 'negative') {
+          result = x.infos.some((x) => x.userFeedback === 'bad');
+        } else if (this.feedbackFilter === 'text') {
+          result = x.infos.some((x) => x.userFeedbackText && x.userFeedbackText.length > 0);
+        }
       }
       if (this.sessionSourceFilter && result === true) {
         if (this.sessionSourceFilter === 'Keine') {
@@ -744,8 +769,8 @@ export class ChatbotAuswertungenComponent implements OnInit {
         result = x.date.getDate() === this.dateFilter.getDate();
       }
       if (this.sessionLengthFilter && result === true) {
-        if (this.sessionLengthFilter === '>5') {
-          result = x.sessionLength > 5;
+        if (this.sessionLengthFilter === '>9') {
+          result = x.sessionLength > 9;
         } else {
           result = x.sessionLength === this.sessionLengthFilter;
         }
@@ -759,8 +784,16 @@ export class ChatbotAuswertungenComponent implements OnInit {
           result = x.isFrench === true;
         }
       }
-      if (this.showOnlySessionsWithFeedback && result === true) {
-        result = x.infos.some((x) => x.userFeedback);
+      if (this.feedbackFilter !== 'off' && result === true) {
+        if (this.feedbackFilter === 'feedback') {
+          result = x.infos.some((x) => x.userFeedback);
+        } else if (this.feedbackFilter === 'positive') {
+          result = x.infos.some((x) => x.userFeedback === 'good');
+        } else if (this.feedbackFilter === 'negative') {
+          result = x.infos.some((x) => x.userFeedback === 'bad');
+        } else if (this.feedbackFilter === 'text') {
+          result = x.infos.some((x) => x.userFeedbackText && x.userFeedbackText.length > 0);
+        }
       }
       if (this.sessionSourceFilter && result === true) {
         if (this.sessionSourceFilter === 'Keine') {
