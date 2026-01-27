@@ -96,10 +96,10 @@ interface FeedbackDebugInfos {
   botAntwort: string;
 }
 @Component({
-    selector: 'app-ki-bot',
-    templateUrl: './ki-bot.component.html',
-    styleUrls: ['./ki-bot.component.scss'],
-    standalone: false
+  selector: 'app-ki-bot',
+  templateUrl: './ki-bot.component.html',
+  styleUrls: ['./ki-bot.component.scss'],
+  standalone: false,
 })
 export class ZukunftstechnologieBotComponent implements OnInit {
   @ViewChild('messageHistory') private messageHistoryElement!: ElementRef<HTMLElement>;
@@ -282,6 +282,22 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
       url: 'https://flowise.test.115.de/api/v1/prediction/72b0cd35-6093-479a-b944-72e5c2390e10',
     } as ChatbotTeilnehmer,
+    {
+      id: 23,
+      versionNumber: '0.5',
+      name: 'Hamburg',
+      type: 'stadt',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
+      url: 'https://flowise.test.115.de/api/v1/prediction/3c1fed1d-ec83-4984-8bf3-4f99f0ed5380',
+    } as ChatbotTeilnehmer,
+    {
+      id: 24,
+      versionNumber: '0.5',
+      name: 'Stuttgart',
+      type: 'stadt',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
+      url: 'https://flowise.test.115.de/api/v1/prediction/7ea93200-477a-4a48-b8b4-a247cce99421',
+    } as ChatbotTeilnehmer,
   ].sort((a, b) => a.name.localeCompare(b.name));
 
   public selectedVersion: ChatbotTeilnehmer | undefined = this.teilnehmer[0];
@@ -313,7 +329,11 @@ export class ZukunftstechnologieBotComponent implements OnInit {
 
   public sessionID: string | undefined = undefined;
 
-  constructor(private httpClient: HttpClient, private mediaRecorderService: MediaRecorderService, public sanitizer: DomSanitizer) {}
+  constructor(
+    private httpClient: HttpClient,
+    private mediaRecorderService: MediaRecorderService,
+    public sanitizer: DomSanitizer,
+  ) {}
 
   ngOnInit(): void {
     this.mediaRecorderService.audioFile$.subscribe((file) => {
@@ -325,7 +345,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
 
   ngAfterViewInit() {
     this.messageElements.changes.subscribe(() =>
-      this.messageHistoryElement.nativeElement.scrollTo({ top: this.messageHistoryElement.nativeElement.scrollHeight, behavior: 'smooth' })
+      this.messageHistoryElement.nativeElement.scrollTo({ top: this.messageHistoryElement.nativeElement.scrollHeight, behavior: 'smooth' }),
     );
   }
 
@@ -405,7 +425,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
         this.debugInfos.anliegenKontext +
         '\n\nAufgetretene Fehler: ' +
         this.apiError +
-        '\n\n'
+        '\n\n',
     );
 
     const email = this.selectedVersion?.kontakt;
