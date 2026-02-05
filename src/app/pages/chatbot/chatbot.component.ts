@@ -3,16 +3,19 @@ import { MatTabChangeEvent } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
-    selector: 'app-chatbot',
-    templateUrl: './chatbot.component.html',
-    styleUrl: './chatbot.component.scss',
-    standalone: false
+  selector: 'app-chatbot',
+  templateUrl: './chatbot.component.html',
+  styleUrl: './chatbot.component.scss',
+  standalone: false,
 })
 export class ChatbotComponent {
   selectedIndex = 0;
   tabLabels = ['ki-chatbot', 'auswertungen'];
 
-  constructor(private router: Router, private route: ActivatedRoute) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+  ) {}
 
   ngOnInit(): void {
     this.route.queryParamMap.subscribe((params) => {
