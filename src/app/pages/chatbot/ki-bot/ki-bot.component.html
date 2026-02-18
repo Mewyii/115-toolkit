@@ -16,9 +16,9 @@
       (change)="onTeilnehmerChange($event)"
     >
       @for (version of teilnehmer; track $index) {
-      <option [value]="version.id">
-        {{ version.name }} ({{ version.versionNumber }})
-      </option>
+        <option [value]="version.id">
+          {{ version.name }} ({{ version.versionNumber }})
+        </option>
       }
     </select>
   </mat-form-field>
@@ -145,6 +145,8 @@
     </button>
   </div>
 </div>
+<br />
+<div class="debug-container" *ngIf="showDebug">Session-ID: {{ sessionID }}</div>
 <br />
 <div class="debug-container" *ngIf="showDebug">
   Bereinigstes Anliegen: {{ debugInfos.bereinigtesAnliegen }}
