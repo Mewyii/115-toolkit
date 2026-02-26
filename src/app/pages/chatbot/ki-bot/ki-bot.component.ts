@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { cloneDeep } from 'lodash';
-import { MediaRecorderService } from 'src/app/services/media-recorder.service';
 
 export type LanguageType = 'en' | 'de' | 'de(einfach)' | 'fr';
 export type ChatbotDialogType = 'system_greeting' | 'find_leistung' | 'keine_leistung_gefunden' | '"question_answering"';
@@ -57,29 +56,6 @@ type FlowiseHistory = {
   role: 'apiMessage' | 'userMessage';
   content: string;
 };
-
-export interface SpeechToTextAPIPostResponse {
-  average_duration: number;
-  data: string[];
-  duration: number;
-  is_generating: boolean;
-  error?: any;
-}
-
-export interface TextToSpeechAPIPostResponse {
-  average_duration: number;
-  data: TextToSpeechData[];
-  duration: number;
-  is_generating: boolean;
-  error?: any;
-}
-
-export interface TextToSpeechData {
-  data: any;
-  is_file: boolean;
-  name: string;
-  orig_name: string;
-}
 
 interface ChatbotTeilnehmer {
   id: number;
@@ -314,6 +290,30 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
       url: 'https://flowise.test.115.de/api/v1/prediction/bf2e9bfd-d4ad-4928-87ef-c1c1f3b8969b',
     } as ChatbotTeilnehmer,
+    {
+      id: 27,
+      versionNumber: '0.8',
+      name: 'Eutin',
+      type: 'stadt',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
+      url: 'https://flowise.test.115.de/api/v1/prediction/34ecf714-cb6b-4f54-a61b-720d27823ad2',
+    } as ChatbotTeilnehmer,
+    {
+      id: 28,
+      versionNumber: '0.8',
+      name: 'Wedel',
+      type: 'stadt',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
+      url: 'https://flowise.test.115.de/api/v1/prediction/21741939-b3ba-4d07-8969-737395161c7c',
+    } as ChatbotTeilnehmer,
+    {
+      id: 29,
+      versionNumber: '0.8',
+      name: 'Bad Oldesloe',
+      type: 'stadt',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
+      url: 'https://flowise.test.115.de/api/v1/prediction/4981069a-e5b4-46d3-ad0e-05bd66112a11',
+    } as ChatbotTeilnehmer,
   ].sort((a, b) => a.name.localeCompare(b.name));
 
   public selectedVersion: ChatbotTeilnehmer | undefined = this.teilnehmer[0];
@@ -347,15 +347,10 @@ export class ZukunftstechnologieBotComponent implements OnInit {
 
   constructor(
     private httpClient: HttpClient,
-    private mediaRecorderService: MediaRecorderService,
     public sanitizer: DomSanitizer,
   ) {}
 
   ngOnInit(): void {
-    this.mediaRecorderService.audioFile$.subscribe((file) => {
-      this.onAudioFileGenerated(file);
-    });
-
     this.pingFlowiseAPI();
   }
 
@@ -403,20 +398,6 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     this.showDebug = !this.showDebug;
   }
 
-  onPlayTextToSpeechClicked() {
-    this.playTextToSpeech = !this.playTextToSpeech;
-  }
-
-  onRecordAudioClicked() {
-    if (!this.isRecordingAudio) {
-      this.isRecordingAudio = true;
-      this.mediaRecorderService.startRecording();
-    } else {
-      this.isRecordingAudio = false;
-      this.mediaRecorderService.stopRecording();
-    }
-  }
-
   onRemoveLeistungClicked() {
     this.leistung = undefined;
     this.chatbotSession.messages.push({ user_message: 'Anliegen zu anderer Leistung', system_response: 'Gern! Bitte geben Sie Ihr neues Anliegen ein!' });
@@ -448,30 +429,6 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
   }
 
-  private async onAudioFileGenerated(blob: Blob) {
-    if (!this.selectedVersion) {
-      return;
-    }
-
-    const base64StringFromMp3 = await readBlob(blob);
-    if (base64StringFromMp3 && typeof base64StringFromMp3 === 'string') {
-      this.awaitingAPIResponse = true;
-
-      this.fetchSpeechToTextResponse(base64StringFromMp3.split(',')[1]).subscribe((response) => {
-        const text = response.data[0];
-        if (text && this.selectedVersion) {
-          this.userInput = text;
-          this.queryFlowise(this.selectedVersion.url, { question: text, history: this.getFlowiseHistory() }).then((response) => {
-            this.awaitingAPIResponse = false;
-            if (response) {
-              this.updateChatbotFromAPIResponse(response);
-            }
-          });
-        }
-      });
-    }
-  }
-
   onRefreshClicked() {
     this.chatbotSession = this.getUserGreeting();
     this.oldSessions = [];
@@ -493,39 +450,6 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       this.debugInfos.bereinigtesAnliegen = lastEntry.data.state.anliegen;
       this.debugInfos.anliegenKontext = lastEntry.data.state.anliegenKontext;
     }
-
-    if (this.playTextToSpeech) {
-      const chatbotResponseText = response.text;
-      if (chatbotResponseText) {
-        this.fetchTextToSpeechResponse(chatbotResponseText).subscribe((response) => {
-          if (!response.error) {
-            let audio = new Audio();
-            audio.src = 'https://dfki-3109.dfki.de/tts/file=' + response.data[0].name;
-            audio.load();
-            audio.play();
-          }
-        });
-      }
-    }
-  }
-
-  private fetchSpeechToTextResponse(base64String: string) {
-    return this.httpClient.post<SpeechToTextAPIPostResponse>('https://dfki-3109.dfki.de/asr/run/predict', {
-      fn_index: 3,
-      data: [
-        this.language,
-        {
-          data: 'data:audio/wav;base64,' + base64String,
-          name: 'sample_audio.mp3',
-        },
-      ],
-    });
-  }
-
-  private fetchTextToSpeechResponse(text: string) {
-    return this.httpClient.post<TextToSpeechAPIPostResponse>('https://dfki-3109.dfki.de/tts/run/predict', {
-      data: [this.language, text],
-    });
   }
 
   private getFlowiseHistory(): FlowiseHistory[] {

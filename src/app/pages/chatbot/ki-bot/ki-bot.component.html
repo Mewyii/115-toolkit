@@ -29,14 +29,6 @@
       <button mat-icon-button (click)="onShowDebugClicked()">
         <mat-icon>more_vert</mat-icon>
       </button>
-      <button
-        mat-icon-button
-        (click)="onPlayTextToSpeechClicked()"
-        [matTooltip]="'Audio-Ausgabe An-/Auschalten'"
-      >
-        <mat-icon *ngIf="playTextToSpeech">volume_up</mat-icon>
-        <mat-icon *ngIf="!playTextToSpeech">volume_off</mat-icon>
-      </button>
     </div>
     <div>115-Chatbot {{ selectedVersion?.name }}</div>
     <div class="header-container-right">
@@ -119,15 +111,6 @@
         [disabled]="awaitingAPIResponse || isRecordingAudio"
       />
     </mat-form-field>
-    <button
-      mat-mini-fab
-      [color]="!isRecordingAudio ? 'primary' : 'accent'"
-      (click)="onRecordAudioClicked()"
-      [disabled]="awaitingAPIResponse"
-      [matTooltip]="'Sprachnachricht aufnehmen'"
-    >
-      <mat-icon>mic</mat-icon>
-    </button>
     <button
       mat-raised-button
       class="send-user-input-button"
