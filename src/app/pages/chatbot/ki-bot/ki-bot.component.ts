@@ -314,6 +314,14 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
       url: 'https://flowise.test.115.de/api/v1/prediction/4981069a-e5b4-46d3-ad0e-05bd66112a11',
     } as ChatbotTeilnehmer,
+    {
+      id: 30,
+      versionNumber: '0.5',
+      name: 'Wesel',
+      type: 'kreis',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
+      url: 'https://flowise.test.115.de/api/v1/prediction/1eb39c15-9111-4089-bc15-a192823b9c4a',
+    } as ChatbotTeilnehmer,
   ].sort((a, b) => a.name.localeCompare(b.name));
 
   public selectedVersion: ChatbotTeilnehmer | undefined = this.teilnehmer[0];
