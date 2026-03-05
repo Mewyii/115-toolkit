@@ -84,7 +84,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   public teilnehmer: ChatbotTeilnehmer[] = [
     {
       id: 1,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Frankfurt',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;anna.ahlbrandt@stadt-frankfurt.de',
@@ -92,7 +92,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 2,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Aachen',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Thomas.Bruesseler@mail.aachen.de',
@@ -100,7 +100,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 3,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Berlin',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;mario.anton@senatskanzlei.berlin.de',
@@ -108,7 +108,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 4,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Bielefeld',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
@@ -116,7 +116,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 5,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Essen',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;33-3-it@einwohneramt.essen.de',
@@ -124,7 +124,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 6,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Grünheide',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
@@ -132,7 +132,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 7,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Magdeburg',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
@@ -140,7 +140,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 8,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Kassel',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
@@ -148,7 +148,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 9,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Königstein',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
@@ -156,7 +156,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 10,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Potsdam',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
@@ -164,7 +164,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 11,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Bernau',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
@@ -172,7 +172,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 12,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Schönefeld',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
@@ -180,7 +180,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 13,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Dahme Spreewald',
       type: 'kreis',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
@@ -196,7 +196,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 15,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Karlsruhe',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com',
@@ -204,7 +204,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 16,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Burg (Spreewald)',
       type: 'gemeinde',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;Behoerdennummer115@MDJD.Brandenburg.de',
@@ -220,7 +220,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 18,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Erfurt',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
@@ -228,7 +228,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 19,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Oebisfelde-Weferlingen',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
@@ -236,7 +236,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 20,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Chemnitz',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
@@ -260,7 +260,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 23,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Hamburg',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
@@ -268,23 +268,15 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 24,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Stuttgart',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
       url: 'https://flowise.test.115.de/api/v1/prediction/7ea93200-477a-4a48-b8b4-a247cce99421',
     } as ChatbotTeilnehmer,
     {
-      id: 25,
-      versionNumber: '0.8',
-      name: 'Frankfurt',
-      type: 'stadt',
-      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
-      url: 'https://flowise.test.115.de/api/v1/prediction/538818d5-8b4e-4d90-888c-609c110024cc',
-    } as ChatbotTeilnehmer,
-    {
       id: 26,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Ludwigshafen',
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
@@ -316,7 +308,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 30,
-      versionNumber: '0.5',
+      versionNumber: '0.8',
       name: 'Wesel',
       type: 'kreis',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
