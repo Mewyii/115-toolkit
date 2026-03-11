@@ -188,7 +188,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     } as ChatbotTeilnehmer,
     {
       id: 14,
-      versionNumber: 'K 0.2',
+      versionNumber: 'K 0.4',
       name: 'Harburg',
       type: 'kreis',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;h.huch@lkharburg.de',
@@ -321,6 +321,14 @@ export class ZukunftstechnologieBotComponent implements OnInit {
       type: 'stadt',
       kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
       url: 'https://flowise.test.115.de/api/v1/prediction/125f4c77-b4b3-43f0-957f-e228b91c90e8',
+    } as ChatbotTeilnehmer,
+    {
+      id: 32,
+      versionNumber: 'K 0.4',
+      name: 'Main-Taunus',
+      type: 'kreis',
+      kontakt: 'sebastian.quendt@fitko.de;henry.michel@usu.com;',
+      url: 'https://flowise.test.115.de/api/v1/prediction/e9e67163-434a-473f-9432-2896996799af',
     } as ChatbotTeilnehmer,
   ].sort((a, b) => a.name.localeCompare(b.name));
 
