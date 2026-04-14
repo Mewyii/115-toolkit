@@ -98,6 +98,10 @@ export const kiBots: ChatbotTeilnehmer[] = [
     name: 'Erfurt',
   },
   {
+    id: '34ecf714-cb6b-4f54-a61b-720d27823ad2',
+    name: 'Eutin',
+  },
+  {
     id: '4cd56fe2-8079-41ee-8b80-c0bd6df81d9f',
     name: 'Falkensee',
   },
@@ -140,6 +144,10 @@ export const kiBots: ChatbotTeilnehmer[] = [
   {
     id: '7ea93200-477a-4a48-b8b4-a247cce99421',
     name: 'Stuttgart',
+  },
+  {
+    id: '351e4e69-9e4b-4690-9d3a-bc00638a7079',
+    name: 'Viersen',
   },
   {
     id: '21741939-b3ba-4d07-8969-737395161c7c',
