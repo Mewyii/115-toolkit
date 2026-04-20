@@ -153,4 +153,8 @@ export const kiBots: ChatbotTeilnehmer[] = [
     id: '21741939-b3ba-4d07-8969-737395161c7c',
     name: 'Wedel',
   },
+  {
+    id: 'a7e93901-d8cc-42c9-9e99-bfe90d45b483',
+    name: 'Zoll',
+  },
 ];
