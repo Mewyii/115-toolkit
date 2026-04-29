@@ -251,7 +251,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...data,
+          question: data.question,
           overrideConfig: {
             vars: { language: getLanguageFromKey(this.language), history: JSON.stringify(this.getFlowiseContext()) },
           },
