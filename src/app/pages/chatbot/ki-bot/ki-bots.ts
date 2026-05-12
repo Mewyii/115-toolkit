@@ -154,6 +154,10 @@ export const kiBots: ChatbotTeilnehmer[] = [
     name: 'Wedel',
   },
   {
+    id: '3b6ed577-945d-44b0-aa98-4a369ac1bced',
+    name: 'Schlewig-Holstein',
+  },
+  {
     id: 'a7e93901-d8cc-42c9-9e99-bfe90d45b483',
     name: 'Zoll',
   },

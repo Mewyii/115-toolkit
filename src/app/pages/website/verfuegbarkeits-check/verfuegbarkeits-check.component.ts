@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, debounceTime } from 'rxjs';
-import { ConverterService, SheetDataMapping, VerteilerService, XLSService } from 'src/app/services';
+import { ConverterService, SheetDataMapping, XLSService } from 'src/app/services';
 
 export type TeilnehmerStatus = 'Kein 115-Teilnehmer' | 'Basisabdeckung' | '115-Teilnehmer';
 export interface VerfuegbarkeitsInfos {
@@ -19,10 +19,10 @@ export interface VerfuegbarkeitsInfosEnhanced extends VerfuegbarkeitsInfos {
 }
 
 @Component({
-    selector: 'app-verfuegbarkeits-check',
-    templateUrl: './verfuegbarkeits-check.component.html',
-    styleUrls: ['./verfuegbarkeits-check.component.scss'],
-    standalone: false
+  selector: 'app-verfuegbarkeits-check',
+  templateUrl: './verfuegbarkeits-check.component.html',
+  styleUrls: ['./verfuegbarkeits-check.component.scss'],
+  standalone: false,
 })
 export class VerfuegbarkeitsCheckComponent implements OnInit {
   public verfuegbarkeitsInfosInitial: VerfuegbarkeitsInfosEnhanced[] = [];
@@ -54,7 +54,10 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
   private inputChangeSubject = new BehaviorSubject<string>('');
   public inputChange$ = this.inputChangeSubject.asObservable();
 
-  constructor(public xlsService: XLSService, public converterService: ConverterService) {}
+  constructor(
+    public xlsService: XLSService,
+    public converterService: ConverterService,
+  ) {}
 
   ngOnInit(): void {
     this.inputChange$.pipe(debounceTime(750)).subscribe((x) => {
@@ -81,7 +84,7 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
       .map((item) => ({ ...item, Name: this.extractNameOnly(item) }));
 
     const kommunaleVerfuegbarkeitsInfos = this.verfuegbarkeitsInfosInitial.filter(
-      (x) => x.Teilnehmernummer && (x.Teilnehmernummer.startsWith('K') || x.Teilnehmernummer.startsWith('S'))
+      (x) => x.Teilnehmernummer && (x.Teilnehmernummer.startsWith('K') || x.Teilnehmernummer.startsWith('S')),
     );
 
     const kommunaleVerfuegbarkeitsInfosRenamed = this.renameDuplicatesIfPossible(kommunaleVerfuegbarkeitsInfos);
@@ -181,9 +184,7 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
 
   private adjustStatusOfBayernAndBrandenburgAndHannover(verfuegbarkeitsInfos: VerfuegbarkeitsInfosEnhanced[]): VerfuegbarkeitsInfosEnhanced[] {
     return verfuegbarkeitsInfos.map((x) => {
-      if (x.Bundesland === 'Bayern' && x.Status === 'Basisabdeckung') {
-        return { ...x, Status: 'Kein 115-Teilnehmer' };
-      } else if (x.Teilnehmernummer === 'K102825') {
+      if (x.Teilnehmernummer === 'K102825') {
         return { ...x, Status: 'Basisabdeckung' };
       } else {
         return x;
