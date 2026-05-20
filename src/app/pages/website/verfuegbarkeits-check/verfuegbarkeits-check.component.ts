@@ -95,7 +95,7 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
 
     const kommunaleVerfuegbarkeitsInfosAnnotated = this.annotateInfosWithRegionalAttributes(kommunaleVerfuegbarkeitsInfosFiltered);
 
-    this.verfuegbarkeitsInfos = this.adjustStatusOfBayernAndBrandenburgAndHannover(kommunaleVerfuegbarkeitsInfosAnnotated);
+    this.verfuegbarkeitsInfos = this.adjustStatusOfHannover(kommunaleVerfuegbarkeitsInfosAnnotated);
 
     this.verfugbarkeitsInfosAreLoading = false;
 
@@ -182,7 +182,7 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
     });
   }
 
-  private adjustStatusOfBayernAndBrandenburgAndHannover(verfuegbarkeitsInfos: VerfuegbarkeitsInfosEnhanced[]): VerfuegbarkeitsInfosEnhanced[] {
+  private adjustStatusOfHannover(verfuegbarkeitsInfos: VerfuegbarkeitsInfosEnhanced[]): VerfuegbarkeitsInfosEnhanced[] {
     return verfuegbarkeitsInfos.map((x) => {
       if (x.Teilnehmernummer === 'K102825') {
         return { ...x, Status: 'Basisabdeckung' };
