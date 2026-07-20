@@ -59,11 +59,11 @@ type FlowiseHistory = {
 type ModeTypes = 'chat' | 'mailgenerator';
 
 @Component({
-    selector: 'app-pm-assistant',
-    templateUrl: './pm-assistant.component.html',
-    styleUrl: './pm-assistant.component.scss',
-    providers: [{ provide: MAT_CHECKBOX_DEFAULT_OPTIONS, useValue: { clickAction: 'noop' } as MatCheckboxDefaultOptions }],
-    standalone: false
+  selector: 'app-pm-assistant',
+  templateUrl: './pm-assistant.component.html',
+  styleUrl: './pm-assistant.component.scss',
+  providers: [{ provide: MAT_CHECKBOX_DEFAULT_OPTIONS, useValue: { clickAction: 'noop' } as MatCheckboxDefaultOptions }],
+  standalone: false,
 })
 export class PmAssistantComponent implements OnInit {
   @ViewChild('messageHistory') private messageHistoryElement!: ElementRef<HTMLElement>;
@@ -87,7 +87,10 @@ export class PmAssistantComponent implements OnInit {
 
   public mode: ModeTypes = 'chat';
 
-  constructor(private httpClient: HttpClient, public sanitizer: DomSanitizer) {}
+  constructor(
+    private httpClient: HttpClient,
+    public sanitizer: DomSanitizer,
+  ) {}
 
   ngOnInit(): void {
     this.pingFlowiseAPI();
@@ -95,16 +98,15 @@ export class PmAssistantComponent implements OnInit {
 
   ngAfterViewInit() {
     this.messageElements.changes.subscribe(() =>
-      this.messageHistoryElement.nativeElement.scrollTo({ top: this.messageHistoryElement.nativeElement.scrollHeight, behavior: 'smooth' })
+      this.messageHistoryElement.nativeElement.scrollTo({ top: this.messageHistoryElement.nativeElement.scrollHeight, behavior: 'smooth' }),
     );
   }
 
   async onMessageSendClicked() {
     this.awaitingAPIResponse = true;
     this.showWorkingState(0);
-    const response = await this.queryFlowise('https://flowise.test.115.de/api/v1/prediction/31629f13-dc8a-4ebf-8afe-ebe66382a466', {
+    const response = await this.queryFlowise('https://flowise.test.115.de/api/v1/prediction/d42ddd82-60e4-4d25-9a25-300ff2679466', {
       question: this.userInput,
-      history: this.getFlowiseHistory(),
     });
     this.awaitingAPIResponse = false;
     if (response) {
@@ -130,6 +132,9 @@ export class PmAssistantComponent implements OnInit {
 
   onRefreshClicked() {
     this.chatbotSession = this.getUserGreeting();
+    if (this.mode === 'mailgenerator') {
+      this.chatbotSession.messages.push({ user_message: 'Bitte generiere mir eine Antwort auf folgende Email:' });
+    }
     this.agentChain = '';
     this.userInput = '';
     this.leistung = undefined;
@@ -140,7 +145,7 @@ export class PmAssistantComponent implements OnInit {
       this.mode = mode;
       this.chatbotSession = this.getUserGreeting();
       if (mode === 'mailgenerator') {
-        this.chatbotSession.messages.push({ user_message: 'Bitte generiere mir eine Mail-Antwort auf folgende Anfrage:' });
+        this.chatbotSession.messages.push({ user_message: 'Bitte generiere mir eine Antwort auf folgende Email:' });
       }
     }
   }
@@ -180,7 +185,7 @@ export class PmAssistantComponent implements OnInit {
     });
   }
 
-  private async queryFlowise(url: string, data: { question: string; history: FlowiseHistory[] }) {
+  private async queryFlowise(url: string, data: { question: string }) {
     try {
       let response = await fetch(url, {
         method: 'POST',
