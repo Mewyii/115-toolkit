@@ -9,127 +9,161 @@
   <br />
 </div>
 <div class="control-bar">
-  <mat-form-field [subscriptSizing]="'dynamic'">
-    <select
-      matNativeControl
-      [value]="selectedVersion?.id"
-      (change)="onTeilnehmerChange($event)"
-    >
-      @for (version of teilnehmer; track $index) {
-        <option [value]="version.id">
-          {{ version.name }}
-        </option>
-      }
-    </select>
-  </mat-form-field>
-</div>
-<div class="chatbot-container">
-  <div class="header-container">
-    <div class="header-container-right">
-      <button mat-icon-button (click)="onShowDebugClicked()">
-        <mat-icon>more_vert</mat-icon>
-      </button>
-    </div>
-    <div>115-Chatbot {{ selectedVersion?.name }}</div>
-    <div class="header-container-right">
-      <mat-form-field class="language-selector" [subscriptSizing]="'dynamic'">
-        <select
-          matNativeControl
-          [value]="language"
-          (change)="onLanguageChange($event)"
+  <div class="teilnehmer-selection">
+    <div class="checkbox-container">
+      @for (version of teilnehmer; track version.id) {
+        <mat-checkbox
+          [checked]="isVersionSelected(version.id)"
+          (change)="onTeilnehmerCheckboxChange(version.id, $event.checked)"
         >
-          <option value="de">de</option>
-          <option value="de(einfach)">de(einfach)</option>
-          <option value="en">en</option>
-          <option value="fr">fr</option>
-        </select>
-      </mat-form-field>
-      <button mat-icon-button (click)="onRefreshClicked()">
-        <mat-icon>refresh</mat-icon>
-      </button>
-      <button mat-icon-button>
-        <mat-icon>clear</mat-icon>
-      </button>
+          {{ version.name }}
+        </mat-checkbox>
+      }
     </div>
   </div>
-
-  <div class="message-history" #messageHistory>
-    <ng-container *ngFor="let session of oldSessions">
-      <ng-container *ngFor="let message of session.messages">
-        <div class="user-message-container">
-          <div *ngIf="message.user_message" class="user-message">
-            {{ message.user_message }}
-          </div>
-        </div>
-        <div
-          *ngIf="message.system_response"
-          class="chatbot-response"
-          [innerHTML]="
-            sanitizer.bypassSecurityTrustHtml(message.system_response)
-          "
-        ></div>
-      </ng-container>
-    </ng-container>
-    <ng-container
-      *ngFor="let message of chatbotSession.messages"
-      #messageElements
+</div>
+<div class="chatbots-wrapper">
+  @for (
+    session of chatbotSessions;
+    track session.teilnehmerId;
+    let i = $index
+  ) {
+    <div
+      class="chatbot-container"
+      [class.multi-select]="selectedVersions.length > 1"
     >
-      <div class="user-message-container">
-        <div *ngIf="message.user_message" class="user-message">
-          {{ message.user_message }}
+      <div class="header-container">
+        <div class="header-container-right">
+          <button mat-icon-button (click)="onShowDebugClicked()">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        </div>
+        <div>115-Chatbot {{ session.teilnehmerName }}</div>
+        <div class="header-container-right">
+          @if (i === 0) {
+            <mat-form-field
+              class="language-selector"
+              [subscriptSizing]="'dynamic'"
+            >
+              <select
+                matNativeControl
+                [value]="language"
+                (change)="onLanguageChange($event)"
+              >
+                <option value="de">de</option>
+                <option value="de(einfach)">de(einfach)</option>
+                <option value="en">en</option>
+                <option value="fr">fr</option>
+              </select>
+            </mat-form-field>
+            <button mat-icon-button (click)="onRefreshClicked()">
+              <mat-icon>refresh</mat-icon>
+            </button>
+          }
         </div>
       </div>
-      <div
-        *ngIf="message.system_response"
-        class="chatbot-response"
-        [innerHTML]="sanitizer.bypassSecurityTrustHtml(message.system_response)"
-      ></div>
-    </ng-container>
-    <ng-container *ngIf="leistung">
-      <button
-        class="small-button"
-        mat-raised-button
-        [color]="'primary'"
-        (click)="onRemoveLeistungClicked()"
-      >
-        Anliegen zu anderer Leistung
-      </button>
-    </ng-container>
-  </div>
-  <div *ngIf="awaitingAPIResponse" class="working-state-container">
-    {{ currentWorkingState }}
-  </div>
-  <div class="user-input-container">
-    <mat-form-field [style.flex]="'1 1'" [subscriptSizing]="'dynamic'">
-      <input
-        type="text"
-        placeholder="Bitte geben Sie Ihr Anliegen ein..."
-        aria-label="Number"
-        matInput
-        [(ngModel)]="userInput"
-        (keydown.enter)="onMessageSendClicked()"
-        [disabled]="awaitingAPIResponse || isRecordingAudio"
-      />
-    </mat-form-field>
-    <button
-      mat-raised-button
-      class="send-user-input-button"
-      color="primary"
-      (click)="onMessageSendClicked()"
-      [disabled]="awaitingAPIResponse || isRecordingAudio"
-      [matTooltip]="'Senden'"
-    >
-      <mat-icon *ngIf="!awaitingAPIResponse">send</mat-icon>
-      <mat-spinner
-        *ngIf="awaitingAPIResponse"
-        [color]="'primary'"
-        [diameter]="24"
-      ></mat-spinner>
-    </button>
-  </div>
+
+      <div class="message-history" #messageHistory>
+        <ng-container *ngIf="oldSessions.has(session.teilnehmerId)">
+          <ng-container
+            *ngFor="let oldSession of oldSessions.get(session.teilnehmerId)"
+          >
+            <ng-container *ngFor="let message of oldSession.messages">
+              <div class="user-message-container">
+                <div *ngIf="message.user_message" class="user-message">
+                  {{ message.user_message }}
+                </div>
+              </div>
+              <div
+                *ngIf="message.system_response"
+                class="chatbot-response-wrapper"
+              >
+                <div
+                  class="chatbot-response"
+                  [innerHTML]="
+                    sanitizer.bypassSecurityTrustHtml(message.system_response)
+                  "
+                ></div>
+                <div *ngIf="message.responseTime" class="response-time">
+                  {{ message.responseTime.toFixed(1) }}s
+                </div>
+              </div>
+            </ng-container>
+          </ng-container>
+        </ng-container>
+        <ng-container *ngFor="let message of session.messages" #messageElements>
+          <div class="user-message-container">
+            <div *ngIf="message.user_message" class="user-message">
+              {{ message.user_message }}
+            </div>
+          </div>
+          <div *ngIf="message.system_response" class="chatbot-response-wrapper">
+            <div
+              class="chatbot-response"
+              [innerHTML]="
+                sanitizer.bypassSecurityTrustHtml(message.system_response)
+              "
+            ></div>
+            <div *ngIf="message.responseTime" class="response-time">
+              {{ message.responseTime.toFixed(1) }}s
+            </div>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="leistung">
+          <button
+            class="small-button"
+            mat-raised-button
+            [color]="'primary'"
+            (click)="onRemoveLeistungClicked()"
+          >
+            Anliegen zu anderer Leistung
+          </button>
+        </ng-container>
+      </div>
+      @if (i === 0) {
+        <div *ngIf="awaitingAPIResponse" class="working-state-container">
+          {{ currentWorkingState }}
+        </div>
+        <div class="user-input-container">
+          <mat-form-field [style.flex]="'1 1'" [subscriptSizing]="'dynamic'">
+            <input
+              type="text"
+              placeholder="Bitte geben Sie Ihr Anliegen ein..."
+              aria-label="Number"
+              matInput
+              [(ngModel)]="userInput"
+              (keydown.enter)="onMessageSendClicked()"
+              [disabled]="awaitingAPIResponse || isRecordingAudio"
+            />
+          </mat-form-field>
+          <button
+            mat-raised-button
+            class="send-user-input-button"
+            color="primary"
+            (click)="onMessageSendClicked()"
+            [disabled]="awaitingAPIResponse || isRecordingAudio"
+            [matTooltip]="'Senden'"
+          >
+            <mat-icon *ngIf="!awaitingAPIResponse">send</mat-icon>
+            <mat-spinner
+              *ngIf="awaitingAPIResponse"
+              [color]="'primary'"
+              [diameter]="24"
+            ></mat-spinner>
+          </button>
+        </div>
+      }
+    </div>
+  }
 </div>
 <br />
-<div class="debug-container" *ngIf="showDebug">Session-ID: {{ sessionID }}</div>
+<div class="debug-container" *ngIf="showDebug">
+  Session-IDs:
+  <span *ngFor="let version of selectedVersions; let last = last">
+    {{ version.name }}: {{ sessionIDs.get(version.id) || "keine"
+    }}{{ !last ? ", " : "" }}
+  </span>
+</div>
 <br />
 <div class="debug-container" *ngIf="showDebug">
   Bereinigstes Anliegen: {{ debugInfos.bereinigtesAnliegen }}

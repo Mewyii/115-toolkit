@@ -6,7 +6,11 @@ export const kiBots: ChatbotTeilnehmer[] = [
     name: 'Zoll',
   },
   {
-    id: '38268ee2-a5d8-4f23-950d-0bd3e63a9087',
-    name: '_Sprachtest Frankfurt',
+    id: '60b5662b-c194-487c-b507-99e724483432',
+    name: 'Frankfurt',
+  },
+  {
+    id: 'f8e78ae7-27de-448a-9df2-f631dc6da53f',
+    name: 'Sprach- und 5.4-mini Test Frankfurt',
   },
 ];

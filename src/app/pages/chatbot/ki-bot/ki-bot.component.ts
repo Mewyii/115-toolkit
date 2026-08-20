@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { cloneDeep } from 'lodash';
 import { kiBots } from './ki-bots';
@@ -17,10 +17,13 @@ export interface ChatbotDialog {
   system_response?: string;
   message_type?: ChatbotDialogType;
   leistung?: ChatbotLeistung;
+  responseTime?: number; // in Sekunden
 }
 
 export interface ChatbotSession {
   messages: ChatbotDialog[];
+  teilnehmerId: string;
+  teilnehmerName: string;
 }
 
 export interface ChatbotSessionAPIPost extends ChatbotSession {
@@ -74,14 +77,14 @@ interface FeedbackDebugInfos {
   standalone: false,
 })
 export class ZukunftstechnologieBotComponent implements OnInit {
-  @ViewChild('messageHistory') private messageHistoryElement!: ElementRef<HTMLElement>;
+  @ViewChildren('messageHistory') private messageHistoryElements!: QueryList<ElementRef<HTMLElement>>;
   @ViewChildren('messageElements') messageElements!: QueryList<any>;
 
   private flowiseBaseAPIURL = 'https://flowise.test.115.de/api/v1/prediction/';
 
   public teilnehmer: ChatbotTeilnehmer[] = kiBots.sort((a, b) => a.name.localeCompare(b.name));
 
-  public selectedVersion: ChatbotTeilnehmer | undefined = this.teilnehmer[0];
+  public selectedVersions: ChatbotTeilnehmer[] = [this.teilnehmer[0]];
 
   public workingStateElements = ['Bestimme Zuständigkeit...', 'Suche Informationen...', 'Erstelle Antwort...'];
   public currentWorkingState = '';
@@ -94,8 +97,8 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   public leistung: ChatbotLeistung | undefined;
   public isRecordingAudio = false;
 
-  public oldSessions: ChatbotSession[] = [];
-  public chatbotSession: ChatbotSession = this.getUserGreeting();
+  public oldSessions: Map<string, ChatbotSession[]> = new Map();
+  public chatbotSessions: ChatbotSession[] = [this.getUserGreeting(this.teilnehmer[0])];
   public apiParameters: ChatbotAPIPostParameters = {
     llm: 'gpt-4',
     embedding_model: 'text-embedding-3-large',
@@ -108,7 +111,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
 
   public flowiseDown = false;
 
-  public sessionID: string | undefined = undefined;
+  public sessionIDs: Map<string, string> = new Map();
 
   constructor(
     private httpClient: HttpClient,
@@ -120,31 +123,81 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.messageElements.changes.subscribe(() =>
-      this.messageHistoryElement.nativeElement.scrollTo({ top: this.messageHistoryElement.nativeElement.scrollHeight, behavior: 'smooth' }),
-    );
+    this.messageElements.changes.subscribe(() => this.scrollAllChatbotsToBottom());
   }
 
-  onTeilnehmerChange(event: Event) {
-    const selectedVersion = this.teilnehmer.find((version) => version.id === (event.target as HTMLSelectElement).value);
-    if (selectedVersion) {
-      this.selectedVersion = selectedVersion;
-      this.chatbotSession = this.getUserGreeting();
+  private scrollAllChatbotsToBottom() {
+    // Warte kurz, damit das DOM aktualisiert ist
+    setTimeout(() => {
+      this.messageHistoryElements.forEach((element) => {
+        const container = element.nativeElement;
+        const lastUserMessage = container.querySelector('.user-message-container:last-of-type');
+
+        if (lastUserMessage) {
+          // Scrolle zur letzten Benutzernachricht, sodass sie oben im sichtbaren Bereich ist
+          const userMessageTop = (lastUserMessage as HTMLElement).offsetTop;
+          container.scrollTo({ top: userMessageTop - 20, behavior: 'smooth' });
+        } else {
+          // Fallback: Scrolle ganz nach unten
+          container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+        }
+      });
+    }, 100);
+  }
+
+  isVersionSelected(versionId: string): boolean {
+    return this.selectedVersions.some((v) => v.id === versionId);
+  }
+
+  onTeilnehmerCheckboxChange(versionId: string, checked: boolean) {
+    const version = this.teilnehmer.find((v) => v.id === versionId);
+    if (!version) return;
+
+    if (checked) {
+      // Hinzufügen
+      if (!this.selectedVersions.some((v) => v.id === versionId)) {
+        this.selectedVersions.push(version);
+        this.chatbotSessions.push(this.getUserGreeting(version));
+      }
+    } else {
+      // Entfernen
+      const index = this.selectedVersions.findIndex((v) => v.id === versionId);
+      if (index > -1) {
+        this.selectedVersions.splice(index, 1);
+        this.chatbotSessions.splice(index, 1);
+        this.oldSessions.delete(versionId);
+        this.sessionIDs.delete(versionId);
+      }
     }
   }
 
   async onMessageSendClicked() {
-    if (!this.selectedVersion) {
+    if (this.selectedVersions.length === 0) {
       return;
     }
 
     this.awaitingAPIResponse = true;
     this.showWorkingState(0);
-    const response = await this.queryFlowise(this.getFlowiseUrl(this.selectedVersion.id), { question: this.userInput, history: this.getFlowiseHistory() });
+
+    const userMessage = this.userInput;
+    this.userInput = '';
+
+    // Sende Anfragen parallel an alle ausgewählten Chatbots
+    const promises = this.selectedVersions.map(async (version, index) => {
+      const session = this.chatbotSessions[index];
+      const startTime = performance.now();
+      const response = await this.queryFlowise(this.getFlowiseUrl(version.id), { question: userMessage, history: this.getFlowiseHistory(session) });
+      const endTime = performance.now();
+      const responseTime = (endTime - startTime) / 1000; // Umrechnung in Sekunden
+
+      if (response) {
+        this.updateChatbotFromAPIResponse(response, session, version.id, responseTime);
+      }
+    });
+
+    await Promise.all(promises);
     this.awaitingAPIResponse = false;
-    if (response) {
-      this.updateChatbotFromAPIResponse(response);
-    }
+    this.scrollAllChatbotsToBottom();
   }
 
   private showWorkingState(index: number) {
@@ -165,20 +218,35 @@ export class ZukunftstechnologieBotComponent implements OnInit {
 
   onRemoveLeistungClicked() {
     this.leistung = undefined;
-    this.chatbotSession.messages.push({ user_message: 'Anliegen zu anderer Leistung', system_response: 'Gern! Bitte geben Sie Ihr neues Anliegen ein!' });
-    this.oldSessions.push(cloneDeep(this.chatbotSession));
-    this.chatbotSession.messages = [];
+    this.chatbotSessions.forEach((session, index) => {
+      session.messages.push({ user_message: 'Anliegen zu anderer Leistung', system_response: 'Gern! Bitte geben Sie Ihr neues Anliegen ein!' });
+
+      const teilnehmerId = session.teilnehmerId;
+      if (!this.oldSessions.has(teilnehmerId)) {
+        this.oldSessions.set(teilnehmerId, []);
+      }
+      this.oldSessions.get(teilnehmerId)!.push(cloneDeep(session));
+      session.messages = [];
+    });
   }
 
   onSendFeedbackClicked(category: string) {
-    const uuid = this.sessionID ?? crypto.randomUUID();
-    const subject = encodeURIComponent('115-Chatbot ' + this.selectedVersion?.name + ' ' + ': Feedback ' + category + ' ' + uuid);
-    const body = encodeURIComponent(
-      'Feedback: \n\n\n\n\n\nDebug-Informationen:\nGesendete Nachrichten: ' +
-        this.chatbotSession.messages
+    const sessionInfo = this.selectedVersions
+      .map((version, index) => {
+        const sessionId = this.sessionIDs.get(version.id) ?? 'keine';
+        const messages = this.chatbotSessions[index].messages
           .filter((x) => x.user_message)
           .map((x) => x.user_message)
-          .join('\n____\n') +
+          .join('\n____\n');
+        return `${version.name} (Session: ${sessionId}):\n${messages}`;
+      })
+      .join('\n\n=====\n\n');
+
+    const uuid = crypto.randomUUID();
+    const subject = encodeURIComponent('115-Chatbot Vergleich: Feedback ' + category + ' ' + uuid);
+    const body = encodeURIComponent(
+      'Feedback: \n\n\n\n\n\nDebug-Informationen:\n' +
+        sessionInfo +
         '\n\nBot-Antwort: ' +
         (this.debugInfos.botAntwort.length > 1000 ? this.debugInfos.botAntwort.substring(0, 1000) + '...' : this.debugInfos.botAntwort) +
         '\n\nBereinigtes Anliegen: ' +
@@ -195,17 +263,17 @@ export class ZukunftstechnologieBotComponent implements OnInit {
   }
 
   onRefreshClicked() {
-    this.chatbotSession = this.getUserGreeting();
-    this.oldSessions = [];
+    this.chatbotSessions = this.selectedVersions.map((version) => this.getUserGreeting(version));
+    this.oldSessions.clear();
+    this.sessionIDs.clear();
     this.debugInfos = { anliegenKontext: '', bereinigtesAnliegen: '', botAntwort: '' };
     this.userInput = '';
     this.leistung = undefined;
   }
 
-  private updateChatbotFromAPIResponse(response: FlowiseAPIResponseType) {
-    this.userInput = '';
-    this.chatbotSession.messages.push({ user_message: response.question, system_response: response.text });
-    this.sessionID = response.sessionId;
+  private updateChatbotFromAPIResponse(response: FlowiseAPIResponseType, session: ChatbotSession, teilnehmerId: string, responseTime: number) {
+    session.messages.push({ user_message: response.question, system_response: response.text, responseTime });
+    this.sessionIDs.set(teilnehmerId, response.sessionId);
 
     const agentData = response.agentFlowExecutedData;
     if (agentData.length > 0) {
@@ -217,8 +285,8 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     }
   }
 
-  private getFlowiseHistory(): FlowiseHistory[] {
-    return this.chatbotSession.messages.flatMap((message) => {
+  private getFlowiseHistory(session: ChatbotSession): FlowiseHistory[] {
+    return session.messages.flatMap((message) => {
       const result: FlowiseHistory[] = [];
       if (message.user_message) {
         result.push({ role: 'userMessage', content: message.user_message });
@@ -230,8 +298,8 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     });
   }
 
-  private getFlowiseContext() {
-    return this.chatbotSession.messages.flatMap((message) => {
+  private getFlowiseContext(session: ChatbotSession) {
+    return session.messages.flatMap((message) => {
       const result = [];
       if (message.user_message) {
         result.push({ user: message.user_message });
@@ -253,7 +321,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
         body: JSON.stringify({
           question: data.question,
           overrideConfig: {
-            vars: { language: getLanguageFromKey(this.language), history: JSON.stringify(this.getFlowiseContext()) },
+            vars: { language: getLanguageFromKey(this.language), history },
           },
         }),
       });
@@ -285,20 +353,29 @@ export class ZukunftstechnologieBotComponent implements OnInit {
 
   onLanguageChange($event: Event) {
     this.language = ($event.target as HTMLSelectElement).value as LanguageType;
-    this.chatbotSession = this.getUserGreeting();
+    this.chatbotSessions = this.selectedVersions.map((version) => this.getUserGreeting(version));
   }
 
-  private getUserGreeting(): ChatbotSession {
+  private getUserGreeting(teilnehmer: ChatbotTeilnehmer): ChatbotSession {
+    let messages: string[];
     switch (this.language) {
       case 'de':
       case 'de(einfach)':
-        return { messages: getDeUserGreeting(this.selectedVersion?.name).map((x) => ({ system_response: x })) };
+        messages = getDeUserGreeting(teilnehmer.name);
+        break;
       case 'fr':
-        return { messages: getFrUserGreeting(this.selectedVersion?.name).map((x) => ({ system_response: x })) };
+        messages = getFrUserGreeting(teilnehmer.name);
+        break;
       case 'en':
       default:
-        return { messages: getEnUserGreeting(this.selectedVersion?.name).map((x) => ({ system_response: x })) };
+        messages = getEnUserGreeting(teilnehmer.name);
+        break;
     }
+    return {
+      messages: messages.map((x) => ({ system_response: x })),
+      teilnehmerId: teilnehmer.id,
+      teilnehmerName: teilnehmer.name,
+    };
   }
 
   private getFlowiseUrl(id: string) {

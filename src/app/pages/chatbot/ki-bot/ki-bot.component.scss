@@ -6,9 +6,41 @@
   margin-bottom: 16px;
 }
 
+.teilnehmer-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.selection-label {
+  font-weight: 500;
+  font-size: 16px;
+  color: #333;
+}
+
+.checkbox-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  max-width: 1000px;
+
+  mat-checkbox {
+    min-width: 200px;
+  }
+}
+
+.chatbots-wrapper {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 .chatbot-container {
   max-width: 600px;
-  margin: auto;
+  width: 600px;
   background: #eeeeee;
   border: 1px solid #d5d5d5;
   border-radius: 8px;
@@ -17,10 +49,17 @@
   gap: 16px;
   overflow: hidden;
   filter: drop-shadow(0 0 2px #00000010);
+
+  &.multi-select {
+    width: 500px;
+    flex: 1 1 auto;
+    min-width: 450px;
+    max-width: 600px;
+  }
 }
 
 .debug-container {
-  max-width: 600px;
+  max-width: 1200px;
   margin: auto;
   background: #eeeeee;
   border: 1px solid #d5d5d5;
@@ -60,12 +99,32 @@
   overflow-y: auto;
 }
 
+.chatbot-response-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
 .chatbot-response {
-  width: 400px;
+  flex: 1;
+  max-width: 400px;
   background-color: white;
   padding: 8px 16px;
   border-radius: 8px 8px 8px 0px;
   filter: drop-shadow(0 0 2px #00000005);
+}
+
+.response-time {
+  padding: 4px 8px;
+  background-color: #6f56e8;
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  align-self: flex-start;
+  margin-top: 4px;
 }
 
 ::ng-deep.chatbot-response b {
