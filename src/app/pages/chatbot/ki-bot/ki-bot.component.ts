@@ -56,7 +56,7 @@ type AgentFlowExecutedData = {
 };
 
 type FlowiseHistory = {
-  role: 'apiMessage' | 'userMessage';
+  role: 'botMessage' | 'userMessage';
   content: string;
 };
 
@@ -186,7 +186,8 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     const promises = this.selectedVersions.map(async (version, index) => {
       const session = this.chatbotSessions[index];
       const startTime = performance.now();
-      const response = await this.queryFlowise(this.getFlowiseUrl(version.id), { question: userMessage, history: this.getFlowiseHistory(session) });
+      const chatHistory = this.getChatHistory(session);
+      const response = await this.queryFlowise(this.getFlowiseUrl(version.id), { question: userMessage, chatHistory });
       const endTime = performance.now();
       const responseTime = (endTime - startTime) / 1000; // Umrechnung in Sekunden
 
@@ -285,17 +286,19 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     }
   }
 
-  private getFlowiseHistory(session: ChatbotSession): FlowiseHistory[] {
-    return session.messages.flatMap((message) => {
-      const result: FlowiseHistory[] = [];
+  private getChatHistory(session: ChatbotSession): FlowiseHistory[] {
+    const result: FlowiseHistory[] = [];
+
+    for (const message of session.messages) {
       if (message.user_message) {
         result.push({ role: 'userMessage', content: message.user_message });
       }
       if (message.system_response) {
-        result.push({ role: 'apiMessage', content: message.system_response });
+        result.push({ role: 'botMessage', content: message.system_response });
       }
-      return result;
-    });
+    }
+
+    return result;
   }
 
   private getFlowiseContext(session: ChatbotSession) {
@@ -311,7 +314,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
     });
   }
 
-  private async queryFlowise(url: string, data: { question: string; history: FlowiseHistory[] }) {
+  private async queryFlowise(url: string, data: { question: string; chatHistory: FlowiseHistory[] }) {
     try {
       let response = await fetch(url, {
         method: 'POST',
@@ -321,7 +324,7 @@ export class ZukunftstechnologieBotComponent implements OnInit {
         body: JSON.stringify({
           question: data.question,
           overrideConfig: {
-            vars: { language: getLanguageFromKey(this.language), history },
+            vars: { language: getLanguageFromKey(this.language), history: data.chatHistory },
           },
         }),
       });
@@ -400,7 +403,6 @@ function getLanguageFromKey(langKey: LanguageType) {
 function getDeUserGreeting(teilnehmer?: string) {
   return [
     '<b>Hallo!</b> Ich bin der Chatbot der Behördennummer 115 für ' + teilnehmer + '. Wie kann ich dir helfen?',
-    'Aktuell befinde ich mich in einer Testphase und freue mich, wenn du meine Feedbackmöglichkeiten nutzt.',
     '<b>Bitte nenne mir dein Anliegen</b>, z. B. <i>"Ich habe meinen Führerschein verloren"</i>. Bitte gib keine persönlichen Daten wie z. B. deinen Namen ein.',
   ];
 }
@@ -408,15 +410,13 @@ function getDeUserGreeting(teilnehmer?: string) {
 function getEnUserGreeting(teilnehmer?: string) {
   return [
     '<b>Hello!</b> I am the chatbot of the hotline 115 for ' + teilnehmer + '. How can I help you?',
-    'Currently, I am in a testing phase and would appreciate it if you could use my feedback options.',
     '<b>Please state your concern including</b>, e.g. <i>"I have lost my driving license"</i>. Please do not enter any personal data such as your name.',
   ];
 }
 
 function getFrUserGreeting(teilnehmer?: string) {
   return [
-    '<b>Bonjour !</b> Je suis le chatbot du numéro officiel 115 pour ' + teilnehmer + ". Comment puis-je t'aider ?",
-    "Je suis actuellement en phase de test et je serais ravi si tu utilisais mes options de retour d'expérience.",
+    '<b>Bonjour !</b> Je suis le chatbot du numéro officiel 115 pour ' + teilnehmer + ". Comment puis-je t'aider?",
     '<b>Merci de me décrire ton besoin</b>, par exemple : <i>"J\'ai perdu mon permis de conduire"</i>. Merci de ne pas entrer de données personnelles telles que ton nom.',
   ];
 }
