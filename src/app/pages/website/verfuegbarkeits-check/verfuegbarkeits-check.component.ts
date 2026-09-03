@@ -1,3 +1,4 @@
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, debounceTime } from 'rxjs';
 import { ConverterService, SheetDataMapping, XLSService } from 'src/app/services';
@@ -11,6 +12,7 @@ export interface VerfuegbarkeitsInfos {
   Kreiszugehoerigkeit?: string;
   Status?: TeilnehmerStatus;
   Regionalschluessel: string;
+  PLZs?: string;
 }
 
 export interface VerfuegbarkeitsInfosEnhanced extends VerfuegbarkeitsInfos {
@@ -57,6 +59,7 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
   constructor(
     public xlsService: XLSService,
     public converterService: ConverterService,
+    public http: HttpClient,
   ) {}
 
   ngOnInit(): void {
@@ -121,6 +124,32 @@ export class VerfuegbarkeitsCheckComponent implements OnInit {
     });
 
     this.xlsService.exportAsCSV('Daten Verfügbarkeitscheck', verfuegbarkeitsInfosWithoutHelperProps);
+  }
+
+  onGetPLZDataClicked() {
+    this.getPLZData(0);
+  }
+
+  getPLZData(index = 0) {
+    const verfuegbarkeitsInfo = this.verfuegbarkeitsInfos[index];
+    if (verfuegbarkeitsInfo) {
+      if (verfuegbarkeitsInfo.Regionalschluessel.length > 5) {
+        const headers = new HttpHeaders();
+
+        this.http
+          .get<
+            { plz?: string }[]
+          >(`https://pvog.fitko.net/suchdienst/api/v3/locations/ars?ars=${verfuegbarkeitsInfo.Regionalschluessel}&distinctBy=PLZ`, { headers, responseType: 'json' })
+          .subscribe((result) => {
+            verfuegbarkeitsInfo.PLZs = result
+              .filter((x) => x.plz)
+              .map((x) => x.plz)
+              .join(',');
+          });
+      }
+
+      setTimeout(() => this.getPLZData(index + 1), 100);
+    }
   }
 
   onSearchInputChange(inputEvent: any) {
