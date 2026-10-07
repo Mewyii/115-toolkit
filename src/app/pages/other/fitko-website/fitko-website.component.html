@@ -1,0 +1,255 @@
+<div class="control-bar">
+  <button mat-raised-button color="primary" (click)="xlsFileIPicker.click()">
+    <span class="text-with-loading-indicator"
+      >Beschluss-XLS Öffnen
+      <mat-progress-spinner
+        *ngIf="infosAreLoading"
+        diameter="20"
+        mode="indeterminate"
+        color="accent"
+      ></mat-progress-spinner>
+    </span>
+  </button>
+  <input
+    #xlsFileIPicker
+    [hidden]="true"
+    [type]="'file'"
+    [accept]="'.xlsx'"
+    (change)="onStammdatenExcelFileSelected($event)"
+  />
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSaveDataToJSONFileClicked()"
+  >
+    <span>Aufbereitete Daten Exportieren</span>
+  </button>
+  <mat-form-field class="ai-config-field" [subscriptSizing]="'dynamic'">
+    <mat-label>KI-Endpunkt</mat-label>
+    <input matInput type="url" [(ngModel)]="aiEndpoint" />
+  </mat-form-field>
+  <mat-form-field class="ai-config-field" [subscriptSizing]="'dynamic'">
+    <mat-label>API-Key</mat-label>
+    <input matInput type="password" autocomplete="off" [(ngModel)]="aiApiKey" />
+  </mat-form-field>
+</div>
+
+<mat-tab-group>
+  <mat-tab label="Eingangsdaten">
+    <div class="tab-content">
+      <div class="type-results-container">
+        <table style="width: 1800px">
+          <tr>
+            <th>Name</th>
+            <th>Nummer</th>
+            <th>Text</th>
+            <th>Schwerpunktthema</th>
+            <th>Themenbereich</th>
+            <th>Umsetzende Orga</th>
+            <th>Verwaltungsbereiche</th>
+            <th>Standards</th>
+            <th>Projekte</th>
+            <th>Aktionen</th>
+          </tr>
+          <ng-container *ngFor="let item of getBeschluessePage()">
+            <tr>
+              <td>{{ item.titel }}</td>
+              <td>{{ item.beschlussnummer }}</td>
+              <td>
+                <p
+                  [matTooltip]="getPlainText(item.beschlusstext)"
+                  matTooltipClass="long-text-tooltip"
+                >
+                  {{ getTruncatedText(item.beschlusstext) }}
+                </p>
+              </td>
+              <td>{{ item.schwerpunktthema }}</td>
+              <td>{{ item.themenbereich }}</td>
+              <td>{{ item.umsetzendeOrga }}</td>
+              <td>{{ item.verwaltungsbereiche }}</td>
+              <td>
+                <div
+                  *ngFor="
+                    let link of getStandardLinksForBeschluss(
+                      item.beschlussnummer
+                    )
+                  "
+                  [matTooltip]="link.begruendung ?? ''"
+                >
+                  {{ link.standardName ?? link.standardId }}
+                  <span *ngIf="link.relevanz">({{ link.relevanz }})</span>
+                </div>
+              </td>
+              <td>
+                <div
+                  *ngFor="
+                    let link of getProjektLinksForBeschluss(
+                      item.beschlussnummer
+                    )
+                  "
+                  [matTooltip]="link.begruendung ?? ''"
+                >
+                  {{ link.projektName ?? link.projektId }}
+                  <span *ngIf="link.relevanz">({{ link.relevanz }})</span>
+                </div>
+              </td>
+              <td>
+                <button
+                  *ngIf="!isBeschlussLoading(item); else beschlussLoading"
+                  mat-icon-button
+                  matTooltip="Verknüpfungen erstellen"
+                  (click)="onCreateLinksClicked(item)"
+                >
+                  <mat-icon>add_link</mat-icon>
+                </button>
+                <ng-template #beschlussLoading>
+                  <mat-progress-spinner
+                    diameter="24"
+                    mode="indeterminate"
+                    color="accent"
+                  ></mat-progress-spinner>
+                </ng-template>
+              </td>
+            </tr>
+          </ng-container>
+        </table>
+        <mat-paginator
+          [length]="beschlussInfosInitial.length"
+          [pageSize]="beschluessePageSize"
+          [pageIndex]="beschluessePageIndex"
+          [hidePageSize]="true"
+          [showFirstLastButtons]="true"
+          (page)="onBeschluessePageChanged($event)"
+        ></mat-paginator>
+      </div>
+    </div>
+  </mat-tab>
+  <mat-tab label="Sitzungen">
+    <div class="tab-content">
+      <div class="type-results-container">
+        <table style="width: 900px">
+          <tr>
+            <th>Gremium</th>
+            <th>Titel</th>
+            <th>Datum</th>
+          </tr>
+          <ng-container *ngFor="let item of sitzungInfosInitial">
+            <tr>
+              <td>{{ item.gremium }}</td>
+              <td>{{ item.titel }}</td>
+              <td>{{ item.datum }}</td>
+            </tr>
+          </ng-container>
+        </table>
+      </div>
+    </div>
+  </mat-tab>
+  <mat-tab label="Standards">
+    <div class="tab-content">
+      <div class="type-results-container">
+        <table style="width: 900px">
+          <tr>
+            <th>Titel</th>
+            <th>Standard-ID</th>
+            <th>Status</th>
+            <th>Kurzbeschreibung</th>
+          </tr>
+          <ng-container *ngFor="let item of standardInfosInitial">
+            <tr>
+              <td>{{ item.titel }}</td>
+              <td>{{ item.standardId }}</td>
+              <td>{{ item.status }}</td>
+              <td><p [innerHTML]="item.kurzbeschreibung"></p></td>
+            </tr>
+          </ng-container>
+        </table>
+      </div>
+    </div>
+  </mat-tab>
+  <mat-tab label="Projekte">
+    <div class="tab-content">
+      <div class="type-results-container">
+        <table style="width: 900px">
+          <tr>
+            <th>Name</th>
+            <th>Projekt-ID</th>
+            <th>Status</th>
+            <th>Kurzbeschreibung</th>
+          </tr>
+          <ng-container *ngFor="let item of projektInfosInitial">
+            <tr>
+              <td>{{ item.name }}</td>
+              <td>{{ item.projektId }}</td>
+              <td>{{ item.status }}</td>
+              <td><p [innerHTML]="item.kurzbeschreibung"></p></td>
+            </tr>
+          </ng-container>
+        </table>
+      </div>
+    </div>
+  </mat-tab>
+  <mat-tab label="Organisationen">
+    <div class="tab-content">
+      <div class="type-results-container">
+        <table style="width: 900px">
+          <tr>
+            <th>Organisation</th>
+          </tr>
+          <ng-container *ngFor="let item of organisationInfosInitial">
+            <tr>
+              <td>{{ item.organisation }}</td>
+            </tr>
+          </ng-container>
+        </table>
+      </div>
+    </div>
+  </mat-tab>
+  <mat-tab label="Schwerpunktthemen">
+    <div class="tab-content">
+      <div class="type-results-container">
+        <table style="width: 900px">
+          <tr>
+            <th>Schwerpunktthema</th>
+          </tr>
+          <ng-container *ngFor="let item of schwerpunktthemaInfosInitial">
+            <tr>
+              <td>{{ item.schwerpunktthema }}</td>
+            </tr>
+          </ng-container>
+        </table>
+      </div>
+    </div>
+  </mat-tab>
+  <mat-tab label="Themenbereiche">
+    <div class="tab-content">
+      <div class="type-results-container">
+        <table style="width: 900px">
+          <tr>
+            <th>Themenbereich</th>
+          </tr>
+          <ng-container *ngFor="let item of themenbereichInfosInitial">
+            <tr>
+              <td>{{ item.themenbereich }}</td>
+            </tr>
+          </ng-container>
+        </table>
+      </div>
+    </div>
+  </mat-tab>
+  <mat-tab label="Verwaltungsbereiche">
+    <div class="tab-content">
+      <div class="type-results-container">
+        <table style="width: 900px">
+          <tr>
+            <th>Verwaltungsbereich</th>
+          </tr>
+          <ng-container *ngFor="let item of verwaltungsbereichInfosInitial">
+            <tr>
+              <td>{{ item.verwaltungsbereich }}</td>
+            </tr>
+          </ng-container>
+        </table>
+      </div>
+    </div>
+  </mat-tab>
+</mat-tab-group>

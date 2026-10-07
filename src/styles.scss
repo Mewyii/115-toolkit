@@ -36,8 +36,16 @@ body {
   background-color: rgba(37, 0, 48, 0.464);
 }
 
+.long-text-tooltip .mdc-tooltip__surface {
+  max-width: 600px !important;
+  max-height: 60vh;
+  overflow-y: auto;
+  white-space: pre-line;
+  text-align: left;
+}
+
 .page-container {
-  max-width: 1200px;
+  max-width: 1800px;
   margin: auto;
   margin-top: 32px;
 }

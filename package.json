@@ -20,6 +20,7 @@
     "@angular/platform-browser": "^19.2.15",
     "@angular/platform-browser-dynamic": "^19.2.15",
     "@angular/router": "^19.2.15",
+    "@anthropic-ai/foundry-sdk": "^0.5.2",
     "chart.js": "^4.5.1",
     "lodash": "^4.17.21",
     "ng2-charts": "^8.0.0",
