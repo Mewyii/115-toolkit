@@ -151,7 +151,7 @@ export class FitkoWebsiteComponent implements OnInit {
   // Entered by the user at runtime so that no credentials are stored in the frontend code
   public aiEndpoint = '';
   public aiApiKey = '';
-  public aiDeploymentName = 'claude-haiku-4-5';
+  public aiDeploymentName = 'claude-haiku-5-5';
 
   public beschluessePageIndex = 0;
   public beschluessePageSize = 5;
