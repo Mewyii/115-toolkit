@@ -25,13 +25,20 @@
     <span>Aufbereitete Daten Exportieren</span>
   </button>
   <mat-form-field class="ai-config-field" [subscriptSizing]="'dynamic'">
-    <mat-label>KI-Endpunkt</mat-label>
+    <mat-label>Endpunkt</mat-label>
     <input matInput type="url" [(ngModel)]="aiEndpoint" />
   </mat-form-field>
   <mat-form-field class="ai-config-field" [subscriptSizing]="'dynamic'">
     <mat-label>API-Key</mat-label>
     <input matInput type="password" autocomplete="off" [(ngModel)]="aiApiKey" />
   </mat-form-field>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onAssignAllBeschluesseClicked()"
+  >
+    <span>Alle Beschlüsse zuordnen</span>
+  </button>
 </div>
 
 <mat-tab-group>
@@ -97,10 +104,10 @@
                 <button
                   *ngIf="!isBeschlussLoading(item); else beschlussLoading"
                   mat-icon-button
-                  matTooltip="Verknüpfungen erstellen"
+                  [matTooltip]="isBeschlussProcessed(item) ? 'Erneut zuordnen' : 'Zuordnen'"
                   (click)="onCreateLinksClicked(item)"
                 >
-                  <mat-icon>add_link</mat-icon>
+                  <mat-icon>{{ isBeschlussProcessed(item) ? "check_circle" : "add_link" }}</mat-icon>
                 </button>
                 <ng-template #beschlussLoading>
                   <mat-progress-spinner

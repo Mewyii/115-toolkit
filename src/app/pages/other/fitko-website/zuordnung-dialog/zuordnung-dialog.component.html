@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>Alle Beschlüsse zuordnen</h2>
+<mat-dialog-content>
+  <p>Beschlüsse gesamt: {{ totalCount }}</p>
+  <mat-progress-bar
+    class="zuordnung-progress"
+    mode="determinate"
+    [value]="progress"
+  ></mat-progress-bar>
+  <p class="progress-label">
+    {{ processedCount }} / {{ totalCount }} zugeordnet
+  </p>
+
+  <p *ngIf="isRunning && currentBeschluss" class="status-text">
+    {{ isStopRequested ? "Wird nach diesem Beschluss angehalten:" : "Aktuell:" }}
+    {{ currentBeschluss.beschlussnummer }} – {{ currentBeschluss.titel }}
+  </p>
+  <p *ngIf="!isRunning && allProcessed" class="status-text">
+    Alle Beschlüsse sind zugeordnet.
+  </p>
+  <p *ngIf="errorCount > 0 || lastError" class="error-text">
+    <span *ngIf="errorCount > 0">{{ errorCount }} Fehler. </span>
+    {{ lastError }}
+  </p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button
+    mat-raised-button
+    color="primary"
+    [disabled]="isRunning || allProcessed"
+    (click)="data.start()"
+  >
+    Zuordnung beginnen
+  </button>
+  <button
+    mat-raised-button
+    color="warn"
+    [disabled]="!isRunning || isStopRequested"
+    (click)="data.stop()"
+  >
+    Stop
+  </button>
+  <button mat-button mat-dialog-close>Schließen</button>
+</mat-dialog-actions>

@@ -1,0 +1,24 @@
+.zuordnung-progress {
+  --mdc-linear-progress-active-indicator-color: #1976d2;
+  --mdc-linear-progress-track-color: #e0e0e0;
+  --mdc-linear-progress-track-height: 8px;
+  --mdc-linear-progress-active-indicator-height: 8px;
+}
+
+.status-text {
+  margin-top: 16px;
+  font-size: 13px;
+}
+
+.error-text {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #c62828;
+  word-break: break-word;
+}
+
+.progress-label {
+  margin-top: 8px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+}

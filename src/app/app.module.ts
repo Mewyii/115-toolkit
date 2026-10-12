@@ -9,6 +9,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -36,6 +38,7 @@ import { FundstellenDownloadComponent } from './pages/fundstellen/fundstellen-do
 import { FundstellenLogsComponent } from './pages/fundstellen/fundstellen-logs/fundstellen-logs.component';
 import { FundstellenComponent } from './pages/fundstellen/fundstellen.component';
 import { FitkoWebsiteComponent } from './pages/other/fitko-website/fitko-website.component';
+import { ZuordnungDialogComponent } from './pages/other/fitko-website/zuordnung-dialog/zuordnung-dialog.component';
 import { MarkenBekanntheitsUmfrageComponent } from './pages/other/marken-bekanntheits-umfrage/marken-bekanntheits-umfrage.component';
 import { OtherComponent } from './pages/other/other.component';
 import { PmAssistantComponent } from './pages/other/pm-assistant/pm-assistant.component';
@@ -64,6 +67,7 @@ registerLocaleData(localeDe);
     OtherComponent,
     PmAssistantComponent,
     FitkoWebsiteComponent,
+    ZuordnungDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -75,6 +79,8 @@ registerLocaleData(localeDe);
     MatInputModule,
     MatTableModule,
     MatPaginatorModule,
+    MatDialogModule,
+    MatProgressBarModule,
     MatSortModule,
     MatExpansionModule,
     MatTabsModule,

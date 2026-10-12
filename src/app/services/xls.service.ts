@@ -1,24 +1,47 @@
 import { Injectable } from '@angular/core';
 import * as XLSX from 'xlsx';
+import { readWorkbook, ReadFileOptions, WorkbookData, XlsWorkerResponse } from './xls-read';
 
-export interface WorkbookData {
-  sheetData: { name: string; data: any[] }[];
-}
+export type { ReadFileOptions, WorkbookData } from './xls-read';
 
 export interface SheetDataMapping<T> {
   name: string;
   mappingFunction: (entry: any) => T;
 }
 
-interface ReadFileOptions {
-  firstLinesToSkip?: number;
-}
-
 @Injectable({
   providedIn: 'root',
 })
 export class XLSService {
+  private worker?: Worker;
+  private nextRequestId = 0;
+  private pendingRequests = new Map<number, { resolve: (data: WorkbookData) => void; reject: (error: Error) => void }>();
+
   constructor() {}
+
+  private getWorker() {
+    if (!this.worker && typeof Worker !== 'undefined') {
+      this.worker = new Worker(new URL('./xls.worker', import.meta.url), { type: 'module' });
+      this.worker.onmessage = ({ data }: MessageEvent<XlsWorkerResponse>) => {
+        const request = this.pendingRequests.get(data.id);
+        if (!request) {
+          return;
+        }
+        this.pendingRequests.delete(data.id);
+        if (data.error || !data.workbookData) {
+          request.reject(new Error(data.error ?? 'Unknown error while reading workbook'));
+        } else {
+          request.resolve(data.workbookData);
+        }
+      };
+      this.worker.onerror = (event) => {
+        const error = new Error(event.message || 'XLS worker failed');
+        this.pendingRequests.forEach((request) => request.reject(error));
+        this.pendingRequests.clear();
+      };
+    }
+    return this.worker;
+  }
 
   exportFile(name: string, workbookData: WorkbookData) {
     const workbook = XLSX.utils.book_new();
@@ -34,27 +57,19 @@ export class XLSService {
   }
 
   async readFile(file: File, options?: ReadFileOptions) {
-    const data = await file.arrayBuffer();
-    const workbook = XLSX.read(data);
-    const workbookData: WorkbookData = { sheetData: [] };
+    const buffer = await file.arrayBuffer();
+    const worker = this.getWorker();
 
-    for (const sheetName of workbook.SheetNames) {
-      const sheet = workbook.Sheets[sheetName];
-
-      if (options) {
-        if (options.firstLinesToSkip) {
-          const range = XLSX.utils.decode_range(sheet['!ref']!);
-          range.s.r = options.firstLinesToSkip;
-
-          sheet['!ref'] = XLSX.utils.encode_range(range);
-        }
-      }
-
-      const sheetData = XLSX.utils.sheet_to_json(sheet) as any[];
-      workbookData.sheetData.push({ name: sheetName, data: sheetData });
+    if (!worker) {
+      return readWorkbook(buffer, options);
     }
 
-    return workbookData;
+    const id = this.nextRequestId++;
+    return new Promise<WorkbookData>((resolve, reject) => {
+      this.pendingRequests.set(id, { resolve, reject });
+      // Transfer the buffer instead of copying it.
+      worker.postMessage({ id, buffer, options }, [buffer]);
+    });
   }
 
   async convertWorkbookDataToCustomData<T extends object>(

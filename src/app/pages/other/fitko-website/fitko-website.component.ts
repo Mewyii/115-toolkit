@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { ConverterService, SheetDataMapping, XLSService } from 'src/app/services';
 import { FoundryConfig, parseJsonResponse, sendPromptToFoundry } from './portfolio-ai';
@@ -16,6 +17,7 @@ import {
   ZuordnungResponse,
 } from './portfolio-prompts';
 import { BeschlussProjekt, BeschlussStandard, Portfolio } from './portfolio-schema';
+import { ZuordnungDialogComponent, ZuordnungDialogData } from './zuordnung-dialog/zuordnung-dialog.component';
 
 export interface BeschlussInfos {
   titel: string;
@@ -148,7 +150,6 @@ export class FitkoWebsiteComponent implements OnInit {
 
   public infosAreLoading = false;
 
-  // Entered by the user at runtime so that no credentials are stored in the frontend code
   public aiEndpoint = '';
   public aiApiKey = '';
   public aiDeploymentName = 'claude-haiku-5-5';
@@ -157,6 +158,13 @@ export class FitkoWebsiteComponent implements OnInit {
   public beschluessePageSize = 5;
 
   private loadingBeschluesse = new Set<string>();
+  private processedBeschluesse = new Set<string>();
+
+  private batchIsRunning = false;
+  private batchStopRequested = false;
+  private batchCurrentBeschluss: BeschlussInfos | undefined;
+  private batchErrorCount = 0;
+  private batchLastError = '';
 
   private sheetMapping: SheetDataMapping<BeschlussInfos>[] = [
     {
@@ -325,6 +333,7 @@ export class FitkoWebsiteComponent implements OnInit {
   constructor(
     public xlsService: XLSService,
     public converterService: ConverterService,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {}
@@ -344,6 +353,7 @@ export class FitkoWebsiteComponent implements OnInit {
 
     this.beschlussInfosInitial = await this.xlsService.convertWorkbookDataToCustomData(workbookData, this.sheetMapping);
     this.beschluessePageIndex = 0;
+    this.processedBeschluesse.clear();
     this.sitzungInfosInitial = (await this.xlsService.convertWorkbookDataToCustomData(workbookData, this.sitzungSheetMapping)).filter((x) => !!x.titel);
     this.standardInfosInitial = await this.xlsService.convertWorkbookDataToCustomData(workbookData, this.standardSheetMapping);
     this.projektInfosInitial = await this.xlsService.convertWorkbookDataToCustomData(workbookData, this.projektSheetMapping);
@@ -402,7 +412,37 @@ export class FitkoWebsiteComponent implements OnInit {
     return this.loadingBeschluesse.has(beschluss.beschlussnummer);
   }
 
+  isBeschlussProcessed(beschluss: BeschlussInfos) {
+    return this.processedBeschluesse.has(beschluss.beschlussnummer);
+  }
+
+  onAssignAllBeschluesseClicked() {
+    // Getters keep the dialog in sync with the component while it is open
+    const data: ZuordnungDialogData = {
+      getTotalCount: () => this.beschlussInfosInitial.length,
+      getProcessedCount: () => this.beschlussInfosInitial.filter((x) => this.isBeschlussProcessed(x)).length,
+      isRunning: () => this.batchIsRunning,
+      isStopRequested: () => this.batchStopRequested,
+      getCurrentBeschluss: () => this.batchCurrentBeschluss,
+      getErrorCount: () => this.batchErrorCount,
+      getLastError: () => this.batchLastError,
+      start: () => this.startBatchZuordnung(),
+      stop: () => this.stopBatchZuordnung(),
+    };
+
+    this.dialog.open(ZuordnungDialogComponent, { data, width: '500px' });
+  }
+
   async onCreateLinksClicked(beschluss: BeschlussInfos) {
+    try {
+      await this.processBeschluss(beschluss);
+    } catch (e) {
+      console.error(e);
+      alert('Fehler beim Aufruf der KI: ' + (e instanceof Error ? e.message : String(e)));
+    }
+  }
+
+  private async processBeschluss(beschluss: BeschlussInfos) {
     const config: FoundryConfig = { endpoint: this.aiEndpoint, apiKey: this.aiApiKey, deploymentName: this.aiDeploymentName };
     this.loadingBeschluesse.add(beschluss.beschlussnummer);
 
@@ -475,11 +515,55 @@ export class FitkoWebsiteComponent implements OnInit {
           ];
         }),
       ];
-    } catch (e) {
-      console.error(e);
-      alert('Fehler beim Aufruf der KI: ' + (e instanceof Error ? e.message : String(e)));
+
+      this.processedBeschluesse.add(beschluss.beschlussnummer);
     } finally {
       this.loadingBeschluesse.delete(beschluss.beschlussnummer);
+    }
+  }
+
+  // Processes all unassigned Beschlüsse one after another; a stop request takes effect after the current Beschluss
+  async startBatchZuordnung() {
+    if (this.batchIsRunning) {
+      return;
+    }
+    if (!this.aiEndpoint || !this.aiApiKey) {
+      this.batchLastError = 'KI-Endpunkt und API-Key müssen angegeben werden.';
+      return;
+    }
+
+    this.batchIsRunning = true;
+    this.batchStopRequested = false;
+    this.batchErrorCount = 0;
+    this.batchLastError = '';
+
+    try {
+      const openBeschluesse = this.beschlussInfosInitial.filter((x) => !this.isBeschlussProcessed(x) && !this.isBeschlussLoading(x));
+
+      for (const beschluss of openBeschluesse) {
+        if (this.batchStopRequested) {
+          break;
+        }
+
+        this.batchCurrentBeschluss = beschluss;
+        try {
+          await this.processBeschluss(beschluss);
+        } catch (e) {
+          console.error(e);
+          this.batchErrorCount++;
+          this.batchLastError = `${beschluss.beschlussnummer}: ${e instanceof Error ? e.message : String(e)}`;
+        }
+      }
+    } finally {
+      this.batchIsRunning = false;
+      this.batchStopRequested = false;
+      this.batchCurrentBeschluss = undefined;
+    }
+  }
+
+  stopBatchZuordnung() {
+    if (this.batchIsRunning) {
+      this.batchStopRequested = true;
     }
   }
 
